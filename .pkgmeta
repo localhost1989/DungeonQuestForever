@@ -1,0 +1,6 @@
+package-as: ForeverDungeonPrep
+
+ignore:
+  - dev
+  - README.md
+  - .github

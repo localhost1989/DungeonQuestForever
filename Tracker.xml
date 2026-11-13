@@ -1,0 +1,22 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+    <Script file="SecretCatalog.lua"/>
+    <Script file="PartyTips.lua"/>
+    <Script file="BossRoute.lua"/>
+    <Script file="Ways.lua"/>
+    <Frame name="ForeverDungeonPrepRowTemplate" inherits="ObjectiveTrackerBlockTemplate" virtual="true">
+        <Frames>
+            <Button parentKey="RouteButton" hidden="true">
+                <Size x="18" y="18"/>
+                <Anchors><Anchor point="TOPRIGHT"/></Anchors>
+                <NormalTexture file="Interface\Icons\INV_Misc_Map_01"/>
+                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+            </Button>
+            <Button parentKey="JournalButton" hidden="true">
+                <Size x="18" y="18"/>
+                <Anchors><Anchor point="TOPRIGHT"/></Anchors>
+                <NormalTexture file="Interface\Icons\INV_Misc_Book_09"/>
+                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+            </Button>
+        </Frames>
+    </Frame>
+</Ui>

@@ -1,0 +1,57 @@
+# Проходы между зонами старого мира. Столбцы: зонаA, ax, ay, зонаB, bx, by, что это, надёжность.
+# Источники: таблица связей зон Carbonite Classic, шаги гайдов RestedXP и Guidelime, геометрия карт UiMapAssignment.
+# Строки с надёжностью low в аддон не идут (make-passes.py).
+Durotar	45.5	12.2	Orgrimmar	52.5	84.4	главные ворота Оргриммара	high
+Orgrimmar	18.0	60.5	The Barrens	63.9	0.0	западный выход Оргриммара	medium
+Durotar	34.7	42.3	The Barrens	62.2	19.4	мост через Южную Ярость	high
+The Barrens	48.9	5.5	Ashenvale	69.1	86.9	дорога у Вала Мор'шан	high
+The Barrens	35.2	27.8	Stonetalon Mountains	82.5	98.5	тропа в гору к Малака'джину	high
+The Barrens	41.9	58.6	Mulgore	68.6	60.6	перевал западнее Лагеря Таурахо	high
+The Barrens	44.2	91.3	Thousand Needles	31.9	24.2	Великий Подъёмник	high
+The Barrens	50.5	78.7	Dustwallow Marsh	29.9	47.3	дорога в Пылевые топи	high
+Ashenvale	42.3	71.0	Stonetalon Mountains	78.2	42.9	туннель Глубинный путь	high
+Ashenvale	29.2	15.0	Darkshore	43.7	94.7	дорога на север	high
+Ashenvale	55.9	31.7	Felwood	54.9	92.7	дорога на север мимо Приюта	medium
+Ashenvale	94.6	47.6	Azshara	10.7	75.3	дорога на восток	high
+Felwood	65.0	8.4	Winterspring	28.0	34.6	туннель Крепости Древобрюхов	high
+Felwood	65.0	8.4	Moonglade	35.8	72.2	туннель Крепости Древобрюхов, ветка в Лунную поляну	medium
+Winterspring	28.0	34.6	Moonglade	35.8	72.2	через Крепость Древобрюхов	skip
+Desolace	53.4	5.6	Stonetalon Mountains	30.2	75.6	дорога на север	high
+Desolace	41.0	90.5	Feralas	45.5	2.9	дорога на юг	high
+Feralas	89.1	41.1	Thousand Needles	8.0	10.9	дорога на восток	high
+Thousand Needles	74.1	92.5	Tanaris	50.7	24.3	каньон на юг от гоночной трассы	high
+Tanaris	27.1	57.2	Un'Goro Crater	71.4	77.2	спуск в кратер	medium
+Un'Goro Crater	29.3	22.3	Silithus	83.7	14.3	северный подъём из кратера	high
+Mulgore	37.6	33.0	Thunder Bluff	35.7	63.1	южные подъёмники Громового Утёса	high
+Mulgore	42.1	20.2	Thunder Bluff	51.2	31.5	северные подъёмники Громового Утёса	medium
+Teldrassil	36.3	54.4	Darnassus	85.7	35.9	ворота Дарнаса	high
+Elwynn Forest	32.3	49.9	Stormwind City	73.3	90.7	ворота Штормграда	high
+Elwynn Forest	22.3	78.2	Westfall	60.9	19.0	мост на дороге	high
+Elwynn Forest	93.2	72.3	Redridge Mountains	9.0	71.9	дорога на восток	high
+Elwynn Forest	94.2	81.9	Duskwood	94.0	11.7	перекрёсток трёх зон	low
+Duskwood	93.8	11.4	Redridge Mountains	7.1	89.3	дорога у Трёх Углов	high
+Duskwood	10.6	63.8	Westfall	68.9	63.0	дорога	medium
+Duskwood	44.5	87.6	Stranglethorn Vale	40.7	3.8	дорога на юг	high
+Duskwood	89.9	41.3	Deadwind Pass	33.1	36.0	дорога на восток	high
+Deadwind Pass	58.3	41.4	Swamp of Sorrows	5.8	60.8	дорога на восток	high
+Swamp of Sorrows	33.9	66.0	Blasted Lands	52.0	5.6	дорога на юг	high
+Redridge Mountains	46.5	8.6	Burning Steppes	78.9	82.5	перевал Чёрной горы	medium
+Searing Gorge	34.8	83.7	Burning Steppes	31.8	50.4	через Чёрную гору	low
+Searing Gorge	76.6	56.7	Badlands	1.1	62.9	горная тропа	medium
+Loch Modan	47.2	80.8	Badlands	49.4	8.0	дорога на юг	high
+Loch Modan	19.6	62.8	Dun Morogh	86.1	51.2	туннель Южных врат	high
+Loch Modan	19.2	17.2	Dun Morogh	84.4	31.1	туннель Северных врат	medium
+Loch Modan	25.4	10.6	Wetlands	53.9	70.3	перевал Дун Альгаз	high
+Dun Morogh	53.4	35.0	Ironforge	21.6	77.8	ворота Стальгорна	high
+Wetlands	51.1	11.8	Arathi Highlands	45.4	89.1	мост Тандол	high
+Arathi Highlands	20.2	29.7	Hillsbrad Foothills	82.0	56.9	ворота Стены Торадина	high
+Hillsbrad Foothills	14.4	46.3	Silverpine Forest	66.5	79.6	дорога	high
+Hillsbrad Foothills	55.5	16.6	Alterac Mountains	51.2	65.6	дорога на север	medium
+Hillsbrad Foothills	84.6	31.6	The Hinterlands	9.7	55.8	горная тропа у Дарнхольда	medium
+Silverpine Forest	67.2	5.3	Tirisfal Glades	54.1	75.8	дорога	high
+Tirisfal Glades	61.9	65.0	Undercity	66.0	36.9	ворота руин Лордерона и лифты	high
+Tirisfal Glades	51.1	71.5	Undercity	21.9	43.4	выход через стоки	medium
+Tirisfal Glades	84.1	70.5	Western Plaguelands	28.6	57.5	Бастион	high
+Alterac Mountains	80.7	36.4	Western Plaguelands	44.0	86.2	дорога	medium
+Western Plaguelands	69.7	50.2	Eastern Plaguelands	8.8	66.2	дорога через реку	medium
+Western Plaguelands	65.5	88.6	The Hinterlands	24.9	45.7	через ущелье	low
