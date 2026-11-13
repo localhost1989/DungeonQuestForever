@@ -6,6 +6,8 @@
 ## Version: 3.25.1
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/localhost1989/DungeonQuestForever
+## X-Curse-Project-ID: 1801870
+## X-Wago-ID: mNwwe5No
 ## Dependencies: QuestieDB, Blizzard_ObjectiveTracker
 ## OptionalDeps: Questie
 ## SavedVariablesPerCharacter: ForeverDungeonPrepChar
