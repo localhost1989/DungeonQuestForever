@@ -891,6 +891,18 @@ local EN = {
     ["И приложи эти строки — по ним видно, что у тебя за игра и что делал аддон:"] = "And add these lines: they show what your game is and what the addon was doing:",
     ["Закрыть"] = "Close",
     ["Откроет окно с адресом, куда написать, и строками для отчёта."] = "Opens a window with the address to write to and the lines for the report.",
+    ["Журнал: задания, боссы, добыча"] = "Journal: quests, bosses, loot",
+    ["Список подземелий"] = "List of dungeons",
+    ["Настройки"] = "Settings",
+    ["Панель в колонке заданий"] = "Panel in the quest tracker",
+    ["Вид как у заданий игры"] = "Look like the game's quests",
+    ["Тёмный фон панели"] = "Dark panel background",
+    ["Сигнал при входе в зал"] = "Sound on entering a hall",
+    ["Метка над нужным персонажем"] = "Marker over the NPC you need",
+    ["Кнопка у миникарты"] = "Minimap button",
+    ["Убрать мусорные задания"] = "Clear junk quests",
+    ["Страница приветствия"] = "Welcome page",
+    ["Щелчок — настройки.\nПравая кнопка — журнал.\nТащи, чтобы переставить вокруг миникарты."] = "Click: settings.\nRight-click: journal.\nDrag to move it around the minimap.",
     ["Щелчок ставит стрелку на эту точку."] = "Click sets the arrow to this point.",
     ["Книга: все задания и боссы подземелья, добыча боссов."] = "Book: all quests and bosses of the dungeon, boss loot.",
     ["Мусор: "] = "Junk: ",
@@ -1083,6 +1095,8 @@ local EN = {
     ["При входе в новый зал подземелья: звук и строка по центру экрана, куда дальше."] = "On entering a new dungeon room: a sound and a line in the centre of the screen saying where to go next.",
     ["У панели снова тёмный фон."] = "The panel has a dark background again.",
     ["Фон панели убран: как у списка заданий игры."] = "Panel background removed: like the game's quest list.",
+    ["Кнопка у миникарты спрятана. /dq minimap вернёт её."] = "The minimap button is hidden. /dq minimap brings it back.",
+    ["Кнопка у миникарты снова на месте."] = "The minimap button is back.",
     ["Задания больше не принимаются и не сдаются сами. /dq auto вернёт."] = "Quests are no longer accepted and turned in automatically. /dq auto turns it back on.",
     ["Задания принимаются и сдаются сами. Серые и повторяемые остаются тебе, выбор награды тоже; с зажатым Shift — всё вручную."] = "Quests are accepted and turned in automatically. Grey and repeatable ones are left to you, and so is the reward choice; hold Shift to do everything by hand.",
     ["Панель снова карточками, крупнее."] = "Panel uses cards again, larger.",
@@ -1234,11 +1248,50 @@ function P.Language(code)
 end
 
 -- The addon's own ground: dungeons, quests, places, the arrow and the point on the map.
--- Nothing here comes from another addon's files except QuestieDB, the open quest
--- database, read through its public tables (QuestDB, NpcDB, ObjectDB, ItemDB and the
--- zone support data). The rest of the addon talks to this table only.
+-- The owner: "how do we get rid of the dependency on Questie?" The part of the quest
+-- database the addon reads is its own now: Data.lua, made from QuestieDB (GPLv3) by
+-- dungeon-quest-handoff/make-data.lua, with names in Russian and in English. It is read
+-- through four small stores with the same Get(id, field) as QuestieDB's tables, so the
+-- rest of the addon asks as it did; nothing of another addon is needed.
 local C = {}
 P.Core = C
+
+local D = P.Data or {}
+local englishData = (GetLocale and GetLocale() or "enUS") ~= "ruRU"
+-- A field that reads differently in the two languages is kept as {__ru=..., __en=...}.
+local function pick(value)
+    if type(value) == "table" and (value.__ru ~= nil or value.__en ~= nil) then
+        if englishData then
+            if value.__en ~= nil then return value.__en end
+            return value.__ru
+        end
+        if value.__ru ~= nil then return value.__ru end
+        return value.__en
+    end
+    return value
+end
+local function store(kind)
+    local all = D[kind] or {}
+    local s = {}
+    function s.Get(id, field)
+        local entry = all[id]
+        if entry == nil then return nil end
+        return pick(entry[field])
+    end
+    function s.GetAllIds()
+        local ids = {}
+        for id in pairs(all) do ids[#ids+1] = id end
+        table.sort(ids)
+        return ids
+    end
+    return s
+end
+local QuestDB, NpcDB, ObjectDB, ItemDB = store("quests"), store("npcs"), store("objects"), store("items")
+P.QuestDB, P.NpcDB, P.ObjectDB, P.ItemDB = QuestDB, NpcDB, ObjectDB, ItemDB
+-- Every other quest of the database, for telling junk in the quest log: its level times
+-- ten plus 0 when it stands alone, 1 when it is a link of a chain, 3 when it is of a
+-- class or a craft.
+P.JunkData = D.junk or {}
 
 C.L = {NO_GUIDANCE = L"Другой континент"}
 C.Quests = {}       -- no hand-kept quest table: every field is asked from QuestieDB
@@ -1356,20 +1409,17 @@ function C.Init(db)
     -- A point kept through a /reload comes back with its arrow; a dropped one takes it away.
     if #db.markers > 0 or (C.Arrow and C.Arrow()) then C.OnMarkersChanged() end
     if C.ready then return true end
-    local lib = _G.LibQuestieDB
-    local zones = lib and lib.Support and lib.Support.Get and lib.Support.Get("ZoneDB")
-    if not (zones and zones.private and zones.private.dungeons and QuestDB and QuestDB.GetAllIds) then return false end
-    for area, map in pairs(readTable(zones.private.areaIdToUiMapId)) do areaToMap[area] = map end
-    for area, map in pairs(readTable(zones.private.areaIdToUiMapIdOverride)) do areaToMap[area] = map end
+    if not (D.dungeons and D.maps) then return false end
+    for area, map in pairs(D.maps) do areaToMap[area] = map end
     local instanceOf = {}
     -- Later remakes reuse an area under a higher instance id; the classic one is the lowest.
-    for instance, area in pairs(zones.instanceIdToAreaId or {}) do
+    for instance, area in pairs(D.instances or {}) do
         if not instanceOf[area] or instance < instanceOf[area] then instanceOf[area] = instance end
     end
     for area, key in pairs(keys) do
-        local entry = zones.private.dungeons[area]
+        local entry = D.dungeons[area]
         if entry then
-            local d = {key=key, name=entry[1], areaId=area, instanceID=instanceOf[area], faction=factions[area] or "Both",
+            local d = {key=key, name=pick(entry[1]), areaId=area, instanceID=instanceOf[area], faction=factions[area] or "Both",
                 quests={}, tips=tipKeys[key], minLevel=0, maxLevel=0}
             areaOwner[area] = d
             for _, other in ipairs(entry[2] or {}) do areaOwner[other] = d end

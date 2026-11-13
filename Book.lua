@@ -1,4 +1,5 @@
 local _, P = ...
+local QuestDB, NpcDB, ObjectDB, ItemDB = P.QuestDB or QuestDB, P.NpcDB or NpcDB, P.ObjectDB or ObjectDB, P.ItemDB or ItemDB
 local L = P.L or function(s) return s end
 local atlas = P.Core
 

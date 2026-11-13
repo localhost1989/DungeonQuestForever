@@ -3,14 +3,14 @@
 ## Notes: Dungeon quests in the quest tracker: what to pick up before you go, the way there, bosses and loot
 ## Notes-ruRU: Задания подземелий, подготовка и маршрут в трекере заданий
 ## Author: localhost1989
-## Version: 3.25.1
+## Version: 3.26.0
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/localhost1989/DungeonQuestForever
 ## X-Curse-Project-ID: 1801870
 ## X-Wago-ID: mNwwe5No
-## Dependencies: QuestieDB, Blizzard_ObjectiveTracker
-## OptionalDeps: Questie
+## Dependencies: Blizzard_ObjectiveTracker
 ## SavedVariablesPerCharacter: ForeverDungeonPrepChar
+Data.lua
 Core.lua
 Plan.lua
 Tracker.xml

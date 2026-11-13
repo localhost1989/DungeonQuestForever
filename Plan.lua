@@ -1,4 +1,5 @@
 local _, P = ...
+local QuestDB, NpcDB, ObjectDB, ItemDB = P.QuestDB or QuestDB, P.NpcDB or NpcDB, P.ObjectDB or ObjectDB, P.ItemDB or ItemDB
 local L = P.L or function(s) return s end
 local atlas = P.Core
 
@@ -889,7 +890,8 @@ local function trivial(id, level)
         local ok, yes = pcall(C_QuestLog.IsQuestTrivial, id)
         if ok and type(yes) == "boolean" then return yes end
     end
-    level = level and level > 0 and level or tonumber(QuestDB and QuestDB.Get and field(id, "questLevel"))
+    local junk = P.JunkData and P.JunkData[id]
+    level = level and level > 0 and level or tonumber(QuestDB and QuestDB.Get and field(id, "questLevel")) or (junk and math.floor(junk / 10))
     local mine = UnitLevel and UnitLevel("player")
     if not (level and level > 0 and mine) then return false end
     -- The grey line of the old world: five levels and a tenth below up to forty, a fifth after.
@@ -940,7 +942,11 @@ end
 -- before it, nothing after it, nothing built on it), not a quest of a dungeon, not a quest
 -- of the character's class or craft.
 function P.JunkWhy(id, level)
-    if not (QuestDB and QuestDB.Get and field(id, "name")) then return (L"нет в базе") end
+    -- A quest of a dungeon or of one of its chains is in the addon's own data in full; any
+    -- other quest of the database only by its level and its kind (P.JunkData).
+    local known = QuestDB and QuestDB.Get and field(id, "name")
+    local junk = not known and P.JunkData and P.JunkData[id]
+    if not known and not junk then return (L"нет в базе") end
     if not trivial(id, level) then return (L"не серое") end
     if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) then return (L"готово к сдаче") end
     local goals = C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(id)
@@ -949,6 +955,12 @@ function P.JunkWhy(id, level)
         -- Where the client gives no numbers, the text "3/10" is read.
         local have = type(goal.text) == "string" and tonumber(goal.text:match("(%d+)%s*/%s*%d+"))
         if have and have > 0 then return (L"начато") end
+    end
+    if junk then
+        local kind = junk % 10
+        if kind == 1 then return (L"цепочка") end
+        if kind == 3 then return (L"классовое или профессии") end
+        return nil
     end
     if filled(field(id, "preQuestSingle")) or filled(field(id, "preQuestGroup")) then return (L"цепочка") end
     local nextOne = field(id, "nextQuestInChain")
@@ -975,7 +987,9 @@ function P.JunkQuests()
             if okWhy and why == nil then
                 local level = tonumber(info.level)
                 if not level or level <= 0 then level = tonumber(field(id, "questLevel")) or 0 end
-                list[#list+1] = {id=id, title=P.Title(id) or info.title or ("#" .. id), level=level}
+                -- The quest log's own title first: the addon's data knows only the quests of dungeons by name.
+                local title = (type(info.title) == "string" and info.title ~= "" and info.title) or P.Title(id) or ("#" .. id)
+                list[#list+1] = {id=id, title=title, level=level}
             end
         end
     end

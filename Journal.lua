@@ -1102,6 +1102,103 @@ function P.BugButton(parent)
     return b
 end
 
+-- The owner: "make a little circle on the minimap for our addon, to open the settings."
+-- A round button on the rim of the minimap, as other addons have: the hand of the
+-- character's faction in the game's round frame. A click opens the settings as a menu
+-- of the game; the right button opens the journal; dragged, it goes round the rim and
+-- stays where it is left. /dq minimap hides it and brings it back.
+local minimapButton
+local function settingsMenu(owner, menu)
+    if not db then return end
+    local function slash(word) return function() SlashCmdList.FOREVERDUNGEONPREP(word) end end
+    if menu.CreateTitle then menu:CreateTitle(title) end
+    menu:CreateButton(L"Журнал: задания, боссы, добыча", function() if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end end)
+    menu:CreateButton(L"Список подземелий", slash(""))
+    if menu.CreateDivider then menu:CreateDivider() end
+    if menu.CreateTitle then menu:CreateTitle(L"Настройки") end
+    menu:CreateCheckbox(L"Принимать и сдавать задания самому", function() return not db.noAuto end, slash("auto"))
+    menu:CreateCheckbox(L"Панель в колонке заданий", function() return not db.boardFree end, slash("dock"))
+    menu:CreateCheckbox(L"Вид как у заданий игры", function() return not db.boardCards end, slash("cards"))
+    menu:CreateCheckbox(L"Тёмный фон панели", function() return db.boardBack == true end, slash("back"))
+    menu:CreateCheckbox(L"Сигнал при входе в зал", function() return not db.noPing end, slash("ping"))
+    menu:CreateCheckbox(L"Метка над нужным персонажем", function() return not db.noSign end, slash("sign"))
+    menu:CreateCheckbox(L"Кнопка у миникарты", function() return not db.minimapHidden end, slash("minimap"))
+    if menu.CreateDivider then menu:CreateDivider() end
+    menu:CreateButton(L"Убрать мусорные задания", slash("junk"))
+    menu:CreateButton(L"Страница приветствия", slash("welcome"))
+    menu:CreateButton("|TInterface\\HelpFrame\\HelpIcon-Bug:16|t " .. L"Сообщить об ошибке", slash("bug"))
+end
+P.SettingsMenu = settingsMenu
+
+local function placeMinimapButton()
+    if not (minimapButton and Minimap) then return end
+    local angle = math.rad(tonumber(db and db.minimapAngle) or 200)
+    local width = Minimap.GetWidth and Minimap:GetWidth() or 140
+    local radius = (type(width) == "number" and width or 140) / 2 + 6
+    minimapButton:ClearAllPoints()
+    minimapButton:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * radius, math.sin(angle) * radius)
+end
+
+function P.MinimapButton()
+    if not (Minimap and CreateFrame) then return end
+    if not minimapButton then
+        local b = CreateFrame("Button", "DungeonQuestForeverMinimapButton", Minimap)
+        minimapButton = b
+        b:SetSize(31, 31)
+        b:SetFrameStrata("MEDIUM")
+        if b.SetFrameLevel and Minimap.GetFrameLevel then b:SetFrameLevel((Minimap:GetFrameLevel() or 1) + 8) end
+        b:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        b:RegisterForDrag("LeftButton")
+        b.back = b:CreateTexture(nil, "BACKGROUND")
+        b.back:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
+        b.back:SetSize(20, 20)
+        b.back:SetPoint("TOPLEFT", b, "TOPLEFT", 7, -5)
+        b.icon = b:CreateTexture(nil, "ARTWORK")
+        b.icon:SetSize(18, 18)
+        b.icon:SetPoint("TOPLEFT", b, "TOPLEFT", 7, -6)
+        local faction = UnitFactionGroup and UnitFactionGroup("player")
+        local hand = faction == "Horde" and "hand_horde" or "hand_alliance"
+        b.icon:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\" .. hand)
+        local got = b.icon:GetTexture()
+        if not (got ~= nil and got ~= 0 and got ~= "") then b.icon:SetTexture("Interface\\Icons\\INV_Misc_Book_09") end
+        b.iconFile = b.icon.GetTexture and b.icon:GetTexture()
+        b.border = b:CreateTexture(nil, "OVERLAY")
+        b.border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+        b.border:SetSize(53, 53)
+        b.border:SetPoint("TOPLEFT", b, "TOPLEFT", 0, 0)
+        b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
+        b.openMenu = settingsMenu
+        b:SetScript("OnClick", function(self, mouse)
+            GameTooltip:Hide()
+            if mouse == "RightButton" then
+                if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end
+            elseif MenuUtil and MenuUtil.CreateContextMenu then
+                MenuUtil.CreateContextMenu(self, settingsMenu)
+            else
+                SlashCmdList.FOREVERDUNGEONPREP("")
+            end
+        end)
+        b:SetScript("OnEnter", function(self)
+            tip(self, title, L"Щелчок — настройки.\nПравая кнопка — журнал.\nТащи, чтобы переставить вокруг миникарты.")
+        end)
+        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        -- Dragged round the rim: the angle of the cursor from the centre of the minimap.
+        local function follow()
+            local cx, cy = Minimap:GetCenter()
+            local x, y = GetCursorPosition()
+            local scale = Minimap:GetEffectiveScale()
+            if not (cx and x and scale) then return end
+            db.minimapAngle = math.floor(math.deg(math.atan2 and math.atan2(y / scale - cy, x / scale - cx) or math.atan(y / scale - cy, x / scale - cx)) + .5)
+            placeMinimapButton()
+        end
+        b:SetScript("OnDragStart", function(self) self:SetScript("OnUpdate", follow) end)
+        b:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+    end
+    placeMinimapButton()
+    minimapButton:SetShown(not (db and db.minimapHidden))
+    return minimapButton
+end
+
 function P.Selected() return selected, result end
 function P.OpenRow(row) openRoute(row) end
 function P.Choose(d) choose(d) end
@@ -2838,6 +2935,7 @@ local function initialize()
     -- The addon's own ground: dungeons and quests are read from QuestieDB here.
     if atlas.Init then atlas.Init(db) end
     if P.SeedEver then P.SeedEver() end
+    pcall(P.MinimapButton)
     -- The page of welcome: once to a character, a few seconds after coming in, not in a fight.
     if not db.welcomed and C_Timer and C_Timer.After then
         C_Timer.After(5, function()
@@ -3698,6 +3796,12 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
             tracker:MarkDirty()
         end
         say(db.boardBack and (L"У панели снова тёмный фон.") or (L"Фон панели убран: как у списка заданий игры."))
+        return
+    end
+    if msg and msg:match("^%s*minimap%s*$") then
+        db.minimapHidden = not db.minimapHidden or nil
+        P.MinimapButton()
+        say(db.minimapHidden and (L"Кнопка у миникарты спрятана. /dq minimap вернёт её.") or (L"Кнопка у миникарты снова на месте."))
         return
     end
     if msg and msg:match("^%s*bug%s*$") then

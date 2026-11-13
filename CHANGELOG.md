@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.26.0
+- No longer needs Questie or QuestieDB: the data the addon reads is built in, in English and Russian.
+- A round button on the minimap: click for settings, right-click for the journal (`/dq minimap` hides it).
+
 ## 3.25.1
 First public release.
 
