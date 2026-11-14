@@ -2131,7 +2131,13 @@ local function layout(self)
                     if entry.atDoor and not taken then note = L"у входа — возьми по дороге в подземелье"
                     elseif entry.askGroup and not taken then note = L"попроси группу поделиться — бежать не нужно"
                     elseif entry.share and not taken and not total and not locked then note = L"может поделиться группа" end
-                    if note then addLine(block, "note", "|cff8e8c87" .. note .. "|r") end
+                    -- The owner: "the shareable quests are not marked well." A quest the group can
+                    -- give wears the group's picture and the light blue of the layout.
+                    if note and (entry.askGroup or (entry.share and not entry.atDoor)) and not taken then
+                        addLine(block, "note", "|TInterface\\Icons\\INV_Misc_GroupNeedMore:13:13|t |cff8bc7f2" .. note .. "|r")
+                    elseif note then
+                        addLine(block, "note", "|cff8e8c87" .. note .. "|r")
+                    end
                 else
                     -- Taken or not, in a word, where the line below does not say it itself:
                     -- the same word as in the count over the list.
@@ -3703,6 +3709,28 @@ function P.Refresh()
                         end
                     end
                 end
+                -- The owner: "the quest I have to take in Undercity is somewhere in the middle,
+                -- and the ones I will take and do by the way in are up on top: rank them by
+                -- the distance from the dungeon." The errands to run to go far from the
+                -- dungeon first and nearest to it last: the road ends at the door. (Another
+                -- continent is the farthest of all; a place unknown goes last of them.)
+                do
+                    local doors = {P.Door and P.Door(selected), atlas.Entrance and atlas.Entrance(selected)}
+                    local function fromDungeon(row)
+                        if not row.place then return -1 end
+                        local best
+                        for _, door in ipairs(doors) do
+                            local ok, yards = pcall(atlas.Span, row.place, door)
+                            if ok and yards and (not best or yards < best) then best = yards end
+                        end
+                        return best or 1e9
+                    end
+                    for i, row in ipairs(errands) do row.fromDungeon, row.index2 = fromDungeon(row), i end
+                    table.sort(errands, function(a, b)
+                        if a.fromDungeon ~= b.fromDungeon then return a.fromDungeon > b.fromDungeon end
+                        return a.index2 < b.index2
+                    end)
+                end
                 -- Taken on the way in, then asked of the group: after everything else.
                 for _, which in ipairs({"atDoor", "askGroup"}) do
                     for _, group in ipairs(order) do
@@ -3820,7 +3848,7 @@ function P.Refresh()
                     end
                     if #toGet > 0 then
                         table.insert(detailRows, {prepSection=true, section=L"Взять снаружи • " .. #toGet,
-                            about=L"Задания, которые ещё не взяты: у кого, где и далеко ли. Ближайшее сверху, взятые у входа — последними. Щелчок ставит стрелку."})
+                            about=L"Задания, которые ещё не взяты: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа, чтобы путь кончался у двери. Щелчок ставит стрелку."})
                         for _, row in ipairs(toGet) do table.insert(detailRows, row) end
                     end
                     if #have > 0 then
@@ -3855,8 +3883,8 @@ function P.Refresh()
                             if far then parts[#parts+1] = far end
                             status = {status=left > 0 and (L"Возьми ещё " .. left .. " " .. plural(left, L"задание", L"задания", L"заданий") .. L" из " .. #prep)
                                 or (L"Доделай снаружи: " .. #work), plate="gold",
-                                lines={L"Ближайшее: " .. table.concat(parts, " • ")},
-                                goText=L"Путь к ближайшему", goNote=L"Стрелка поведёт к ближайшему делу самым быстрым путём."}
+                                lines={L"Начни с: " .. table.concat(parts, " • ")},
+                                goText=L"Путь к первому", goNote=L"Стрелка поведёт к первому делу самым быстрым путём: сначала дальние от подземелья, у входа — последними."}
                         end
                         status.go = function() openRoute(lead) end
                         table.insert(detailRows, 1, status)

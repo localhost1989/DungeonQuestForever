@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.41.2
+- Fixed: an item your class cannot wear (leather for a mage, an axe for a priest) is no longer weighed as "better than worn" or "best in slot", in the loot line or anywhere else.
+
+## 3.41.1
+- The errands are ranked by the distance from the dungeon: the far ones on top, those by the entrance at the bottom, so the road ends at the door. The status says "Start with" and its button "Way to the first".
+- Quests a group member can share are marked with the group's picture in light blue.
+
 ## 3.41.0
 - A "Share" word on top of the panel when in a group: one click shares every quest of the dungeon in your log with the group, and asks in the group chat for the shareable ones you lack (with a word about the addon). Group members with the addon share the asked quests by themselves.
 - A shareable quest given neither at the entrance nor inside is no longer an errand to run to: it goes last with "ask the group to share it: no need to run there", and is left out of "Take N more" and the nearest errand.

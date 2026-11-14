@@ -231,6 +231,15 @@ end
 -- than what is worn; worn: it is on already; later: the level it asks is not reached yet.
 function P.Worth(id)
     local class = playerClass()
+    -- The owner, a mage, told by a loot line that a leather hat was "better than worn":
+    -- what the class cannot wear is worth nothing to it, whatever its stats.
+    if class and id then
+        local instant = (C_Item and C_Item.GetItemInfoInstant) or GetItemInfoInstant
+        local ok, _, _, _, _, _, kind, sub = pcall(instant or function() end, id)
+        if ok and (kind == 2 or kind == 4) and sub and not wears(class, kind, sub) then
+            return {known=true, weight=0, gain=0, worn=false, best=false, unusable=true, stats=""}
+        end
+    end
     local rec = gear(id)
     if not rec then request(id) end
     if not (rec and class) then return {known=false} end
