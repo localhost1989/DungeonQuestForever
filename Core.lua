@@ -1711,23 +1711,45 @@ function C.QuestWork(id, d)
         end
         return false
     end
+    -- Seen in the game: the owner stood among the Razorfen battleguards, the arrow led to
+    -- the first spawn of the list, 1.4 km off over the cliff. Of the spawns outside the
+    -- nearest to the player is taken (the first of the list where there is no position).
+    local okMe, myC, myX, myY = pcall(C.PlayerYards)
+    if not okMe then myC = nil end
     local function weigh(name, sources)
         local met, text = status(name)
         if met then return end
-        local here, other, outdoor
+        local here, other, outdoor, range
+        local function consider(source, area, spot)
+            if not (spot and type(spot[1]) == "number" and type(spot[2]) == "number" and spot[1] >= 0) then return end
+            local map = areaToMap[area]
+            if not (map and map > 0) then return end
+            local candidate = {mapID=map, x=spot[1], y=spot[2]}
+            if not outdoor then outdoor, candidate.name = candidate, source.db.Get(source.id, "name") end
+            if not myC then return true end
+            local okAt, c, X, Y = pcall(C.Yards, candidate)
+            if not (okAt and c == myC and X and Y) then return end
+            local gap = (X - myX)^2 + (Y - myY)^2
+            if not range or gap < range then
+                candidate.name = outdoor.name
+                outdoor, range = candidate, gap
+            end
+        end
         for _, source in ipairs(sources) do
             local spawns = source.db.Get(source.id, "spawns") or {}
             local areas = {}
             for area in pairs(spawns) do areas[#areas+1] = area end
             table.sort(areas)
             for _, area in ipairs(areas) do
-                local owner, first = areaOwner[area], spawns[area][1]
+                local owner = areaOwner[area]
                 if owner == d then
                     here = true
                 elseif owner then
                     other = other or owner
-                elseif not outdoor and first and first[1] and first[1] >= 0 and areaToMap[area] and areaToMap[area] > 0 then
-                    outdoor = {mapID=areaToMap[area], x=first[1], y=first[2], name=source.db.Get(source.id, "name")}
+                elseif type(spawns[area]) == "table" then
+                    for i, spot in ipairs(spawns[area]) do
+                        if i > 300 or consider(source, area, spot) then break end
+                    end
                 end
             end
         end
@@ -1751,6 +1773,17 @@ function C.QuestWork(id, d)
         for _, npc in ipairs(ItemDB and ItemDB.Get(item[1], "npcDrops") or {}) do sources[#sources+1] = {db=NpcDB, id=npc} end
         for _, object in ipairs(ItemDB and ItemDB.Get(item[1], "objectDrops") or {}) do sources[#sources+1] = {db=ObjectDB, id=object} end
         weigh(ItemDB and ItemDB.Get(item[1], "name"), sources)
+    end
+    -- The goal nearest to the player first: "A Host of Evil" asks for battleguards (known
+    -- only on the cliff above, 1.4 km round) and thornweavers and cultists 200 yards off.
+    if myC and #spots > 1 then
+        for i, spot in ipairs(spots) do
+            local okAt, c, X, Y = pcall(C.Yards, spot)
+            spot.order = i
+            spot.gap = (okAt and c == myC and X and Y) and ((X - myX)^2 + (Y - myY)^2) or math.huge
+        end
+        table.sort(spots, function(a, b) if a.gap ~= b.gap then return a.gap < b.gap end return a.order < b.order end)
+        for _, spot in ipairs(spots) do spot.gap, spot.order = nil, nil end
     end
     return spots
 end

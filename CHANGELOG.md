@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.43.1
+- Fixed: the arrow to a quest goal led to the first spawn on the list, which could be far off over a cliff. It now leads to the nearest spawn of the nearest goal of the quest (for "A Host of Evil": the thornweavers and cultists by the Downs, not the one battleguard point on the cliff above).
+
 ## 3.43.0
 - "Share quests" on the status plate now shares every quest of the dungeon in your log with the group and asks in one English line for the ones you lack (with their English names). Others with the addon share them by themselves.
 - The chat lines carry no web address any more, just "find it on CurseForge".
