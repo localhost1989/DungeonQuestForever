@@ -684,6 +684,8 @@ local function create()
         close:SetPoint("TOPRIGHT", 2, 2)
     end
     book = frame
+    local bug = P.BugButton(frame)
+    bug:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -35, -3)
     frame:SetSize(W, H)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 30)
     frame:SetFrameStrata("HIGH")
@@ -817,9 +819,11 @@ local function create()
                 if P.ToggleKilled then P.ToggleKilled(dungeon, item.stop.npc, item.stop.name) end
                 if P.Refresh then P.Refresh() end
             elseif item.kind == "quest" then
+                P.Track("QuestRead")
                 picked = item
                 if item.steps then openChain[item.row.id] = not openChain[item.row.id] or nil end
             elseif item.kind ~= "label" then
+                if item.kind == "boss" then P.Track("BossRead") end
                 picked, lootAt = item, 0
             end
             draw()
@@ -1004,6 +1008,7 @@ end
 
 -- Opened on a dungeon, and on one of its quests if asked.
 function P.OpenBook(d, questID)
+    if not book or not book:IsShown() then P.Track("BookOpened") end
     if not book then create() end
     dungeon = d or dungeon or (P.Selected and P.Selected())
     mode = dungeon and "quests" or "dungeons"
@@ -1013,7 +1018,11 @@ function P.OpenBook(d, questID)
     draw()
     if questID then
         for _, item in ipairs(items) do
-            if item.kind == "quest" and (item.row.id == questID or item.row.step == questID) then picked = item end
+            if item.kind == "quest" and (item.row.id == questID or item.row.step == questID) then
+                picked = item
+                P.Track("QuestRead")
+                break
+            end
         end
         draw()
     end
@@ -1488,6 +1497,7 @@ function P.ToggleLoot(entry, block)
     P.DrawLoot()
     stand(f, block)
     f:Show()
+    P.Track("LootOpened")
     if P.Refresh then pcall(P.Refresh) end
     return true
 end

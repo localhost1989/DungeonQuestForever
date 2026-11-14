@@ -452,6 +452,7 @@ local function summary()
 end
 
 local function choose(d, navigating)
+    P.Track("DungeonChosen")
     routeExpanded, readStep, nameRetries = false, {}, 0
     db.browsing = false
     selected, db.key, browsing, first, history = d, d.key, false, 1, {}
@@ -710,6 +711,7 @@ local function cardActions(place, questID, again)
 end
 
 local function openRoute(entry, noCard)
+    P.Track("RouteRequested")
     if entry.boss then
         if db then db.planOff = nil end
         P.UpdatePlan(entry)
@@ -1087,7 +1089,9 @@ function P.ShowBugReport()
         table.insert(UISpecialFrames, "DungeonQuestForeverBug")
     end
     local lines = P.BugLines()
-    bugs.link.keep = AUTHOR_LINK .. "/issues"
+    if not bugs:IsShown() or not bugs.opened then P.Track("ReportOpened") end
+    bugs.opened = true
+    bugs.link.keep = "https://" .. AUTHOR_LINK .. "/issues/new"
     bugs.link:SetText(bugs.link.keep)
     -- One line to copy (a box of the game holds one line); the same below, to read.
     bugs.report.keep = table.concat(lines, " || ")

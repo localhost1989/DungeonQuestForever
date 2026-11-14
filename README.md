@@ -98,3 +98,11 @@ GPL-3.0-or-later, see `LICENSE`.
 
 Пишите в [Issues](https://github.com/localhost1989/DungeonQuestForever/issues), можно по-русски.
 В игре `/dq bug` показывает адрес и строки о твоей игре, которые стоит приложить.
+
+## Usage analytics and bug reports
+
+Players who enable analytics in Wago App can contribute usage statistics. The addon works without Wago App. Custom events use fixed action names and numbers. They contain no message text, character names or coordinates. Wago handles its own session metadata.
+
+Click the bug icon next to Close in the quest book, or type `/dq bug`. Copy the link into your browser and choose which diagnostics to include in the GitHub issue.
+
+For maintainers, compare the number of participating sessions at each consecutive `Flow_` step. Open the quest book, read a quest, request directions. `Reached_` flags independent actions, and `Count_` records their frequency. `LastAction` is the last observed action within that UI load. Its codes are 1 = Loaded, 2 = BookOpened, 3 = DungeonChosen, 4 = QuestRead, 5 = BossRead, 6 = RouteRequested, 7 = ReportOpened, 8 = LootOpened. A session can end normally at any step.

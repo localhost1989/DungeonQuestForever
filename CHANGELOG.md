@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.45.0
+- Open the bug reporter from the quest book, next to Close, or type /dq bug. The link goes straight to a new GitHub issue.
+- Optional Wago Analytics measures book usage, quest reading, loot previews and requests for directions when analytics is enabled in Wago App.
+
 ## 3.44.0
 - A click on a boss in the list opens the window of his loot beside the row: each thing with its picture in the colour of its quality, its slot and kind, its stats, and a plate: BiS, better than worn +N, worn, or not for your class (then dimmed). Hover a thing for the game's tooltip; shift-click links it. The boss whose loot is open wears a gold frame; the same click again closes it.
 - The parts "Bosses" and "Quests" fold and unfold by a click on their heading.
