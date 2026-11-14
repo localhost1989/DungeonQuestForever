@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.43.2
+- The panel no longer folds down to the current step in a fight inside a dungeon: the page stays whole, the small floor plan too.
+- The world map opened by the addon is the small (windowed) one, not the full-screen one.
+- "Way to the boss" and a click on a boss no longer open the atlas's big plan together with the small one: the small floor plan alone. The big one is behind a right-click on the small plan.
+- Inside a dungeon the hand hangs over the thing in sight that can be used (a gong, a chest, a quest object), even where the game keeps its identity secret; and things are looked for farther off (SoftTargetInteractRange 25, put back when the light is off).
+
 ## 3.43.1
 - Fixed: the arrow to a quest goal led to the first spawn on the list, which could be far off over a cliff. It now leads to the nearest spawn of the nearest goal of the quest (for "A Host of Evil": the thornweavers and cultists by the Downs, not the one battleguard point on the cliff above).
 

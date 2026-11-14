@@ -1045,7 +1045,7 @@ local EN = {
     ["|cff999999 • свёрнуто|r"] = "|cff999999 • collapsed|r",
     ["Кратчайший путь ко входу"] = "Shortest way to the entrance",
     ["Стрелка поведёт самым быстрым путём: телепорт, перелёт или проход между зонами — что короче. Откроется карточка с шагами."] = "The arrow takes the fastest way: a teleport, a flight or a pass between zones, whichever is shorter. A card with the steps opens.",
-    ["Щелчок: большой план этажа в атласе, босс подсвечен.\nПКМ: отметить убитым или вернуть живым, если аддон сам не заметил."] = "Click: large floor plan in the atlas, boss highlighted.\nRight-click: mark dead or bring back alive if the addon missed it.",
+    ["Щелчок: маленький план этажа, босс подсвечен. Большой — ПКМ по плану.\nПКМ: отметить убитым или вернуть живым, если аддон сам не заметил."] = "Click: small floor plan, boss highlighted. The large one: right-click the plan.\nRight-click: mark killed or alive again, if the addon did not notice.",
     ["Этот босс убит. ПКМ вернёт его в живые."] = "This boss is dead. Right-click brings it back alive.",
     ["Щелчок: карта атласа с этим боссом и маленький план этажа.\n"] = "Click: atlas map with this boss and the small floor plan.\n",
     ["ПКМ: отметить убитым, если аддон сам не заметил.\n"] = "Right-click: mark dead if the addon missed it.\n",
@@ -1065,8 +1065,8 @@ local EN = {
     ["\nПКМ — вернуть в работу"] = "\nRight-click — back to active",
     ["\nПКМ — скрыть. Чтобы вернуть, выбери «Показать все»."] = "\nRight-click — hide. To bring it back, choose \"Show all\".",
     ["Нажми, чтобы отметить вход на карте и включить стрелку."] = "Click to mark the entrance on the map and turn on the arrow.",
-    ["Щелчок — следующий шаг, когда дошёл до перехода. ПКМ — большой план атласа."] = "Click — next step once you reach the passage. Right-click — large atlas plan.",
-    ["Щелчок — маленький план рядом с трекером. ПКМ — большой план атласа."] = "Click — small floor plan next to the tracker. Right-click — large atlas plan.",
+    ["Щелчок — следующий шаг, когда дошёл до перехода. ПКМ — маленький план."] = "Click — next step once you reach the passage. Right-click — small floor plan.",
+    ["Щелчок — маленький план рядом с трекером. ПКМ — показать его снова."] = "Click — small floor plan next to the tracker. Right-click — show it again.",
     ["Советы"] = "Tips",
     ["Секреты, ключи и редкие боссы этого подземелья. Нажми, чтобы раскрыть или свернуть."] = "Secrets, keys and rare bosses of this dungeon. Click to expand or collapse.",
     ["Нажми на строку, чтобы увидеть следующий шаг."] = "Click the line to see the next step.",
@@ -2160,7 +2160,11 @@ C.CVar = cvar
 -- the object in sight is one a quest in the log asks for (C.QuestObjectIcon).
 -- The name plate over the object in sight is off too: on for a quest object, so the hand
 -- can hang over it as over a boss (C.ObjectSign).
-local GLOW = {SoftTargetInteract="3", SoftTargetIconGameObject="0", SoftTargetIconInteract="1", SoftTargetNameplateInteract="0"}
+-- The owner, at the gong of Razorfen Downs: "the gong does not light up." The game marks
+-- only what is a few steps off; it is looked for farther (SoftTargetInteractRange, where
+-- the client has it; put back with the rest).
+local GLOW = {SoftTargetInteract="3", SoftTargetIconGameObject="0", SoftTargetIconInteract="1", SoftTargetNameplateInteract="0",
+    SoftTargetInteractRange="25"}
 function C.ObjectGlow(on)
     local db = C.char
     if not db then return end
@@ -2547,6 +2551,12 @@ function C.OpenMapAt(mapID)
     elseif ShowUIPanel then
         pcall(ShowUIPanel, WorldMapFrame)
         if WorldMapFrame.SetMapID then pcall(WorldMapFrame.SetMapID, WorldMapFrame, mapID) end
+    end
+    -- The owner: "the big map opens, I want the small one; who wants the big one opens it."
+    -- The small map, not the full-screen one, where the client has both.
+    if WorldMapFrame.IsMaximized and WorldMapFrame.Minimize and not (InCombatLockdown and InCombatLockdown()) then
+        local ok, big = pcall(WorldMapFrame.IsMaximized, WorldMapFrame)
+        if ok and big then pcall(WorldMapFrame.Minimize, WorldMapFrame) end
     end
     placePin()
 end

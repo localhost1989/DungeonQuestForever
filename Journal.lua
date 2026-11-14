@@ -694,11 +694,6 @@ local function cardActions(place, questID, again)
     if place and place.mapID then
         actions[#actions+1] = {text=L"Карта", run=function()
             atlas.OpenMapAt(place.mapID)
-            -- The small map, not the full-screen one, where the client has both.
-            if WorldMapFrame and WorldMapFrame.IsMaximized and WorldMapFrame.Minimize and not InCombatLockdown() then
-                local ok, big = pcall(WorldMapFrame.IsMaximized, WorldMapFrame)
-                if ok and big then pcall(WorldMapFrame.Minimize, WorldMapFrame) end
-            end
         end}
     end
     if questID and P.IsActive(questID) then
@@ -715,7 +710,11 @@ local function cardActions(place, questID, again)
 end
 
 local function openRoute(entry, noCard)
-    if entry.boss then P.OpenBoss(entry) return end
+    if entry.boss then
+        if db then db.planOff = nil end
+        P.UpdatePlan(entry)
+        return
+    end
     -- Every step asked for brings the arrow back, even after it was put away.
     db.arrowOff = nil
     -- Another continent: the way as steps, the first of them where the arrow leads now,
@@ -1257,7 +1256,11 @@ function P.SoftTargetChanged(guid)
     if inside and raw ~= nil and (secret or id) then
         if atlas.QuestObjectIcon then atlas.QuestObjectIcon(true) end
         if secret then
-            if atlas.ObjectSign then atlas.ObjectSign(false, "inside, the thing not told") end
+            -- The owner, at the gong that calls Tuten'kash out: "the gong does not light up; I
+            -- told you to light the quest things." What it is goes untold in here, and what
+            -- can be used in a dungeon is mostly the run's (a gong, a chest, a quest thing):
+            -- the hand hangs over it.
+            if atlas.ObjectSign then atlas.ObjectSign(true, "inside, the thing not told") end
             return
         end
     end
@@ -1265,7 +1268,7 @@ function P.SoftTargetChanged(guid)
     -- The game's icon over it only if a quest wants it: not over chairs and mailboxes;
     -- and the hand over it, as over a boss.
     if atlas.QuestObjectIcon then atlas.QuestObjectIcon(quest ~= nil or (inside and id ~= nil)) end
-    if atlas.ObjectSign then atlas.ObjectSign(quest ~= nil, id and ("object " .. id .. " quest " .. tostring(quest or "-")) or nil) end
+    if atlas.ObjectSign then atlas.ObjectSign(quest ~= nil or (inside and id ~= nil), id and ("object " .. id .. " quest " .. tostring(quest or "-")) or nil) end
     if not quest then return end
     local now = GetTime and GetTime() or 0
     if glowSaid[id] and now - glowSaid[id] < 30 then return end
@@ -1865,9 +1868,10 @@ local function layout(self)
             end
             if entry.big and not entry.heading then
                 local npc = entry.npc
+                -- The owner, two maps open at once: "no telling why the hell two maps opened."
+                -- The button shows the small plan only; the big one is behind its right button.
                 block:Ready("red", (npc and P.HasPlan and P.HasPlan(npc)) and function()
                     if db then db.floorOff = nil end
-                    P.OpenPlan(npc)
                     P.Refresh()
                 end or nil, L"Путь к боссу", L"План этажа с путём к этому боссу.")
             end
@@ -2927,7 +2931,6 @@ local function attach()
             if entry.stop then
                 if entry.npc and P.HasPlan and P.HasPlan(entry.npc) then
                     if db then db.floorOff = nil end
-                    P.OpenPlan(entry.npc)
                     P.Refresh()
                 end
                 return
@@ -2973,7 +2976,10 @@ local function attach()
                 tracker:MarkDirty()
             elseif browsing then choose(entry)
             elseif entry.boss then
-                if mouse == "RightButton" then P.OpenBoss(entry)
+                if mouse == "RightButton" then
+                    -- The small plan, not the atlas's big window (that is behind the plan's right button).
+                    if db then db.planOff = nil end
+                    P.UpdatePlan(entry)
                 elseif P.AdvanceBossLeg(entry) then
                     tracker:MarkDirty()
                     P.UpdatePlan(entry)
@@ -3007,7 +3013,7 @@ local function attach()
         tracker.OnBlockHeaderEnter = function(_, block)
             local e = block.entry
             if not e then return end
-            if e.stop and e.npc and P.HasPlan and P.HasPlan(e.npc) then tip(block.HeaderButton, e.name, L"Щелчок: большой план этажа в атласе, босс подсвечен.\nПКМ: отметить убитым или вернуть живым, если аддон сам не заметил.") return end
+            if e.stop and e.npc and P.HasPlan and P.HasPlan(e.npc) then tip(block.HeaderButton, e.name, L"Щелчок: маленький план этажа, босс подсвечен. Большой — ПКМ по плану.\nПКМ: отметить убитым или вернуть живым, если аддон сам не заметил.") return end
             if e.stop then tip(block.HeaderButton, e.name, e.dead and (L"Этот босс убит. ПКМ вернёт его в живые.") or (e.npc and P.HasPlan and P.HasPlan(e.npc) and (L"Щелчок: карта атласа с этим боссом и маленький план этажа.\n") or "") .. L"ПКМ: отметить убитым, если аддон сам не заметил.\n" .. L"Места внутри подземелья аддон не знает: игра не сообщает там положение. Порядок боссов взят из классической версии.") return end
             if e.book then tip(block.HeaderButton, L"Журнал подземелья", L"Все задания с подробностями и цепочками по шагам и все боссы. То же делает значок книжки в заголовке и команда /dq book.") return end
             if e.plain then return end
@@ -3035,8 +3041,8 @@ local function attach()
                     lines[#lines+1] = (i == step and "|cffffd34d" or "|cffaaaaaa") .. i .. ". " .. P.LegText(leg) .. "|r"
                 end
                 if #lines == 0 then lines[1] = e.note end
-                lines[#lines+1] = steps > 1 and (L"Щелчок — следующий шаг, когда дошёл до перехода. ПКМ — большой план атласа.")
-                    or (L"Щелчок — маленький план рядом с трекером. ПКМ — большой план атласа.")
+                lines[#lines+1] = steps > 1 and (L"Щелчок — следующий шаг, когда дошёл до перехода. ПКМ — маленький план.")
+                    or (L"Щелчок — маленький план рядом с трекером. ПКМ — показать его снова.")
                 tip(block.HeaderButton, atlas.BossName(e.boss, selected), table.concat(lines, "\n"))
             elseif e.routeCount then
                 tip(block.HeaderButton, L"Советы", L"Секреты, ключи и редкие боссы этого подземелья. Нажми, чтобы раскрыть или свернуть.")
@@ -3383,7 +3389,9 @@ function P.Refresh()
         local nextStep = not bossTarget and inDungeon and P.NextSteps(selected, result.rows)[1]
         focus = nextStep and nextStep.row or nil
         local wasCompact = compact
-        compact = (focus or guide) and inDungeon and InCombatLockdown() and not browsing
+        -- The owner: "the addon folds in a fight, no telling why, it maddens." The page
+        -- stays whole in a fight.
+        compact = false
         if compact and not wasCompact then
             detailPage = {first=first, history=history, key=selected.key}
         elseif wasCompact and not compact and detailPage then
@@ -3392,7 +3400,7 @@ function P.Refresh()
         end
         if focus and not browsing and inDungeon then
             local key = selected.key .. ":" .. focus.step .. ":" .. focus.state .. ":" .. tostring(C_QuestLog.IsComplete(focus.step))
-            if not compact and key ~= lastTracked then
+            if not InCombatLockdown() and key ~= lastTracked then
                 lastTracked = key
                 P.TrackStep(focus)
                 P.Route(selected, focus, true)
