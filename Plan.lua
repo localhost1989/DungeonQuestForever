@@ -92,6 +92,49 @@ local function characterQuests(d)
     return ids
 end
 
+-- The owner, the Compendium of the Fallen not taken: it is for orcs, tauren and trolls,
+-- and he is undead; another addon's book showed it open. The quests of a dungeon that the
+-- character's side can take and the character cannot for race, with why.
+local RACES = {L"Человек", L"Орк", L"Дворф", L"Ночной эльф", L"Нежить", L"Таурен", L"Гном", L"Тролль"}
+local SIDE = {Horde={2, 5, 6, 8}, Alliance={1, 3, 4, 7}}
+local function raceName(i)
+    local ok, info = pcall(function() return C_CreatureInfo and C_CreatureInfo.GetRaceInfo and C_CreatureInfo.GetRaceInfo(i) end)
+    return ok and type(info) == "table" and info.raceName or RACES[i]
+end
+-- Worked out once for each dungeon (the owner: "take the lags away"; the faction of every
+-- quest was looked up at every refresh); done and taken are left out as it is read.
+local notMine = {}
+function P.NotForMe(d)
+    local out = {}
+    if not d then return out end
+    local list = notMine[d.key]
+    if not list then
+        list = {}
+        local faction = UnitFactionGroup and UnitFactionGroup("player")
+        local _, _, race = UnitRace("player")
+        local _, _, class = UnitClass("player")
+        for _, id in ipairs(questIDs(d)) do
+            local races, classes = field(id, "requiredRaces"), field(id, "requiredClasses")
+            -- Only what the side can take: a quest of the other side is no news. Nor is a
+            -- quest of another class: the books of Dire Maul are a list of ten of them.
+            if not matchesMask(races, race) and matchesMask(classes, class) then
+                local mine = {}
+                for _, i in ipairs(SIDE[faction] or {}) do
+                    if matchesMask(races, i) then mine[#mine+1] = raceName(i) end
+                end
+                if #mine > 0 and not (atlas.ForeignQuest and atlas.ForeignQuest(id, faction)) then
+                    list[#list+1] = {id=id, why=L"только для рас: " .. table.concat(mine, ", ")}
+                end
+            end
+        end
+        notMine[d.key] = list
+    end
+    for _, other in ipairs(list) do
+        if not done(other.id) and not active(other.id) then out[#out+1] = other end
+    end
+    return out
+end
+
 -- Several quests that shut each other out are one quest for the page: the one the
 -- character holds or has done, else the first of them.
 local function twin(id, members)

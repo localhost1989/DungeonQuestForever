@@ -6,7 +6,8 @@ dungeon right in the quest tracker.
 - **Before the dungeon.** Which quests to pick up, where, and in what order: chains are
   followed step by step, and the arrow moves on by itself when a step is turned in.
 - **The way there.** The arrow takes the short way: flight masters, zeppelins and ships,
-  mage teleports, and the passes between zones instead of a straight line over mountains.
+  mage teleports, and on foot it follows walkable paths around mountains and cliffs
+  instead of a straight line.
 - **Inside.** Bosses in order, what is left to do at each, and their loot with the best
   items for your class marked.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
@@ -41,6 +42,10 @@ GPL-3.0-or-later, see `LICENSE`.
 - The quest, NPC, object, item and zone data in `Data.lua` and the boss loot table in
   `Book.lua` are taken from [QuestieDB](https://github.com/Questie/QuestieDB) (GPL-3.0) by
   the scripts in `dev/`; only the part the addon reads is included.
+- The walkable paths in `Paths.lua` are thinned from the graph of
+  [Guidelime Pathfinder](https://github.com/JagTheHero/guidelime-pathfinder)
+  (GPL-3.0-or-later, Copyright (c) 2026 JagTheHero), which is made from the game's terrain
+  and buildings, by `dev/paths/make-paths.py`.
 - Coordinates of the passes between zones were compiled from public sources (the zone
   connection table of Carbonite Classic, RestedXP and Guidelime guide steps) and
   cross-checked against the game's map geometry.

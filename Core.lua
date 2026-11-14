@@ -13,6 +13,15 @@ local EN = {
     [" • наверху вышки"] = " • at the top of the tower",
     ["Стрелка к точке"] = "Arrow to the point",
     ["Потяни, чтобы переставить. ПКМ снимает точку."] = "Drag to move. Right-click removes the point.",
+    ["Человек"] = "Human",
+    ["Орк"] = "Orc",
+    ["Дворф"] = "Dwarf",
+    ["Ночной эльф"] = "Night Elf",
+    ["Нежить"] = "Undead",
+    ["Таурен"] = "Tauren",
+    ["Гном"] = "Gnome",
+    ["Тролль"] = "Troll",
+    ["только для рас: "] = "only for: ",
     ["Не удалось проверить цепочку"] = "Could not check the chain",
     ["Нет доступной ветки цепочки"] = "No available branch of the chain",
     ["В базе нет начала цепочки"] = "The start of the chain is not in the database",
@@ -79,8 +88,8 @@ local EN = {
     ["готово к сдаче"] = "ready to turn in",
     ["начато"] = "started",
     ["цепочка"] = "chain",
-    ["задание подземелья"] = "dungeon quest",
     ["классовое или профессии"] = "class or profession",
+    ["задание подземелья"] = "dungeon quest",
     ["ничего"] = "nothing",
     [" ОШИБКА "] = " ERROR ",
     [" (повтор)"] = " (repeat)",
@@ -732,6 +741,9 @@ local EN = {
     ["сначала через «"] = "first via «",
     ["его зал позади: «"] = "his room is behind you: «",
     ["его зал: «"] = "his room: «",
+    ["Чертог Искупления"] = "Chamber of Atonement",
+    ["Покинутый двор"] = "Forlorn Cloister",
+    ["Гробница Доблести"] = "Honor's Tomb",
     ["убить"] = "kill",
     ["добыча с него"] = "loot from him",
     ["первый босс: "] = "first boss: ",
@@ -898,11 +910,15 @@ local EN = {
     ["Вид как у заданий игры"] = "Look like the game's quests",
     ["Тёмный фон панели"] = "Dark panel background",
     ["Сигнал при входе в зал"] = "Sound on entering a hall",
+    ["Подсвечивать предметы для заданий"] = "Highlight quest objects",
+    ["Вести стрелку по дорогам, в обход гор"] = "Lead the arrow along paths, around mountains",
     ["Метка над нужным персонажем"] = "Marker over the NPC you need",
     ["Кнопка у миникарты"] = "Minimap button",
     ["Убрать мусорные задания"] = "Clear junk quests",
     ["Страница приветствия"] = "Welcome page",
     ["Щелчок — настройки.\nПравая кнопка — журнал.\nТащи, чтобы переставить вокруг миникарты."] = "Click: settings.\nRight-click: journal.\nDrag to move it around the minimap.",
+    ["Вот оно: "] = "Here it is: ",
+    [" — для «"] = " — for «",
     ["Щелчок ставит стрелку на эту точку."] = "Click sets the arrow to this point.",
     ["Книга: все задания и боссы подземелья, добыча боссов."] = "Book: all quests and bosses of the dungeon, boss loot.",
     ["Мусор: "] = "Junk: ",
@@ -1011,11 +1027,13 @@ local EN = {
     [" — скрыть|r"] = " — hide|r",
     ["|cff9d9d9dНе по уровню: "] = "|cff9d9d9dNot your level: ",
     ["Весь список подземелий"] = "Full dungeon list",
-    ["Выбрать подземелье"] = "Choose a dungeon",
-    ["Список подземелий с заданиями для тебя: сколько сдано и взято, что уже пройдено."] = "Dungeons with quests for you: how many turned in and taken, what is already cleared.",
+    ["Журнал заданий"] = "Quest journal",
+    ["Все задания и боссы этого подземелья. Правый щелчок — меню: другое подземелье, скрыть пройденные."] = "All the quests and bosses of this dungeon. Right-click for the menu: another dungeon, hide cleared ones.",
     ["Развернуть панель"] = "Expand panel",
     ["Свернуть панель"] = "Collapse panel",
     ["|cff999999 • свёрнуто|r"] = "|cff999999 • collapsed|r",
+    ["Кратчайший путь ко входу"] = "Shortest way to the entrance",
+    ["Стрелка поведёт самым быстрым путём: телепорт, перелёт или проход между зонами — что короче. Откроется карточка с шагами."] = "The arrow takes the fastest way: a teleport, a flight or a pass between zones, whichever is shorter. A card with the steps opens.",
     ["Щелчок: большой план этажа в атласе, босс подсвечен.\nПКМ: отметить убитым или вернуть живым, если аддон сам не заметил."] = "Click: large floor plan in the atlas, boss highlighted.\nRight-click: mark dead or bring back alive if the addon missed it.",
     ["Этот босс убит. ПКМ вернёт его в живые."] = "This boss is dead. Right-click brings it back alive.",
     ["Щелчок: карта атласа с этим боссом и маленький план этажа.\n"] = "Click: atlas map with this boss and the small floor plan.\n",
@@ -1074,16 +1092,25 @@ local EN = {
     ["Другие задания"] = "Other quests",
     ["Задания"] = "Quests",
     ["Задания этого похода: что ещё надо взять внутри, что в журнале, что готово к сдаче."] = "Quests for this run: what to pick up inside, what is in log, what is ready to turn in.",
-    ["Снаружи делать больше нечего. Щелчок по строке ниже ставит стрелку ко входу."] = "Nothing more to do outside. Click a line below to set the arrow to the entrance.",
-    ["снаружи всё взято"] = "all outside quests taken",
+    ["в журнале: "] = "in the log: ",
+    [" — делается внутри"] = ", done inside",
+    [" — делаются внутри"] = ", done inside",
     ["снаружи брать нечего"] = "nothing to pick up outside",
-    ["Снаружи всё взято"] = "All outside quests taken",
-    ["Снаружи брать нечего"] = "Nothing to pick up outside",
+    ["Все задания взяты — можно идти в подземелье"] = "All quests taken: you can go into the dungeon",
+    ["Брать нечего — можно идти в подземелье"] = "Nothing to take: you can go into the dungeon",
+    ["Ты уже был внутри"] = "You have been inside already",
+    ["там осталось: "] = "left there: ",
     ["Задания • взято "] = "Quests • taken ",
     ["Все задания этого подземелья. Под названием — что с ним сделать и где. Сверху то, что делается снаружи, ближайшее первым. Щелчок ставит стрелку."] = "All quests of this dungeon. Under the name: what to do with it and where. Things done outside come first, nearest first. Click sets the arrow.",
+    ["^Задания"] = "^Quests",
+    ["Не для тебя:"] = "Not for you:",
+    [": все задания взяты — можно идти в подземелье. Кнопка пути — на панели."] = ": all quests taken, you can go into the dungeon. The way button is on the panel.",
     ["Открыть журнал: все задания и боссы"] = "Open journal: all quests and bosses",
     [" — задания для входа готовы. У группы: "] = " — entrance quests ready. Party: ",
     [" • Внутри: "] = " • Inside: ",
+    ["лучшее в слот"] = "best in slot",
+    ["лучше надетого"] = "better than worn",
+    [": жми «Нужно»"] = ": press Need",
     ["»: осталось "] = "»: still need ",
     ["»: всё собрано"] = "»: all collected",
     ["Дальше по цепочке • "] = "Next in chain • ",
@@ -1095,6 +1122,11 @@ local EN = {
     ["При входе в новый зал подземелья: звук и строка по центру экрана, куда дальше."] = "On entering a new dungeon room: a sound and a line in the centre of the screen saying where to go next.",
     ["У панели снова тёмный фон."] = "The panel has a dark background again.",
     ["Фон панели убран: как у списка заданий игры."] = "Panel background removed: like the game's quest list.",
+    ["Подсветка предметов и объектов выключена, настройки игры возвращены как были."] = "Object highlighting is off; the game's settings are back as they were.",
+    ["Над предметами и объектами рядом, нужными для заданий из журнала, игра покажет значок, и прозвучит сигнал. Над стульями и прочим значка не будет."] = "The game shows an icon, with a sound, over objects near you that a quest in your log needs. Chairs and the like get no icon.",
+    ["Этот клиент не умеет подсвечивать объекты."] = "This client cannot highlight objects.",
+    ["Стрелка снова показывает на цель напрямую."] = "The arrow points straight at the goal again.",
+    ["Стрелка ведёт по проходимым дорогам, в обход гор и обрывов."] = "The arrow leads along walkable paths, around mountains and cliffs.",
     ["Кнопка у миникарты спрятана. /dq minimap вернёт её."] = "The minimap button is hidden. /dq minimap brings it back.",
     ["Кнопка у миникарты снова на месте."] = "The minimap button is back.",
     ["Задания больше не принимаются и не сдаются сами. /dq auto вернёт."] = "Quests are no longer accepted and turned in automatically. /dq auto turns it back on.",
@@ -1272,6 +1304,13 @@ local function pick(value)
 end
 local function store(kind)
     local all = D[kind] or {}
+    -- The other language is let go at once (the owner: "make it lighter"): each field read
+    -- in two languages becomes the one the game speaks.
+    for _, entry in pairs(all) do
+        for field, value in pairs(entry) do
+            if type(value) == "table" and (value.__ru ~= nil or value.__en ~= nil) then entry[field] = pick(value) end
+        end
+    end
     local s = {}
     function s.Get(id, field)
         local entry = all[id]
@@ -1292,6 +1331,7 @@ P.QuestDB, P.NpcDB, P.ObjectDB, P.ItemDB = QuestDB, NpcDB, ObjectDB, ItemDB
 -- ten plus 0 when it stands alone, 1 when it is a link of a chain, 3 when it is of a
 -- class or a craft.
 P.JunkData = D.junk or {}
+P.ObjectUses = D.uses or {}
 
 C.L = {NO_GUIDANCE = L"Другой континент"}
 C.Quests = {}       -- no hand-kept quest table: every field is asked from QuestieDB
@@ -1673,19 +1713,37 @@ end
 local CONTINENT = Enum and Enum.UIMapType and Enum.UIMapType.Continent or 2
 local arrow, mapPin, hooked
 
+-- The maps do not move: what they tell is kept (the arrow asked twenty times a second,
+-- and each answer was a new table for the game to clear away).
+local continentOf, rects = {}, {}
 function C.ContinentOf(mapID)
+    if mapID and continentOf[mapID] then return continentOf[mapID] end
+    local first = mapID
     local info = C_Map.GetMapInfo(mapID)
     while info and info.mapType and info.mapType > CONTINENT and info.parentMapID and info.parentMapID ~= 0 do
         mapID = info.parentMapID
         info = C_Map.GetMapInfo(mapID)
     end
+    if first and info then continentOf[first] = mapID end
     return mapID
 end
 
+-- (For the tests, whose made-up world gains and loses maps.)
+function C.ForgetMaps() continentOf, rects = {}, {} end
+
 local function onto(mapID, x, y, target)
     if mapID == target then return x, y end
-    local ok, left, right, top, bottom = pcall(C_Map.GetMapRectOnMap, mapID, target)
-    if not ok or not left or right == left or bottom == top then return end
+    local key = tostring(mapID) .. ">" .. tostring(target)
+    local rect = rects[key]
+    if not rect then
+        local ok, left, right, top, bottom = pcall(C_Map.GetMapRectOnMap, mapID, target)
+        -- (Only an answer is kept; a map not known yet is asked again.)
+        if not (ok and left) then return end
+        rect = {left, right, top, bottom}
+        rects[key] = rect
+    end
+    local left, right, top, bottom = rect[1], rect[2], rect[3], rect[4]
+    if not left or right == left or bottom == top then return end
     x, y = left + x*(right - left), top + y*(bottom - top)
     if x < 0 or x > 1 or y < 0 or y > 1 then return end
     return x, y
@@ -1819,12 +1877,15 @@ end
 local elapsedSum = 0
 local function turn(self, elapsed)
     elapsedSum = elapsedSum + elapsed
-    if elapsedSum < .05 then
+    -- Counted ten times a second (it was twenty); between the counts the hand still turns
+    -- with the player every frame.
+    if elapsedSum < .1 then
         -- Between the counts the hand still turns with the player, every frame.
-        local facing = self.dx and plain(GetPlayerFacing and GetPlayerFacing())
-        if facing then self.image:SetRotation(atan2(-self.dx, -self.dy) - facing) end
+        local facing = self.bearing and plain(GetPlayerFacing and GetPlayerFacing())
+        if facing then self.image:SetRotation(self.bearing - facing) end
         return
     end
+    local dt = elapsedSum
     elapsedSum = 0
     self.dx, self.dy = nil, nil
     local target = C.Target()
@@ -1843,12 +1904,32 @@ local function turn(self, elapsed)
         C.RemoveMarker(target)
         return
     end
+    -- Along a walkable way where one is known (Walk.lua): the arrow to its next bend, the
+    -- distance along it. Without one, straight to the goal, as the crow flies.
+    local okWay, wx, wy, along = false, nil, nil, nil
+    if P.Steer then okWay, wx, wy, along = pcall(P.Steer, target) end
+    if okWay and wx and along then dx, dy, distance = wx, wy, along end
+    self.onWay = okWay and wx ~= nil or nil
     -- The game tells an addon no heights. Where the place is known to be up a tower, say so:
     -- the arrow can only bring the player to its foot.
     self.distance:SetText((L"%d м"):format(floor(distance + .5)) .. (target.hint and (" • " .. target.hint) or target.up and (L" • наверху вышки") or ""))
+    -- The owner: "the arrow is glitching, it spins all ways." Where on the ground it points
+    -- turns at a bounded speed (a half turn in half a second): a way found again that
+    -- leads off for a moment does not throw the hand round and back. A new point is
+    -- pointed at at once; the player's own turning is followed every frame, as before.
+    local want = atan2(-dx, -dy)
+    if not self.bearing or self.bearingFor ~= target then
+        self.bearing = want
+    else
+        local diff = (want - self.bearing + math.pi) % (2 * math.pi) - math.pi
+        local most = 6.3 * math.max(dt, .05)
+        if diff > most then diff = most elseif diff < -most then diff = -most end
+        self.bearing = self.bearing + diff
+    end
+    self.bearingFor = target
     local facing = plain(GetPlayerFacing and GetPlayerFacing())
     self.image:SetAlpha(facing and 1 or .3)
-    if facing then self.image:SetRotation(atan2(-dx, -dy) - facing) end
+    if facing then self.image:SetRotation(self.bearing - facing) end
     self.dx, self.dy = dx, dy
 end
 
@@ -1874,7 +1955,7 @@ local function build()
     end)
     arrow:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText(L"Стрелка к точке", 1, .83, .35, true)
+        GameTooltip:SetText(L"Стрелка к точке", 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
         GameTooltip:AddLine(L"Потяни, чтобы переставить. ПКМ снимает точку.", 1, 1, 1, true)
         GameTooltip:Show()
     end)
@@ -1983,6 +2064,61 @@ local function friendly(on)
     end
 end
 C.Friendly = friendly
+C.CVar = cvar
+
+-- The owner: "can you make the items one has to interact with glow?" An addon cannot light
+-- a thing in the world. The game can: its soft targeting puts an icon over the object or
+-- creature near the player that can be used, picked or talked to; it is off by default.
+-- These are its switches. What they were is kept (db.glowKept) and put back when the
+-- light is switched off. Where the client has none of them, nothing is done (false).
+-- The owner, the light seen in the game: "except for the chairs, of course: the quest
+-- ones." The icon over objects is off (SoftTargetIconGameObject 0) and put on only while
+-- the object in sight is one a quest in the log asks for (C.QuestObjectIcon).
+-- The name plate over the object in sight is off too: on for a quest object, so the hand
+-- can hang over it as over a boss (C.ObjectSign).
+local GLOW = {SoftTargetInteract="3", SoftTargetIconGameObject="0", SoftTargetIconInteract="1", SoftTargetNameplateInteract="0"}
+function C.ObjectGlow(on)
+    local db = C.char
+    if not db then return end
+    if on then
+        if not db.glowKept then
+            local keep = {}
+            for name in pairs(GLOW) do
+                local now = cvar(name)
+                if now ~= nil then keep[name] = tostring(now) end
+            end
+            if next(keep) == nil then return false end
+            db.glowKept = keep
+        end
+        for name, want in pairs(GLOW) do
+            -- A switch added in a later version: what it was is kept too.
+            if db.glowKept[name] == nil then
+                local now = cvar(name)
+                if now ~= nil then db.glowKept[name] = tostring(now) end
+            end
+            if db.glowKept[name] ~= nil and cvar(name) ~= want then cvar(name, want) end
+        end
+        return true
+    elseif db.glowKept then
+        for name, was in pairs(db.glowKept) do cvar(name, was) end
+        db.glowKept = nil
+    end
+    return false
+end
+
+function C.QuestObjectIcon(on)
+    local db = C.char
+    if not (db and db.glowKept and not db.noGlow) then return end
+    local want = on and "1" or "0"
+    if cvar("SoftTargetIconGameObject") ~= want then pcall(cvar, "SoftTargetIconGameObject", want) end
+end
+
+function C.ObjectIDFromGUID(guid)
+    guid = plain(guid)
+    if type(guid) ~= "string" then return end
+    local kind, _, _, _, _, id = strsplit("-", guid)
+    if kind == "GameObject" then return tonumber(id) end
+end
 
 local function chime(key)
     if rung == key then return false end
@@ -2060,67 +2196,71 @@ local function unhang()
     end
 end
 
+-- A pointer: the hand, a light behind it, floating. (Over a boss, and over a quest object.)
+local function newSign(name)
+    local sign = CreateFrame("Frame", name, UIParent)
+    sign:SetSize(52, 52)
+    sign:SetFrameStrata("HIGH")
+    sign:EnableMouse(false)
+    sign.art = sign:CreateTexture(nil, "OVERLAY")
+    sign.art:SetAllPoints()
+    -- The same pointer as the arrow: the faction's hand where its picture is there.
+    local faction = UnitFactionGroup and UnitFactionGroup("player")
+    local hand = faction == "Horde" and "hand_horde" or faction == "Alliance" and "hand_alliance"
+    if hand then sign.art:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\" .. hand) end
+    local got = hand and sign.art:GetTexture()
+    if not (got ~= nil and got ~= 0 and got ~= "") then sign.art:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\arrow") end
+    sign.art:SetRotation(math.pi)
+    soft(sign.art)
+    -- A light of the game's own behind the hand, breathing and slowly turning: in a
+    -- crowd the pointer is seen at once. Where the client has no such picture, no light.
+    sign.glow = sign:CreateTexture(nil, "BACKGROUND")
+    sign.glow:SetPoint("CENTER", sign, "CENTER", 0, 2)
+    sign.glow:SetSize(120, 120)
+    sign.glow:SetTexture("Interface\\Cooldown\\star4")
+    local lit = sign.glow:GetTexture()
+    if lit ~= nil and lit ~= 0 and lit ~= "" then
+        sign.glow:SetBlendMode("ADD")
+        sign.glow:SetVertexColor(1, .82, .3)
+        soft(sign.glow)
+        pcall(function()
+            local shine = sign.glow:CreateAnimationGroup()
+            shine:SetLooping("BOUNCE")
+            local fade = shine:CreateAnimation("Alpha")
+            fade:SetFromAlpha(.45)
+            fade:SetToAlpha(1)
+            fade:SetDuration(.8)
+            fade:SetSmoothing("IN_OUT")
+            local spin = sign.glow:CreateAnimationGroup()
+            spin:SetLooping("REPEAT")
+            local round = spin:CreateAnimation("Rotation")
+            round:SetDegrees(-360)
+            round:SetDuration(10)
+            sign.shine, sign.spin = shine, spin
+        end)
+    else
+        sign.glow:Hide()
+    end
+    -- Slow and even, a few pixels: the hand floats, it does not jump.
+    pcall(function()
+        local bob = sign:CreateAnimationGroup()
+        bob:SetLooping("BOUNCE")
+        local move = bob:CreateAnimation("Translation")
+        move:SetOffset(0, 8)
+        move:SetDuration(.8)
+        move:SetSmoothing("IN_OUT")
+        sign.bob = bob
+    end)
+    return sign
+end
+
 local function hang(unit)
     if not (C_NamePlate and C_NamePlate.GetNamePlateForUnit) then return end
     local is, who = wanted(unit)
     if not is then return end
     local plate = C_NamePlate.GetNamePlateForUnit(unit)
     if not plate or (plate.IsForbidden and plate:IsForbidden()) then return end
-    if not sign then
-        sign = CreateFrame("Frame", "DungeonQuestForeverSign", UIParent)
-        sign:SetSize(52, 52)
-        sign:SetFrameStrata("HIGH")
-        sign:EnableMouse(false)
-        sign.art = sign:CreateTexture(nil, "OVERLAY")
-        sign.art:SetAllPoints()
-        -- The same pointer as the arrow: the faction's hand where its picture is there.
-        local faction = UnitFactionGroup and UnitFactionGroup("player")
-        local hand = faction == "Horde" and "hand_horde" or faction == "Alliance" and "hand_alliance"
-        if hand then sign.art:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\" .. hand) end
-        local got = hand and sign.art:GetTexture()
-        if not (got ~= nil and got ~= 0 and got ~= "") then sign.art:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\arrow") end
-        sign.art:SetRotation(math.pi)
-        soft(sign.art)
-        -- A light of the game's own behind the hand, breathing and slowly turning: in a
-        -- crowd the pointer is seen at once. Where the client has no such picture, no light.
-        sign.glow = sign:CreateTexture(nil, "BACKGROUND")
-        sign.glow:SetPoint("CENTER", sign, "CENTER", 0, 2)
-        sign.glow:SetSize(120, 120)
-        sign.glow:SetTexture("Interface\\Cooldown\\star4")
-        local lit = sign.glow:GetTexture()
-        if lit ~= nil and lit ~= 0 and lit ~= "" then
-            sign.glow:SetBlendMode("ADD")
-            sign.glow:SetVertexColor(1, .82, .3)
-            soft(sign.glow)
-            pcall(function()
-                local shine = sign.glow:CreateAnimationGroup()
-                shine:SetLooping("BOUNCE")
-                local fade = shine:CreateAnimation("Alpha")
-                fade:SetFromAlpha(.45)
-                fade:SetToAlpha(1)
-                fade:SetDuration(.8)
-                fade:SetSmoothing("IN_OUT")
-                local spin = sign.glow:CreateAnimationGroup()
-                spin:SetLooping("REPEAT")
-                local round = spin:CreateAnimation("Rotation")
-                round:SetDegrees(-360)
-                round:SetDuration(10)
-                sign.shine, sign.spin = shine, spin
-            end)
-        else
-            sign.glow:Hide()
-        end
-        -- Slow and even, a few pixels: the hand floats, it does not jump.
-        pcall(function()
-            local bob = sign:CreateAnimationGroup()
-            bob:SetLooping("BOUNCE")
-            local move = bob:CreateAnimation("Translation")
-            move:SetOffset(0, 8)
-            move:SetDuration(.8)
-            move:SetSmoothing("IN_OUT")
-            sign.bob = bob
-        end)
-    end
+    if not sign then sign = newSign("DungeonQuestForeverSign") end
     sign:ClearAllPoints()
     sign:SetPoint("BOTTOM", plate, "TOP", 0, 6)
     sign:Show()
@@ -2143,6 +2283,56 @@ local function hang(unit)
     end
 end
 
+-- The owner, at the book of a quest in the Library: "I did not see the light. Can you
+-- point at it with the finger, as over the bosses?" An object has no plate of its own; the
+-- game puts one over the object in sight when SoftTargetNameplateInteract is on. It is
+-- switched on while that object is one a quest wants, and the hand hangs over its plate.
+-- What happened is kept in db.glowLog (the last twenty), to be read after a /reload.
+local objectSign, objectOn
+local function objectPlate()
+    if not (C_NamePlate and C_NamePlate.GetNamePlateForUnit) then return end
+    local ok, plate = pcall(C_NamePlate.GetNamePlateForUnit, "softinteract")
+    if ok and plate and not (plate.IsForbidden and plate:IsForbidden()) then return plate end
+end
+local function hangOnObject()
+    if not objectOn then return false end
+    local plate = objectPlate()
+    if not plate then return false end
+    objectSign = objectSign or newSign("DungeonQuestForeverObjectSign")
+    objectSign:ClearAllPoints()
+    objectSign:SetPoint("BOTTOM", plate, "TOP", 0, 6)
+    objectSign:Show()
+    for _, key in ipairs({"bob", "shine", "spin"}) do
+        local play = objectSign[key]
+        if play and not (play.IsPlaying and play:IsPlaying()) then play:Play() end
+    end
+    return true
+end
+function C.ObjectSign(on, note)
+    local db = C.char
+    objectOn = on and true or nil
+    if db and db.glowKept and not db.noGlow then
+        local want = on and "1" or "0"
+        if cvar("SoftTargetNameplateInteract") ~= want then pcall(cvar, "SoftTargetNameplateInteract", want) end
+    end
+    local hung = hangOnObject()
+    if not hung and objectSign then
+        objectSign:Hide()
+        for _, key in ipairs({"bob", "shine", "spin"}) do if objectSign[key] then objectSign[key]:Stop() end end
+    end
+    -- The plate may come a moment after the switch.
+    if on and not hung and C_Timer and C_Timer.After then
+        for _, wait in ipairs({.1, .3, .7}) do C_Timer.After(wait, function() hangOnObject() end) end
+    end
+    if db and note then
+        db.glowLog = type(db.glowLog) == "table" and db.glowLog or {}
+        table.insert(db.glowLog, ("%s %s | icon %s | plateCVar %s | plate %s"):format(date and date("%H:%M:%S") or "?", note,
+            tostring(cvar("SoftTargetIconGameObject")), tostring(cvar("SoftTargetNameplateInteract")), hung and "yes" or "no"))
+        while #db.glowLog > 20 do table.remove(db.glowLog, 1) end
+    end
+    return hung
+end
+
 -- Looked at a few times a second, and whenever the point changes.
 local function look()
     local target = C.Target()
@@ -2161,9 +2351,30 @@ local function look()
     elseif signUnit and not wanted(signUnit) then
         unhang()
     elseif not signUnit and C_NamePlate and C_NamePlate.GetNamePlates then
-        for _, plate in ipairs(C_NamePlate.GetNamePlates() or {}) do
+        local plates = C_NamePlate.GetNamePlates() or {}
+        for _, plate in ipairs(plates) do
             local unit = plate.namePlateUnitToken or (plate.UnitFrame and plate.UnitFrame.unit)
             if unit and not signUnit and not (plate.IsForbidden and plate:IsForbidden()) then hang(unit) end
+        end
+        -- The owner, in the Library: "there are no pointers over the bosses." What the
+        -- plates told is kept (db.signLog, the last twenty, one in five seconds) to be read
+        -- after a /reload: the unit, forbidden or not, and whether its number can be read.
+        local db = C.char
+        local now = GetTime and GetTime() or 0
+        if seeking and not signUnit and db and now - (C.signLogged or -10) >= 5 then
+            C.signLogged = now
+            local parts = {}
+            for i, plate in ipairs(plates) do
+                if i > 6 then break end
+                local unit = plate.namePlateUnitToken or (plate.UnitFrame and plate.UnitFrame.unit)
+                local guid = unit and UnitGUID and UnitGUID(unit)
+                local secret = issecretvalue and guid ~= nil and issecretvalue(guid)
+                parts[#parts+1] = tostring(unit) .. (plate.IsForbidden and plate:IsForbidden() and ":forbidden" or "")
+                    .. (secret and ":secret" or (":" .. tostring(C.NpcIDFromGUID(guid))))
+            end
+            db.signLog = type(db.signLog) == "table" and db.signLog or {}
+            table.insert(db.signLog, (date and date("%H:%M:%S") or "?") .. " plates " .. #plates .. " | " .. table.concat(parts, " "))
+            while #db.signLog > 20 do table.remove(db.signLog, 1) end
         end
     end
     if target and distance then
@@ -2180,6 +2391,7 @@ local function startWatch()
     end
     watch:SetScript("OnEvent", function(_, event, unit)
         if event == "NAME_PLATE_UNIT_ADDED" then
+            if objectOn then hangOnObject() end
             if not signUnit then
                 local target = C.Target()
                 local _, _, distance = C.NavigationVector(target)

@@ -17,6 +17,8 @@ local nameRetries = 0
 local probing, cleaned, planGuide
 -- The moment the arrow was last set on the door unasked: "KEY" or "KEY:ghost".
 local led
+-- By dungeon: whether at the last refresh everything outside was taken (nil: not seen yet).
+local readyWas = {}
 -- Whether the last refresh found the player inside the dungeon of the page; nil at first.
 local wasInside
 
@@ -47,6 +49,9 @@ local function shortName(d)
     local full = atlas.DungeonName(d)
     local base, part = full:match("^(.-)%s*%((.+)%)$")
     if d.part and base and part then return part .. " • " .. base end
+    -- Inside a wing of it: "Library • Scarlet Monastery".
+    local wing = P.WingHere and P.WingHere(d)
+    if wing then return wing .. " • " .. full end
     return full
 end
 
@@ -109,7 +114,7 @@ local function dressArrow(arrow)
     end)
     close:SetScript("OnEnter", function()
         GameTooltip:SetOwner(close, "ANCHOR_LEFT")
-        GameTooltip:SetText(L"Убрать стрелку", 1, .83, .35, true)
+        GameTooltip:SetText(L"Убрать стрелку", 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
         GameTooltip:AddLine(L"Точка на карте останется. Щелчок по любой строке трекера вернёт стрелку.", 1, 1, 1, true)
         GameTooltip:Show()
     end)
@@ -431,7 +436,7 @@ end
 
 local function tip(owner, title, note)
     GameTooltip:SetOwner(owner, "ANCHOR_LEFT")
-    GameTooltip:SetText(title, 1, .83, .35, true)
+    GameTooltip:SetText(title, 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
     if note then GameTooltip:AddLine(note, 1, 1, 1, true) end
     GameTooltip:Show()
 end
@@ -1121,6 +1126,8 @@ local function settingsMenu(owner, menu)
     menu:CreateCheckbox(L"Вид как у заданий игры", function() return not db.boardCards end, slash("cards"))
     menu:CreateCheckbox(L"Тёмный фон панели", function() return db.boardBack == true end, slash("back"))
     menu:CreateCheckbox(L"Сигнал при входе в зал", function() return not db.noPing end, slash("ping"))
+    menu:CreateCheckbox(L"Подсвечивать предметы для заданий", function() return not db.noGlow end, slash("glow"))
+    menu:CreateCheckbox(L"Вести стрелку по дорогам, в обход гор", function() return not db.noPaths end, slash("paths"))
     menu:CreateCheckbox(L"Метка над нужным персонажем", function() return not db.noSign end, slash("sign"))
     menu:CreateCheckbox(L"Кнопка у миникарты", function() return not db.minimapHidden end, slash("minimap"))
     if menu.CreateDivider then menu:CreateDivider() end
@@ -1197,6 +1204,74 @@ function P.MinimapButton()
     placeMinimapButton()
     minimapButton:SetShown(not (db and db.minimapHidden))
     return minimapButton
+end
+
+-- And when what the game lights is a thing a quest in the log asks for, it is said: a
+-- sound, and a line in the middle of the screen with the quest. Known for the quests the
+-- addon has data of (the dungeons' and their chains').
+-- The quests in the log not done yet, by id.
+local function openQuests()
+    local open = {}
+    if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then return open end
+    local ok, count = pcall(C_QuestLog.GetNumQuestLogEntries)
+    for i = 1, ok and tonumber(count) or 0 do
+        local okInfo, info = pcall(C_QuestLog.GetInfo, i)
+        local id = okInfo and type(info) == "table" and not info.isHeader and info.questID
+        if id and not (C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) then open[id] = true end
+    end
+    return open
+end
+-- The quest in the log an object is wanted for: by the index of every quest of the
+-- database (P.ObjectUses: the object asked for, or the one an asked-for item comes out
+-- of), and by the quests of the dungeons besides.
+local function wantedFor(object)
+    local open = openQuests()
+    for _, quest in ipairs(P.ObjectUses and P.ObjectUses[object] or {}) do
+        if open[quest] then return quest end
+    end
+    for quest in pairs(open) do
+        local objectives = P.QuestDB and P.QuestDB.Get(quest, "objectives")
+        if type(objectives) == "table" then
+            for _, o in ipairs(objectives[2] or {}) do if o[1] == object then return quest end end
+            for _, item in ipairs(objectives[3] or {}) do
+                for _, o in ipairs(P.ItemDB.Get(item[1], "objectDrops") or {}) do if o == object then return quest end end
+            end
+        end
+    end
+end
+P.WantedFor = wantedFor
+local glowSaid = {}
+function P.SoftTargetChanged(guid)
+    if not db or db.noGlow then return end
+    local id = atlas.ObjectIDFromGUID(guid or (UnitGUID and UnitGUID("softinteract")))
+    local quest = id and wantedFor(id)
+    -- The game's icon over it only if a quest wants it: not over chairs and mailboxes;
+    -- and the hand over it, as over a boss.
+    if atlas.QuestObjectIcon then atlas.QuestObjectIcon(quest ~= nil) end
+    if atlas.ObjectSign then atlas.ObjectSign(quest ~= nil, id and ("object " .. id .. " quest " .. tostring(quest or "-")) or nil) end
+    if not quest then return end
+    local now = GetTime and GetTime() or 0
+    if glowSaid[id] and now - glowSaid[id] < 30 then return end
+    glowSaid[id] = now
+    local name = (P.ObjectDB and P.ObjectDB.Get(id, "name")) or (UnitName and UnitName("softinteract")) or "?"
+    local title = P.Title(quest) or (C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(quest)) or "?"
+    local text = L"Вот оно: " .. name .. L" — для «" .. title .. "»"
+    if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.MAP_PING or 3175) end
+    if RaidNotice_AddMessage and RaidWarningFrame then
+        pcall(RaidNotice_AddMessage, RaidWarningFrame, text, ChatTypeInfo and ChatTypeInfo["RAID_WARNING"] or {r=1, g=.82, b=.3})
+    end
+    P.lastGlow = text
+    return text
+end
+if CreateFrame and UIParent then
+    local soft = CreateFrame("Frame", "DungeonQuestForeverGlow", UIParent)
+    pcall(soft.RegisterEvent, soft, "PLAYER_SOFT_INTERACT_CHANGED")
+    -- A quest taken or done while the object is in sight: weighed again (the sound is not
+    -- rung twice in half a minute).
+    pcall(soft.RegisterEvent, soft, "QUEST_LOG_UPDATE")
+    soft:SetScript("OnEvent", function(_, event, _, newTarget)
+        if event == "QUEST_LOG_UPDATE" then pcall(P.SoftTargetChanged) else pcall(P.SoftTargetChanged, newTarget) end
+    end)
 end
 
 function P.Selected() return selected, result end
@@ -1651,6 +1726,8 @@ local function layout(self)
                 sign = entry.task == L"готово" and SIGN.ready or entry.task == L"взято" and SIGN.log or SIGN.take
             elseif entry.plain then
                 sign = entry.todo and SIGN.take or entry.book and SIGN.book or nil
+            elseif entry.ready then
+                sign = SIGN.done
             elseif entry.status or entry.via or entry.entrance or entry.secret or entry.boss then
                 sign = true
             elseif entry.prep then
@@ -1750,9 +1827,11 @@ local function layout(self)
                 addLine(block, "line" .. i, line)
             end
         elseif entry.status then
-            block:SetHeader("  " .. (entry.good and "|cff71c886" or "|cffffd34d") .. entry.status .. "|r")
+            block:SetHeader("  " .. (entry.ready and "|cff7dff8a" or entry.muted and "|cffb0b0b0" or entry.good and "|cff71c886" or "|cffffd34d") .. entry.status .. "|r")
+            if entry.order then addLine(block, "order", "|cffffffff" .. entry.order .. "|r") end
             if entry.hint then addLine(block, "hint", entry.hint) end
             if entry.note then addLine(block, "note", DIM .. entry.note .. "|r") end
+            if entry.ready then block:Ready(true, entry.door and function() openRoute({entrance=true}) end or nil) end
         elseif entry.section then
             block:SetHeader(labelTone .. entry.section .. "|r")
             if entry.under then addLine(block, "under", DIM .. entry.under .. "|r") end
@@ -2215,26 +2294,28 @@ local function createPickMenu()
     -- Seen in the game: the menu came out once and not the second time. A button of the
     -- drop-down kind keeps its own count of open and shut; a plain button that calls the
     -- menu up at every click keeps none.
+    -- The owner: "these three dots should open the journal of the quests." The left click
+    -- opens the book of the dungeon; the menu of the dungeons is the right click.
     local plain = MenuUtil and MenuUtil.CreateContextMenu and true or false
-    local button = CreateFrame(plain and "Button" or "DropdownButton", nil, tracker.Header)
+    local button = CreateFrame("Button", nil, tracker.Header)
     button:SetSize(24, 19)
     button:SetPoint("RIGHT", tracker.Header.MinimizeButton, "LEFT", -2, 0)
     local dots = button:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     dots:SetPoint("CENTER")
     dots:SetText("•••")
     button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
-    button:HookScript("OnEnter", function() tip(button, L"Выбрать подземелье", L"Список подземелий с заданиями для тебя: сколько сдано и взято, что уже пройдено.") end)
+    button:HookScript("OnEnter", function() tip(button, L"Журнал заданий", L"Все задания и боссы этого подземелья. Правый щелчок — меню: другое подземелье, скрыть пройденные.") end)
     button:HookScript("OnLeave", function() GameTooltip:Hide() end)
-    if plain then
-        button:RegisterForClicks("LeftButtonUp")
-        button:SetScript("OnClick", function(self)
-            GameTooltip:Hide()
-            MenuUtil.CreateContextMenu(self, dungeonMenu)
-        end)
-        button.openMenu = dungeonMenu
-    else
-        button:SetupMenu(dungeonMenu)
-    end
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:SetScript("OnClick", function(self, mouse)
+        GameTooltip:Hide()
+        if mouse == "RightButton" then
+            if plain then MenuUtil.CreateContextMenu(self, dungeonMenu) end
+            return
+        end
+        if P.OpenBook then P.OpenBook(selected) end
+    end)
+    button.openMenu = dungeonMenu
     return button
 end
 
@@ -2566,6 +2647,52 @@ local function newBoard()
             self.HeaderText:ClearAllPoints()
             self.HeaderText:SetPoint("TOPLEFT", self, "TOPLEFT", self.inset, 0)
         end
+        -- The owner: "a more marked notice that all the quests and the chains are taken,
+        -- that one can go down; and beside it a button for the shortest way there." The
+        -- row is lit green with a bar on the left, and a button of the game's own under it.
+        function block:Ready(on, onClick)
+            if not on then
+                if self.readyTint then self.readyTint:Hide() self.readyEdge:Hide() end
+                if self.goButton then self.goButton:Hide() end
+                return
+            end
+            if not self.readyTint then
+                self.readyTint = self:CreateTexture(nil, "BACKGROUND", nil, 2)
+                if self.readyTint.SetColorTexture then self.readyTint:SetColorTexture(.16, .5, .22, .38) end
+                self.readyTint:SetPoint("TOPLEFT", self, "TOPLEFT", -6, 4)
+                self.readyTint:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 4, -4)
+                self.readyEdge = self:CreateTexture(nil, "ARTWORK")
+                if self.readyEdge.SetColorTexture then self.readyEdge:SetColorTexture(.44, .9, .52, .95) end
+                self.readyEdge:SetWidth(3)
+                self.readyEdge:SetPoint("TOPLEFT", self, "TOPLEFT", -6, 4)
+                self.readyEdge:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -6, -4)
+            end
+            self.readyTint:Show()
+            self.readyEdge:Show()
+            if not onClick then
+                if self.goButton then self.goButton:Hide() end
+                return
+            end
+            if not self.goButton then
+                local ok, made = pcall(CreateFrame, "Button", nil, self, "UIPanelButtonTemplate")
+                self.goButton = ok and made or CreateFrame("Button", nil, self)
+                if self.goButton.SetFrameLevel and button.GetFrameLevel then self.goButton:SetFrameLevel((button:GetFrameLevel() or 1) + 3) end
+                self.goButton:SetScript("OnEnter", function(b)
+                    tip(b, L"Кратчайший путь ко входу", L"Стрелка поведёт самым быстрым путём: телепорт, перелёт или проход между зонами — что короче. Откроется карточка с шагами.")
+                end)
+                self.goButton:SetScript("OnLeave", function() GameTooltip:Hide() end)
+            end
+            local go = self.goButton
+            go:SetText(L"Кратчайший путь ко входу")
+            local label = go.GetFontString and go:GetFontString()
+            local width = label and label.GetStringWidth and label:GetStringWidth() or 0
+            go:SetSize(math.max(170, (tonumber(width) or 0) + 28), 22)
+            go:ClearAllPoints()
+            go:SetPoint("TOPLEFT", self, "TOPLEFT", (self.inset or 0) + 6, -((self.height or 0) + 6))
+            go:SetScript("OnClick", onClick)
+            go:Show()
+            self.height = (self.height or 0) + 32
+        end
         -- A line through the name: a boss that is dead.
         function block:Strike(on)
             if not on then
@@ -2657,6 +2784,7 @@ local function newBoard()
         self.blocks[i] = block
         block.laid, block.rightEdgeOffset, block.height = false, 0, 0
         block:Strike(false)
+        block:Ready(false)
         block:Dress(nil)
         return block
     end
@@ -2936,6 +3064,8 @@ local function initialize()
     if atlas.Init then atlas.Init(db) end
     if P.SeedEver then P.SeedEver() end
     pcall(P.MinimapButton)
+    -- The game's own light over usable things near the player, unless switched off.
+    if not db.noGlow and atlas.ObjectGlow then pcall(atlas.ObjectGlow, true) end
     -- The page of welcome: once to a character, a few seconds after coming in, not in a fight.
     if not db.welcomed and C_Timer and C_Timer.After then
         C_Timer.After(5, function()
@@ -3112,6 +3242,11 @@ function P.Refresh()
         end
         result = P.Build(selected)
         local inDungeon = P.InDungeon(selected)
+        -- Been inside: kept, so that "go in" is not said after the run.
+        if inDungeon then
+            db.ranAt = type(db.ranAt) == "table" and db.ranAt or {}
+            db.ranAt[selected.key] = GetServerTime and GetServerTime() or 0
+        end
         if P.WatchNeeds then P.WatchNeeds(result.rows, inDungeon) end
         if inDungeon and P.InferKills then P.InferKills(selected, result.rows) end
         -- Walking in is the start of a run, unless the last boss fell a moment ago. The
@@ -3316,22 +3451,28 @@ function P.Refresh()
                             local weighed = false
                             for _, thing in ipairs(loot) do weighed = weighed or thing.worth.known end
                             local names = {}
+                            -- The owner: "it is very hard to find the loot of the bosses." Each
+                            -- thing under its picture, as in the bags.
+                            local function pic(thing)
+                                local icon = (C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(thing.id)) or (GetItemIcon and GetItemIcon(thing.id))
+                                return (icon and ("|T" .. icon .. ":16:16|t ") or "") .. (thing.name or "?")
+                            end
                             if best > 0 then
                                 -- The very good first, in gold: this boss is worth the fight.
                                 for _, thing in ipairs(loot) do
-                                    if thing.worth.best and #names < 2 then names[#names+1] = thing.name end
+                                    if thing.worth.best and #names < 2 then names[#names+1] = pic(thing) end
                                 end
                                 lines[#lines+1] = L"|cffffd34dлучшее в слот: " .. table.concat(names, ", ") .. (best > 2 and (L" и ещё " .. (best - 2)) or "") .. "|r"
                             elseif better > 0 then
                                 for _, thing in ipairs(loot) do
                                     if thing.worth.known and thing.worth.gain > 0 and not thing.worth.worn and not thing.worth.later and #names < 2 then
-                                        names[#names+1] = thing.name .. (" (+%.0f)"):format(thing.worth.gain)
+                                        names[#names+1] = pic(thing) .. (" (+%.0f)"):format(thing.worth.gain)
                                     end
                                 end
                                 lines[#lines+1] = L"|cff40e040лучше надетого: " .. table.concat(names, ", ") .. (better > 2 and (L" и ещё " .. (better - 2)) or "") .. "|r"
                             elseif mine > 0 and not weighed then
                                 for _, thing in ipairs(loot) do
-                                    if thing.mine and #names < 2 then names[#names+1] = thing.name end
+                                    if thing.mine and #names < 2 then names[#names+1] = pic(thing) end
                                 end
                                 lines[#lines+1] = L"|cff40e040добыча для тебя: " .. table.concat(names, ", ") .. (mine > 2 and (L" и ещё " .. (mine - 2)) or "") .. "|r"
                             end
@@ -3475,20 +3616,47 @@ function P.Refresh()
                         prep[#prep+1] = row
                     end
                 end
+                -- Been through this dungeon: inside within a day and its last boss dead (a
+                -- step out of the portal halfway is not the end of a run); or, longer ago,
+                -- a quest of it that begins inside is done already.
+                local beenInside = false
+                local ran = type(db.ranAt) == "table" and db.ranAt[selected.key]
+                if ran and GetServerTime and GetServerTime() - ran < 86400 then
+                    beenInside = P.RunDone and P.RunDone(selected) or false
+                else
+                    for _, row in ipairs(result.rows) do
+                        if not beenInside and row.state == "done" and atlas.StartsInside and atlas.StartsInside(row.id) then beenInside = true end
+                    end
+                end
                 if any and not errands[1] and #doing == 0 then
                     -- Nothing left outside: the one thing to do is go in, and the line
                     -- under the green one says through which door and how far it is.
-                    table.insert(detailRows, {section=L"Сейчас", about=L"Снаружи делать больше нечего. Щелчок по строке ниже ставит стрелку ко входу."})
+                    -- The owner, on the green row in the game: "the shortest way is a good button,
+                    -- but what I want is the status itself: all the quests are taken, one can go
+                    -- into the instance." So it is the first thing on the page, over the way,
+                    -- with the game's own ready sign, and the button under it.
                     local option = P.DoorOption and P.DoorOption(selected)
-                    local taken = inLog > 0 and (L"снаружи всё взято") or (L"снаружи брать нечего")
+                    local taken = inLog > 0 and (L"в журнале: " .. inLog .. (inLog == 1 and (L" — делается внутри") or (L" — делаются внутри"))) or (L"снаружи брать нечего")
+                    local head = inLog > 0 and (L"Все задания взяты — можно идти в подземелье") or (L"Брать нечего — можно идти в подземелье")
+                    -- The owner, back from Gnomeregan with its quests handed in: "it says all is
+                    -- taken and I can go, but I have been through it already; one quest is left,
+                    -- and maybe I will not do it." After a run the page says so, quietly: what
+                    -- is left inside, without the green, the sound or the arrow to the door.
+                    if beenInside then
+                        local left = {}
+                        for _, row in ipairs(shelves.taken or {}) do left[#left+1] = "«" .. P.Title(row.step or row.id) .. "»" end
+                        for _, row in ipairs(doing) do left[#left+1] = "«" .. P.Title(row.step or row.id) .. "»" end
+                        head = L"Ты уже был внутри"
+                        taken = #left > 0 and (L"там осталось: " .. table.concat(left, ", ")) or taken
+                    end
                     if option and option.point then
                         local metres = P.Distance and P.Distance(option.point)
                         local reach = P.Reach(option.point)
                         -- At the door the order is what to do with it; on the way, to walk to it.
                         local order = (metres and metres < 20 and option.near) or ((option.act or (L"Иди ко входу")) .. (reach and (" • " .. reach) or ""))
-                        table.insert(detailRows, {status=order, good=true, door=true, note=taken, hint=option.point.hint})
+                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, door=true, order=order, note=taken, hint=option.point.hint})
                     else
-                        table.insert(detailRows, {status=inLog > 0 and (L"Снаружи всё взято") or (L"Снаружи брать нечего"), good=true})
+                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, note=taken})
                     end
                 end
                 if #prep > 0 then
@@ -3505,13 +3673,39 @@ function P.Refresh()
                         about=L"Все задания этого подземелья. Под названием — что с ним сделать и где. Сверху то, что делается снаружи, ближайшее первым. Щелчок ставит стрелку."}) end
                     for _, row in ipairs(prep) do table.insert(detailRows, row) end
                 end
+                -- What the side can take and the character cannot (another's book showed the
+                -- Compendium open to him): only in the tip of the heading of the quests. As a
+                -- row of its own the owner asked what it was doing there.
+                local notMine = {}
+                for _, other in ipairs(P.NotForMe and P.NotForMe(selected) or {}) do
+                    notMine[#notMine+1] = "«" .. ((P.Title(other.id) or "?"):gsub('^"(.*)"$', "%1")) .. "» — " .. other.why
+                end
+                if #notMine > 0 then
+                    for _, row in ipairs(detailRows) do
+                        if row.section and row.about and row.section:find(L"^Задания") then
+                            row.about = row.about .. "\n\n" .. L"Не для тебя:" .. "\n" .. table.concat(notMine, "\n")
+                        end
+                    end
+                end
                 -- Near the dungeon with nothing left to do outside, the next thing is the
                 -- door, and the arrow leads to it unasked: the way into the place, then the
                 -- portal; after a finished run, the way out. A ghost is led whatever is left.
                 -- Once for each such moment: taken off by hand, the arrow stays off.
                 local ghost = UnitIsGhost and UnitIsGhost("player") and true or false
                 local clear = any and toTake == 0 and toDo == 0
-                local moment = (ghost or clear) and (selected.key .. (ghost and ":ghost" or "")) or nil
+                -- Only when it turns so before his eyes (the last quest out here taken or
+                -- handed in), not at every login: then a sound and a line in the middle.
+                local nowReady = clear and not errands[1] and #doing == 0 and not beenInside
+                if readyWas[selected.key] == false and nowReady then
+                    local text = atlas.DungeonName(selected) .. (L": все задания взяты — можно идти в подземелье. Кнопка пути — на панели.")
+                    say(text)
+                    if RaidNotice_AddMessage and RaidWarningFrame then
+                        pcall(RaidNotice_AddMessage, RaidWarningFrame, text, {r=.45, g=1, b=.55})
+                    end
+                    if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.READY_CHECK or 8960) end
+                end
+                readyWas[selected.key] = nowReady
+                local moment = (ghost or (clear and not beenInside)) and (selected.key .. (ghost and ":ghost" or "")) or nil
                 if not moment then
                     led = nil
                 elseif led ~= moment and P.Door(selected) and not (atlas.Target and atlas.Target()) then
@@ -3543,8 +3737,9 @@ function P.Refresh()
         -- On the pages that are tables of sections; a page led by one quest or one boss
         -- under way keeps that on top.
         -- (In the look of the game's quests the journal is a word in the row under the heading.)
-        if not compact and not bossTarget and detailRows[1] and detailRows[1].section and not nativeLook() then
-            table.insert(detailRows, 1, {book=true, plain=L"Открыть журнал: все задания и боссы"})
+        if not compact and not bossTarget and detailRows[1] and (detailRows[1].section or detailRows[1].ready) and not nativeLook() then
+            -- (Under the status "all taken", which is first.)
+            table.insert(detailRows, detailRows[1].ready and 2 or 1, {book=true, plain=L"Открыть журнал: все задания и боссы"})
         end
         if compact then first, history = 1, {} end
         if result.ready and not db.ready[selected.key] then
@@ -3588,11 +3783,11 @@ function P.Redraw()
 end
 
 local advance
-local events = CreateFrame("Frame")
+local events = CreateFrame("Frame", "DungeonQuestForeverEvents")
 for _, event in ipairs({"PLAYER_LOGIN", "PLAYER_ENTERING_WORLD", "QUEST_LOG_UPDATE", "QUEST_ACCEPTED", "QUEST_REMOVED", "QUEST_TURNED_IN", "PLAYER_LEVEL_UP", "QUEST_DATA_LOAD_RESULT", "BAG_UPDATE_DELAYED", "PLAYER_REGEN_DISABLED", "PLAYER_REGEN_ENABLED", "DISPLAY_SIZE_CHANGED", "UI_SCALE_CHANGED", "ZONE_CHANGED_NEW_AREA", "ZONE_CHANGED", "ZONE_CHANGED_INDOORS"}) do
     events:RegisterEvent(event)
 end
-for _, event in ipairs({"PLAYER_TARGET_CHANGED", "UPDATE_MOUSEOVER_UNIT", "NAME_PLATE_UNIT_ADDED", "BOSS_KILL", "ENCOUNTER_END", "PLAYER_DEAD", "PLAYER_ALIVE", "PLAYER_UNGHOST", "LOOT_OPENED"}) do
+for _, event in ipairs({"PLAYER_TARGET_CHANGED", "UPDATE_MOUSEOVER_UNIT", "NAME_PLATE_UNIT_ADDED", "BOSS_KILL", "ENCOUNTER_END", "PLAYER_DEAD", "PLAYER_ALIVE", "PLAYER_UNGHOST", "LOOT_OPENED", "START_LOOT_ROLL"}) do
     pcall(events.RegisterEvent, events, event)
 end
 local sightings = {PLAYER_TARGET_CHANGED="target", UPDATE_MOUSEOVER_UNIT="mouseover"}
@@ -3606,6 +3801,25 @@ local function nudge(text)
         pcall(RaidNotice_AddMessage, RaidWarningFrame, text, ChatTypeInfo and ChatTypeInfo["RAID_WARNING"] or {r=1, g=.82, b=.3})
     end
     if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.RAID_WARNING or 8959) end
+end
+-- The owner: "it is very hard to find the loot of the bosses." A thing that drops (in the
+-- window or put up for a roll) and is the best for its slot, or better than the one worn,
+-- is said in the middle with its picture; once a minute for each thing.
+local lootSaid = {}
+function P.LootAlert(link, roll)
+    local id = type(link) == "string" and tonumber(link:match("item:(%d+)"))
+    if not (id and P.Worth) then return end
+    local worth = P.Worth(id)
+    local good = worth.known and (worth.best or (worth.gain > 0 and not worth.worn and not worth.later))
+    if not good then return end
+    local now = GetTime and GetTime() or 0
+    if lootSaid[id] and now - lootSaid[id] < 60 then return end
+    lootSaid[id] = now
+    local icon = (C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(id)) or (GetItemIcon and GetItemIcon(id))
+    local why = worth.best and (L"лучшее в слот") or (L"лучше надетого") .. (" +%.0f"):format(worth.gain)
+    local text = (icon and ("|T" .. icon .. ":20:20|t ") or "") .. link .. " — " .. why .. (roll and (L": жми «Нужно»") or "")
+    nudge(text)
+    return text
 end
 local function watchNeeds(rows, inside)
     if not (P.Needs and inside) then needsSeen = {} return end
@@ -3654,7 +3868,21 @@ end
 events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
     -- Whatever happened may have changed what in the quest log is junk.
     if P.JunkChanged then P.JunkChanged() end
+    if event == "START_LOOT_ROLL" then
+        local ok, link = pcall(GetLootRollItemLink, id)   -- (rollID, rollTime)
+        if ok and link then P.LootAlert(link, true) end
+        return
+    end
     if event == "LOOT_OPENED" then
+        -- What in the window is good for the character is said at once.
+        if GetNumLootItems and GetLootSlotLink then
+            pcall(function()
+                for slot = 1, GetNumLootItems() do
+                    local link = GetLootSlotLink(slot)
+                    if link then P.LootAlert(link, false) end
+                end
+            end)
+        end
         -- A body being looted is a dead one: its number is on every thing in the window.
         local d = db and atlas.CurrentDungeon and atlas.CurrentDungeon()
         if d and P.Killed and GetNumLootItems and GetLootSourceInfo then
@@ -3700,7 +3928,12 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
     if event ~= "QUEST_DATA_LOAD_RESULT" and event ~= "BAG_UPDATE_DELAYED" and event ~= "ZONE_CHANGED" and event ~= "ZONE_CHANGED_INDOORS" then countsDirty = true end
     if not db or pending then return end
     pending = true
-    C_Timer.After(.25, function()
+    -- A quest taken, handed in or dropped is shown at once; the rest (the log touched, the
+    -- bags, a new hall) is gathered for a second: the page was built anew four times a
+    -- second while walking and looting. (The owner: "take the lags away.")
+    local soon = event == "QUEST_ACCEPTED" or event == "QUEST_TURNED_IN" or event == "QUEST_REMOVED"
+        or event == "PLAYER_LOGIN" or event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LEVEL_UP"
+    C_Timer.After(soon and .25 or 1, function()
         pending = false
         P.Refresh()
         if advance and selected and not bossTarget and selected.key == advance.dungeon and not P.InDungeon(selected) then
@@ -3796,6 +4029,20 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
             tracker:MarkDirty()
         end
         say(db.boardBack and (L"У панели снова тёмный фон.") or (L"Фон панели убран: как у списка заданий игры."))
+        return
+    end
+    if msg and msg:match("^%s*glow%s*$") then
+        db.noGlow = not db.noGlow or nil
+        local done = atlas.ObjectGlow and atlas.ObjectGlow(not db.noGlow)
+        if db.noGlow then say(L"Подсветка предметов и объектов выключена, настройки игры возвращены как были.")
+        elseif done then say(L"Над предметами и объектами рядом, нужными для заданий из журнала, игра покажет значок, и прозвучит сигнал. Над стульями и прочим значка не будет.")
+        else say(L"Этот клиент не умеет подсвечивать объекты.") end
+        return
+    end
+    if msg and msg:match("^%s*paths%s*$") then
+        db.noPaths = not db.noPaths or nil
+        if P.WalkReset then P.WalkReset() end
+        say(db.noPaths and (L"Стрелка снова показывает на цель напрямую.") or (L"Стрелка ведёт по проходимым дорогам, в обход гор и обрывов."))
         return
     end
     if msg and msg:match("^%s*minimap%s*$") then

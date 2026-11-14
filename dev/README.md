@@ -9,3 +9,6 @@ Tools used to build parts of the addon. Not packaged.
   the addon reads (dungeon quests and their chains, who gives and takes them, objective
   NPCs, objects and items, bosses and loot, flight masters, zones), in Russian and English,
   plus level and kind of every other quest for telling junk quests.
+- `paths/make-paths.py` — `Paths.lua`: Guidelime Pathfinder's walkable graph (GPL-3.0) thinned to one
+  node per connected piece of a 64-yard cell, in the addon's continent coordinates;
+  `paths/check-real.lua` finds ways over it outside the game.

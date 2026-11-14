@@ -528,6 +528,63 @@ local function roomLine(d, who, here, path)
 end
 
 -- Bosses seen dead in this run. A run is forgotten after four hours or in another dungeon.
+-- The owner, in the Library: "why the Scarlet Monastery when we are in the Library and see
+-- the other bosses?" A wing is known by the hall one stands in, as the game names it:
+-- written here for the halls known (Russian and English), learnt for the rest (the halls a
+-- boss of the wing was seen or killed in, and those walked once the wing is known). Once
+-- known inside, it is kept until the instance is left: the hall by the door may bear the
+-- dungeon's own name.
+local WING_HALLS = {
+    SM = {
+        [L"Кладбище"] = {"Чертог Искупления", "Покинутый двор", "Гробница Доблести", "Chamber of Atonement", "Forlorn Cloister", "Honor's Tomb"},
+        [L"Библиотека"] = {"Двор охотника", "Сокровищница", "Читальня", "Huntsman's Cloister", "Gallery of Treasures", "Athenaeum"},
+        [L"Оружейная"] = {"Training Grounds", "Footman's Armory", "Crusader's Armory", "Hall of Champions"},
+        [L"Собор"] = {"Chapel Gardens", "Crusader's Chapel"},
+    },
+}
+local wingNow  -- {key, name}: the wing the player is in, while inside
+local function wingHere(d, wings)
+    if not (d and P.InDungeon and P.InDungeon(d)) then wingNow = nil return end
+    local room = P.Room and P.Room()
+    if room == atlas.DungeonName(d) then room = nil end
+    local name
+    if room then
+        local learnt = P.char and P.char.wingHalls and P.char.wingHalls[d.key]
+        name = learnt and learnt[room]
+        for wing, halls in pairs(not name and WING_HALLS[d.key] or {}) do
+            for _, hall in ipairs(halls) do if hall == room then name = wing end end
+        end
+        local seen = not name and P.char and P.char.rooms and P.char.rooms[d.key]
+        for npc, hall in pairs(seen or {}) do
+            if hall == room then
+                for _, part in ipairs(wings) do
+                    for _, entry in ipairs(part.stops) do if entry.npc == npc then name = part.name end end
+                end
+            end
+        end
+    end
+    if name then wingNow = {key=d.key, name=name}
+    elseif wingNow and wingNow.key ~= d.key then wingNow = nil end
+    name = wingNow and wingNow.name
+    for _, part in ipairs(wings) do
+        if part.name == name then
+            -- A hall walked in it is the wing's from now on.
+            if room and P.char then
+                P.char.wingHalls = P.char.wingHalls or {}
+                P.char.wingHalls[d.key] = P.char.wingHalls[d.key] or {}
+                P.char.wingHalls[d.key][room] = part.name
+            end
+            return part
+        end
+    end
+end
+-- The name of the wing the player is in, for the heading of the page.
+function P.WingHere(d)
+    if not (d and P.InDungeon and P.InDungeon(d)) then wingNow = nil return end
+    if P.Run then P.Run(d, {}, "all") end
+    return wingNow and wingNow.key == d.key and wingNow.name or nil
+end
+
 local function fallen(d)
     local db = P.char
     if not db then return {} end
@@ -693,6 +750,15 @@ function P.Run(d, rows, whole)
         end
     end
     local shown = {}
+    -- Inside a wing known: its bosses alone, the next one marked.
+    local inWing = #wings > 0 and wingHere(d, wings)
+    if inWing then
+        mark(inWing.stops)
+        place(inWing.stops)
+        shown[#shown+1] = {stop=true, dim=true, wing=whole == "all" or nil, name=inWing.name, lines={}}
+        for _, entry in ipairs(inWing.stops) do shown[#shown+1] = entry end
+        return shown
+    end
     if #wings > 0 and whole == "all" then
         -- The whole dungeon for the list of bosses: every wing under its name, the dead
         -- with the living. The next boss is marked in the wing the group has begun.
@@ -1497,7 +1563,7 @@ local function route(place, here)
         if not dist[2] then return end
         local chain, v = {}, 2
         while v ~= 1 do table.insert(chain, 1, v); v = prev[v] end
-        local legs, pending, total, at, wheels = {}, 0, 0, 1, false
+        local legs, pending, total, at, wheels, ship = {}, 0, 0, 1, false, false
         for _, index in ipairs(chain) do
             local a, b, kind = nodes[at], nodes[index], via[index]
             if kind == "walk" then
@@ -1517,7 +1583,7 @@ local function route(place, here)
                 local point = a.hop
                 legs[#legs+1] = {kind="ride", point=point, title=point.title, text=point.ride .. ", " .. point.from, ride=point.ride, land=point.land,
                     keeper=point.keeper, up=point.up, start=pending}
-                pending, wheels = 0, true
+                pending, wheels, ship = 0, true, true
             else
                 local name, sure = flightName(b)
                 legs[#legs+1] = {kind="fly", fly=true, point=a.point, title=L"Перелёт: " .. name, ride=L"перелёт: " .. name, land=name,
@@ -1526,7 +1592,7 @@ local function route(place, here)
             end
             at = index
         end
-        return {to=gc, legs=legs, rest=pending, walk=total, cost=dist[2], wheels=wheels}
+        return {to=gc, legs=legs, rest=pending, walk=total, cost=dist[2], wheels=wheels, ship=ship}
     end
     return search(false), sc == gc and search(true) or nil, sc == gc and span(nodes[1], nodes[2]) or nil
 end
@@ -1581,10 +1647,13 @@ function P.Plan(place)
     local ridden
     for _, leg in ipairs(found.legs) do if not leg.pass then ridden = true end end
     if ridden and feet then
-        -- On one continent anything but the feet is a detour. A teleport or a zeppelin is
-        -- named when it at least halves the way on foot; a flight, which costs nothing
-        -- and waits for no one, when it saves a third.
-        if found.cost > feet.cost * (found.wheels and .5 or .65) then ridden = false end
+        -- On one continent anything but the feet is a detour. A teleport or a flight is
+        -- named when it saves a fifth of the way on foot and three hundred yards at least.
+        -- (It was half for a teleport once, and the owner, a mage in Strahnbrad bound for
+        -- the Monastery, was sent three kilometres through the Plaguelands with the
+        -- Undercity teleport a third shorter.) A zeppelin or a boat, waited for at the
+        -- tower, still has to halve it.
+        if found.cost > feet.cost * (found.ship and .5 or .8) or feet.cost - found.cost < 300 then ridden = false end
     end
     if not ridden then
         if not feet then return end

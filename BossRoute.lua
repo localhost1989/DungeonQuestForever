@@ -597,7 +597,7 @@ local plan
 
 local function planTip(owner, title, note)
     GameTooltip:SetOwner(owner, "ANCHOR_LEFT")
-    GameTooltip:SetText(title, 1, .83, .35, true)
+    GameTooltip:SetText(title, 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
     if note then GameTooltip:AddLine(note, 1, 1, 1, true) end
     GameTooltip:Show()
 end
@@ -773,10 +773,25 @@ function P.DrawPlan()
             end
             -- The passage the way takes on this floor stands out like the boss does.
             mark.next = wanted and mark.to == wanted or false
-            local size = mark.next and art.size + 6 or art.size
+            -- The owner: "the entrance has to be marked more clearly." Larger, always
+            -- lit green, and its name under it.
+            local door = m[1] == "entrance"
+            local size = door and 30 or mark.next and art.size + 6 or art.size
             mark:SetSize(size, size)
             mark.glow:SetSize(size*2.4, size*2.4)
-            mark.glow:SetShown(mark.next)
+            mark.glow:SetShown(mark.next or door)
+            if mark.glow.SetVertexColor then
+                if door then mark.glow:SetVertexColor(.35, 1, .45) else mark.glow:SetVertexColor(1, 1, 1) end
+            end
+            if door and not mark.label then
+                mark.label = mark:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+                mark.label:SetPoint("TOP", mark, "BOTTOM", 0, -1)
+                if mark.label.SetTextColor then mark.label:SetTextColor(.5, 1, .55) end
+            end
+            if mark.label then
+                mark.label:SetText(L"Вход")
+                mark.label:SetShown(door)
+            end
             mark:ClearAllPoints()
             mark:SetPoint("CENTER", canvas, "TOPLEFT", m[2]*MAP_W*scale, -m[3]*MAP_H*scale)
             mark:SetFrameLevel((canvas:GetFrameLevel() or 0) + 2)
@@ -940,7 +955,7 @@ local function buildFloor()
     end)
     f:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:SetText(L"План этажа", 1, .83, .35, true)
+        GameTooltip:SetText(L"План этажа", 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
         GameTooltip:AddLine((self.floors and self.floors > 1 and (L"Щелчок: другой этаж. ") or "") .. L"ПКМ: большой план в атласе. Потяни, чтобы переставить. Крестик убирает план; щелчок по боссу в трекере возвращает.", 1, 1, 1, true)
         GameTooltip:Show()
     end)
