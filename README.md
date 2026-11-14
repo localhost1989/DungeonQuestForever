@@ -1,5 +1,7 @@
 # Dungeon Quest Forever
 
+*По-русски — ниже, в конце страницы.*
+
 An addon for **World of Warcraft: Forever** (Interface 16001). It gets you ready for a
 dungeon right in the quest tracker.
 
@@ -23,8 +25,11 @@ Nothing else is needed. Put the `ForeverDungeonPrep` folder into
 ## Use
 
 - The panel stands in the quest tracker column. `•••` in its heading chooses the dungeon.
-- Click a quest: it unfolds in place and sets the arrow. Right-click: map and details.
+- Click a quest: it unfolds in place and sets the arrow. Right-click: the quest in the journal.
 - `Journal` opens the book with every quest, boss and loot table of the dungeon.
+- `Share` shares your quests of the dungeon with the group and asks in the group chat for the ones you lack.
+- Inside, with *Dungeon Quest Atlas* installed, a small floor plan shows the way to the next boss;
+  hover a boss on it to see what he is and what he drops.
 - The round button on the minimap opens the settings; right-click opens the journal.
 - `/dq` opens the list of dungeons. Other commands: `/dq welcome`, `/dq auto`, `/dq junk`,
   `/dq dock`, `/dq cards`, `/dq bug`.
@@ -57,12 +62,39 @@ GPL-3.0-or-later, see `LICENSE`.
 
 # Dungeon Quest Forever (по-русски)
 
-Аддон для **World of Warcraft: Forever**. Готовит к подземелью прямо в колонке заданий:
-какие задания взять и где, дорога с перелётами, дирижаблями, телепортами и проходами
-между зонами, боссы по порядку и их добыча с пометкой лучшего для твоего класса,
-автоприём и автосдача заданий, удаление мусорных заданий одной кнопкой.
+Аддон для **World of Warcraft: Forever**. Готовит к подземелью прямо в колонке заданий.
+
+- **До подземелья.** Какие задания взять, где и в каком порядке. Цепочки ведутся по шагам,
+  стрелка сама переходит к следующему шагу, когда сдаёшь задание. Когда всё взято, панель
+  говорит «можно идти в подземелье» и ведёт ко входу.
+- **Дорога.** Стрелка ведёт коротким путём: перелёты, дирижабли и корабли, телепорты мага,
+  а пешком — по проходимым тропам в обход гор и обрывов, а не по прямой. На карте полётов
+  подсвечивается точка, куда лететь.
+- **Группа.** Кнопка «Поделиться» раздаёт группе твои задания этого подземелья и просит
+  в чате группы недостающие. У кого стоит аддон, поделятся сами.
+- **Внутри.** Боссы по порядку, что осталось сделать у каждого, их добыча с пометкой лучшего
+  для твоего класса. С аддоном *Dungeon Quest Atlas* рядом стоит маленький план этажа
+  с путём к следующему боссу; наведи на босса — что он умеет и что с него падает.
+  Над предметами, которые можно нажать (гонг, сундук, нужный для задания предмет), висит палец.
+- **Меньше кликов.** Задания берутся и сдаются сами (серые и повторяемые — на твоё усмотрение),
+  мусорные задания убираются из журнала одной кнопкой.
+
+Аддон говорит по-русски в русском клиенте, в любом другом — по-английски.
+
+## Установка
 
 Ничего дополнительно ставить не нужно. Папку `ForeverDungeonPrep` положить в
-`World of Warcraft/_forever_/Interface/AddOns/`. Команда `/dq` открывает список
-подземелий, `/dq welcome` — страницу приветствия, `/dq bug` — окно «Сообщить об ошибке»
-(адрес, куда написать, и строки для отчёта). Писать можно по-русски.
+`World of Warcraft/_forever_/Interface/AddOns/`.
+
+## Как пользоваться
+
+- Панель стоит в колонке заданий. `•••` в её заголовке — выбор подземелья.
+- Щелчок по заданию раскрывает его и ставит стрелку. Правая кнопка — это задание в журнале.
+- `Журнал` открывает книгу: все задания, боссы и добыча подземелья.
+- Круглая кнопка у миникарты — настройки; правая кнопка по ней — журнал.
+- `/dq` — список подземелий. Ещё: `/dq welcome`, `/dq auto`, `/dq junk`, `/dq bug`.
+
+## Ошибки и идеи
+
+Пишите в [Issues](https://github.com/localhost1989/DungeonQuestForever/issues), можно по-русски.
+В игре `/dq bug` показывает адрес и строки о твоей игре, которые стоит приложить.

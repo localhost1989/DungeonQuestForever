@@ -984,7 +984,58 @@ local function floorPin(i)
     pin.ring = pin:CreateTexture(nil, "OVERLAY")
     pin.ring:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
     pin.ring:SetPoint("TOPLEFT")
+    -- The owner: "make this small map live: a boss on it pressed, and what he is, what he
+    -- drops, right there." The game's tooltip over the pin; its right button, the big plan.
+    if pin.EnableMouse then pin:EnableMouse(true) end
+    pin:SetScript("OnEnter", function(self) P.BossTip(self, self.npc, self.boss, self.dungeon, self.dead, self.next) end)
+    pin:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    pin:SetScript("OnMouseUp", function(self, button)
+        if button == "RightButton" and self.npc then P.OpenPlan(self.npc) end
+    end)
     return pin
+end
+
+-- What a boss is, for the tooltip over his pin: his name and level, killed or next, how he
+-- comes out, a short note on the fight, and the drop weighed for this character.
+local QUALITY = {[0]="|cff9d9d9d", [1]="|cffffffff", [2]="|cff1eff00", [3]="|cff0070dd", [4]="|cffa335ee", [5]="|cffff8000"}
+function P.BossTip(owner, npc, boss, d, dead, isNext)
+    if not (owner and GameTooltip) then return end
+    GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+    local name = boss and boss.name or "?"
+    if boss and atlas.BossName then
+        local ok, said = pcall(atlas.BossName, boss, d)
+        if ok and type(said) == "string" then name = said end
+    end
+    GameTooltip:SetText(name, 1, .82, .2, 1, true)
+    local state = dead and (L"убит") or isNext and (L"следующий") or nil
+    local level = boss and boss.level and ((L"уровень %d"):format(boss.level)) or nil
+    if state or level then
+        GameTooltip:AddLine(table.concat({level, state}, " • "), dead and .6 or .45, dead and .6 or .9, dead and .6 or .5)
+    end
+    local note = P.StopNote and P.StopNote(npc)
+    if note then GameTooltip:AddLine(note, 1, .82, .2, true) end
+    local about = npc and P.BossNotes and P.BossNotes[npc]
+    if about then GameTooltip:AddLine(about, 1, 1, 1, true) end
+    local loot, _, best, better = {}, 0, 0, 0
+    if npc and P.LootFor then loot, _, best, better = P.LootFor(npc) end
+    if #loot > 0 then
+        GameTooltip:AddLine(" ")
+        GameTooltip:AddLine(L"Добыча", 1, .82, .2)
+        for i, thing in ipairs(loot) do
+            if i > 8 then break end
+            local quality = GetItemInfo and select(3, GetItemInfo(thing.id))
+            local color = QUALITY[quality or 1] or "|cffffffff"
+            local tag = ""
+            if thing.worth and thing.worth.best then tag = L" |cffffd34d• лучшее в слот|r"
+            elseif thing.worth and thing.worth.known and thing.worth.gain > 0 and not thing.worth.worn then tag = (" |cff40e040+%.0f|r"):format(thing.worth.gain)
+            elseif not thing.mine then color = "|cff8e8c87" end
+            local icon = GetItemIcon and GetItemIcon(thing.id)
+            GameTooltip:AddLine((icon and ("|T" .. icon .. ":14:14|t ") or "") .. color .. thing.name .. "|r" .. tag, 1, 1, 1)
+        end
+    end
+    GameTooltip:AddLine(" ")
+    GameTooltip:AddLine(L"ПКМ — большой план в атласе.", .55, .55, .55, true)
+    GameTooltip:Show()
 end
 
 -- Draw the floor of the boss the run is heading for, or the one turned to by hand.
@@ -1007,6 +1058,7 @@ function P.DrawFloor()
         if boss then
             local pin = floorPin(i)
             pin.npc, pin.next, pin.dead = boss.npcID, boss.npcID == f.npc, boss.npcID and dead[boss.npcID] and true or false
+            pin.boss, pin.dungeon = boss, A.DungeonByKey[spot.key]
             local size = pin.next and 28 or 18
             pin:SetSize(size, size)
             pin.ring:SetSize(size*53/20, size*53/20)
@@ -1025,6 +1077,37 @@ function P.DrawFloor()
     local room = P.Room and P.Room()
     f.title:SetText((f.name or "") .. (#floors > 1 and ((L" • этаж %d/%d"):format(floor, #floors)) or "")
         .. (floor ~= spot.floor and (L" • он на другом этаже") or "") .. (room and (L" • ты в «" .. room .. "»") or ""))
+end
+
+-- The owner: "the button does not work" - the plan stood there already and nothing moved.
+-- "Way to the boss" turns the plan back to his floor and makes his pin pulse a few times.
+function P.FlashFloor()
+    local f = floorPlan
+    if not (f and f.IsShown and f:IsShown()) then return false end
+    f.turned = nil
+    P.DrawFloor()
+    for _, pin in ipairs(f.pins) do
+        if pin.next and pin.IsShown and pin:IsShown() then
+            if not pin.flash and pin.glow.CreateAnimationGroup then
+                pcall(function()
+                    local group = pin.glow:CreateAnimationGroup()
+                    local fade = group:CreateAnimation("Alpha")
+                    fade:SetFromAlpha(.2)
+                    fade:SetToAlpha(1)
+                    fade:SetDuration(.35)
+                    group:SetLooping("BOUNCE")
+                    pin.flash = group
+                end)
+            end
+            if pin.flash then
+                pin.flash:Play()
+                if C_Timer and C_Timer.After then C_Timer.After(2.8, function() pin.flash:Stop() end) end
+            end
+            if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.MAP_PING or 3175) end
+            return true
+        end
+    end
+    return false
 end
 
 -- The plan for the boss the run is heading for; nil, a fight or no atlas puts it away.
@@ -1049,3 +1132,182 @@ function P.Floor(stop, hide)
     return true
 end
 
+-- ------------------------------------------
+-- A word on each boss, for the tooltip over his pin on the small plan
+-- ------------------------------------------
+-- The owner: "can a boss not have at least a description written?" What a boss does that
+-- matters and a short tip, for the bosses of the classic dungeons (the dungeons of this
+-- client alone are left out: nothing sure is known of them). By creature id: {ru, en}.
+local NOTES = {
+    -- RFC
+    [11517] = {"Огглфлинт: вожак троггов у входа, бьёт рассечением по всем перед собой. Танку стоит развернуть его от группы.", "Oggleflint: trogg leader near the entrance, Cleaves everyone in front of him. Tank should face him away from the group."},
+    [11520] = {"Тарагаман Ненасытный: огненный взрыв вокруг себя и апперкот, отбрасывающий танка. Бой у края лавы, держите спину к стене.", "Taragaman the Hungerer: Fire Nova around himself and an Uppercut that knocks the tank back. Keep your back to a wall."},
+    [11518] = {"Джергош Призыватель: чернокнижник, накладывает проклятие слабости, жертвенный огонь и стреляет стрелами тьмы. Прерывайте касты.", "Jergosh the Invoker: warlock, casts Curse of Weakness, Immolate and Shadow Bolt. Interrupt his casts."},
+    [11519] = {"Баззалан: разбойник, коварный удар и смертельный яд. Снимайте яд, если есть чем.", "Bazzalan: rogue, uses Sinister Strike and Deadly Poison. Cure the poison if you can."},
+
+    -- WC
+    [3669] = {"Лорд Кобран: молнии, усыпление и яд; может принять облик змеи. Один из четырёх Клыкастых лордов.", "Lord Cobrahn: Lightning Bolt, Druid's Slumber and poison; can take serpent form. One of the four Fanglords."},
+    [3671] = {"Леди Анакондра: молнии, усыпление, шипы и лечение. Прерывайте её лечение и усыпление.", "Lady Anacondra: Lightning Bolt, Druid's Slumber, Thorns and healing. Interrupt her heals and sleep."},
+    [3653] = {"Креш: огромная черепаха в воде, просто бьёт, но очень прочная. Можно пропустить.", "Kresh: huge turtle in the water, only melees but has heavy armor. Optional."},
+    [3670] = {"Лорд Пифас: молнии, усыпление, удар грома и лечение. Прерывайте лечение.", "Lord Pythas: Lightning Bolt, Druid's Slumber, Thunderclap and healing. Interrupt his heals."},
+    [3673] = {"Лорд Серпентис: молнии, усыпление и лечение. Прерывайте лечение, держите при нём танка.", "Lord Serpentis: Lightning Bolt, Druid's Slumber and healing. Interrupt his heals."},
+    [5775] = {"Вердан Вечноживущий: опутывающие лозы сбивают с ног всех рядом. Дальний бой может стоять подальше.", "Verdan the Everliving: Grasping Vines knock down everyone nearby. Ranged can stand back."},
+    [3654] = {"Мутанус Пожиратель: появляется в конце ритуала Наралекса после смерти четырёх лордов. Усыпляет, пугает и оглушает.", "Mutanus the Devourer: appears at the end of Naralex's ritual once the four Fanglords are dead. Sleeps, fears and stuns."},
+
+    -- DM (Deadmines)
+    [644] = {"Рак'Зор: огр у первой двери, мощный удар оглушает танка. Простой бой, но больно бьёт.", "Rhahk'Zor: ogre at the first door, his Slam stuns the tank. Simple fight but hits hard."},
+    [642] = {"Крошитель Снида: пугает и бьёт по танку. Когда машина ломается, из неё выпрыгивает Снид.", "Sneed's Shredder: fears and pounds the tank. When the shredder breaks, Sneed jumps out of it."},
+    [643] = {"Снид: выходит из разбитого крошителя, обезоруживает танка. Бьёт слабо, добейте быстро.", "Sneed: comes out of the destroyed shredder and Disarms the tank. Weak, finish him quickly."},
+    [1763] = {"Гилнид: ходит по литейной с охраной, бросает расплавленный металл. Сначала зачистите рабочих рядом.", "Gilnid: patrols the foundry with guards and throws Molten Metal. Clear the workers nearby first."},
+    [646] = {"Мистер Смайт: на трети и двух третях здоровья оглушает всех вокруг и бежит к сундуку менять оружие.", "Mr. Smite: at two thirds and one third health stuns everyone around and runs to his chest to swap weapons."},
+    [647] = {"Капитан Зелёная Шкура: на палубе корабля, рассекает и бросает отравленный гарпун.", "Captain Greenskin: on the ship deck, uses Cleave and a Poisoned Harpoon."},
+    [639] = {"Эдвин ван Клиф: на низком здоровье зовёт двух стражей Братства. Держите силы на добивание.", "Edwin VanCleef: at low health calls two Defias Blackguards. Save cooldowns for the end."},
+    [645] = {"Кукки: на корабле, бросает еду и лечит себя готовкой. Добивайте без пауз.", "Cookie: on the ship, throws food and heals himself with Cookie's Cooking. Keep up the damage."},
+
+    -- SFK
+    [3914] = {"Ретилгор: у камер в подземелье. После его смерти поговорите с узником, он откроет дверь во двор.", "Rethilgore: by the cells. After he dies, talk to the prisoner and he opens the courtyard door."},
+    [3887] = {"Барон Сильверлейн: накладывает Пелену тени, сильно снижающую лечение. Снимайте проклятие, если можете.", "Baron Silverlaine: casts Veil of Shadow, a curse that greatly reduces healing taken. Decurse if you can."},
+    [4278] = {"Командир Спрингвейл: паладин, оглушает молотом и лечит себя Светом небес. Прерывайте лечение.", "Commander Springvale: paladin, uses Hammer of Justice and heals himself with Holy Light. Interrupt the heal."},
+    [4279] = {"Одо Слепой Страж: с падением здоровья накладывает на себя ярость и бьёт всё сильнее. Тратьте силы в конце.", "Odo the Blindwatcher: Howling Rage stacks as his health drops, so he hits harder and harder. Burn him at the end."},
+    [4274] = {"Фенрус Пожиратель: ядовитая слюна. После его смерти появляется Аругал и вызывает пустотных стражей.", "Fenrus the Devourer: Toxic Saliva. After he dies, Arugal appears and summons voidwalkers."},
+    [3927] = {"Волчий вожак Нандос: зовёт на помощь воргенов. Держите помощников на танке.", "Wolf Master Nandos: calls worgen helpers. Keep the adds on the tank."},
+    [4275] = {"Верховный маг Аругал: прыгает по балконам, бьёт тьмой и превращает игрока в воргена, который бьёт своих.", "Archmage Arugal: teleports around the ledges, casts Void Bolt and curses a player into a worgen who attacks allies."},
+
+    -- BFD
+    [4887] = {"Гаму-ра: большая черепаха, топчет всех вокруг. Простой бой.", "Ghamoo-ra: big turtle, Trample hits everyone around. Simple fight."},
+    [4831] = {"Леди Саревесс: раздвоенная молния и замедление, ходит с нагами. Прерывайте касты.", "Lady Sarevess: Forked Lightning and Slow, comes with naga guards. Interrupt her casts."},
+    [6243] = {"Гелихаст: вожак мурлоков, ловит в сеть. После него можно взять благословение у алтаря.", "Gelihast: murloc leader, uses Net. The altar behind him gives a buff."},
+    [12902] = {"Лоргус Джетт: шаман Сумеречного Молота, бьёт молниями под щитом молний. Бывает не всегда.", "Lorgus Jett: Twilight shaman, casts Lightning Bolt under Lightning Shield. Does not always spawn."},
+    [12876] = {"Барон Акванис: призывается камнем в воде, бьёт магией льда.", "Baron Aquanis: summoned from the Fathom Stone in the water, uses frost magic."},
+    [4832] = {"Повелитель сумерек Келрис: взрыв разума и усыпление. После него зажгите четыре огня, чтобы открыть дверь.", "Twilight Lord Kelris: Mind Blast and Sleep. After him, light the four braziers to open the door."},
+    [4829] = {"Аку'май: ядовитое облако и бешенство на низком здоровье. Дверь к ней открывается после четырёх огней.", "Aku'mai: Poison Cloud and an enrage at low health. Her door opens after the four braziers are lit."},
+
+    -- STOCKS
+    [1717] = {"Хэмхок: цепная молния и жажда крови. Прерывайте и держите его на танке.", "Hamhock: Chain Lightning and Bloodlust. Interrupt and keep him on the tank."},
+    [1716] = {"Базил Тредд: дымовая шашка оглушает. Сам бьёт несильно.", "Bazil Thredd: Smoke Bomb stuns. Not a hard hitter."},
+    [1663] = {"Декстрен Уорд: устрашающий крик пугает группу. Деритесь в стороне от других камер.", "Dextren Ward: Intimidating Shout fears the group. Fight away from other cells."},
+
+    -- GNOMER
+    [7361] = {"Груббис: выходит с Чомпером в последней волне события Эми Шортфьюз. Держите его подальше от Эми.", "Grubbis: arrives with Chomper in the last wave of Emi Shortfuse's event. Keep him away from Emi."},
+    [6235] = {"Электрошокер 6000: цепные разряды и шок. С него падает ключ от мастерской.", "Electrocutioner 6000: Chain Bolt and Shock. Drops the Workshop Key."},
+    [6229] = {"Толпогон 9-60: удар по толпе отбрасывает всех перед ним. Держитесь за спиной или сбоку.", "Crowd Pummeler 9-60: Crowd Pummel knocks back everyone in front. Stand behind or to the side."},
+    [7800] = {"Мекгинер Термоштепсель: отбрасывает танка, из стен выходят ходячие бомбы. Жмите кнопки у отверстий.", "Mekgineer Thermaplugg: Knock Away on the tank, walking bombs come out of wall vents. Press the button by each vent."},
+
+    -- RFK
+    [4428] = {"Вестник смерти Джаргба: подчиняет разум игрока и бьёт стрелами тьмы. Будьте готовы к контролю.", "Death Speaker Jargba: Dominate Mind on a player and Shadow Bolt. Be ready for a mind-controlled ally."},
+
+    -- SM
+    [3983] = {"Дознаватель Вишас: Слово Тьмы: Боль на группу. Простой бой.", "Interrogator Vishas: Shadow Word: Pain on the group. Simple fight."},
+    [4543] = {"Кровавый маг Тальнос: огненный шок, огненный выброс вокруг и стрелы тьмы. Ближнему бою больно.", "Bloodmage Thalnos: Flame Shock, Fire Nova around him and Shadow Bolt. Melee takes the nova."},
+    [3974] = {"Псарь Локси: ходит с тремя гончими, использует жажду крови. Сначала гончие или контроль.", "Houndmaster Loksey: has three hounds and uses Bloodlust. Deal with the dogs first."},
+    [6487] = {"Чародей Доан: немота и превращение. На половине здоровья окружает себя щитом и взрывает всё рядом, отбегите.", "Arcanist Doan: Silence and Polymorph. At half health he shields himself, then Detonation hits everyone close. Run out."},
+    [3975] = {"Ирод: вихрь, рывок и бешенство на низком здоровье. После смерти набегает толпа послушников.", "Herod: Whirlwind, Rushing Charge and an enrage at low health. When he dies a wave of trainees rushes in."},
+    [3976] = {"Командир Могрейн: молот правосудия и божественный щит. После его смерти приходит Вайтмейн и воскрешает его.", "Scarlet Commander Mograine: Hammer of Justice and Divine Shield. When he dies Whitemane comes and resurrects him."},
+    [3977] = {"Вайтмейн: усыпляет всю группу и воскрешает Могрейна, лечит и бьёт Светом. Убейте обоих быстро.", "High Inquisitor Whitemane: puts the group to sleep and resurrects Mograine, heals and smites. Burn both fast."},
+
+    -- RFD
+    [7355] = {"Тутен'каш: выходит после третьего удара в гонг, сначала волны пауков. Опутывает паутиной и травит ядом.", "Tuten'kash: comes out after the third gong strike, spider waves first. Webs and poisons the group."},
+    [7357] = {"Мордреш Огненный Глаз: огненные шары и огненный выброс вокруг себя. Прерывайте касты.", "Mordresh Fire Eye: Fireball and Fire Nova around himself. Interrupt his casts."},
+    [8567] = {"Обжора: облако болезни вокруг и бешенство на низком здоровье.", "Glutton: Disease Cloud around him and a Frenzy at low health."},
+    [7358] = {"Амненнар Хладовей: ледяные стрелы, кольцо льда, гнев по группе; на половине здоровья вызывает призраков.", "Amnennar the Coldbringer: Frostbolt, Frost Nova and Amnennar's Wrath; at half health summons spectral adds."},
+
+    -- ULDA
+    [6906] = {"Бейлог: один из трёх дворфов, дерётся вместе с Эриком и Олафом, стреляет издалека. Контролируйте по одному.", "Baelog: one of three dwarves fought together with Eric and Olaf, shoots from range. Control and kill one at a time."},
+    [6908] = {"Олаф: щитоносец из троицы с Эриком и Бейлогом. Убивайте их по одному.", "Olaf: shield bearer of the trio with Eric and Baelog. Kill them one at a time."},
+    [6910] = {"Ревелош: шаман-трогг, бьёт молниями и цепной молнией. Прерывайте.", "Revelosh: trogg caster, uses Lightning Bolt and Chain Lightning. Interrupt him."},
+    [7228] = {"Айроная: каменный великан, отбрасывает и бьёт по площади вокруг. Танк держит спину к стене.", "Ironaya: stone giant, Knock Away and War Stomp. Tank with your back to a wall."},
+    [7206] = {"Древний каменный хранитель: вызывает песчаные вихри и топчет. Уходите от вихрей.", "Ancient Stone Keeper: summons sand storms and uses Trample. Move away from the storms."},
+    [7291] = {"Гальганн Огненный Молот: огненный выброс вокруг себя и огненные удары.", "Galgann Firehammer: Fire Nova around himself and fire attacks."},
+    [4854] = {"Гримлок: уменьшает игроков, бьёт молниями и вешает жажду крови.", "Grimlok: Shrink on players, Lightning Bolt and Bloodlust."},
+    [2748] = {"Архедас: пробуждается от алтаря, сотрясает землю и оживляет каменных стражей. Добивайте помощников.", "Archaedas: wakes when the altar is used, Ground Tremor and awakens stone guardians. Kill the adds."},
+
+    -- ZF
+    [8127] = {"Анту'сул: ставит тотемы лечения и опутывания, по ходу боя зовёт василисков. Ломайте тотемы.", "Antu'sul: drops healing and Earthgrab totems and calls basilisks during the fight. Kill the totems."},
+    [7271] = {"Знахарь Зум'ра: из могил вокруг лезут зомби, бьёт залпом стрел тьмы. Тяните его подальше от могил.", "Witch Doctor Zum'rah: zombies rise from the graves around, casts Shadow Bolt Volley. Pull him away from the graves."},
+    [7274] = {"Палач Песчаной Бури: с него падает ключ палача от клеток с пленниками на пирамиде.", "Sandfury Executioner: drops the Executioner's Key that opens the prisoners' cages on the pyramid."},
+    [7604] = {"Сержант Блай: после боя на лестнице пирамиды заговорите с ним, и его отряд нападёт. У него жезл для задания.", "Sergeant Bly: after the pyramid stairs event, talk to him and his crew attacks. Drops the rod for a quest."},
+    [7273] = {"Газ'рилла: призывается ударом молота Зул'Фаррака в гонг у пруда. Замораживает игроков и подбрасывает ударом.", "Gahz'rilla: summoned by striking the gong at the pool with the Mallet of Zul'Farrak. Freezes players and slams them up."},
+    [7267] = {"Вождь Укорз Песчаный Скальп: на вершине вместе с Руузлу, рассекает и впадает в бешенство.", "Chief Ukorz Sandscalp: at the top together with Ruuzlu, Cleaves and goes into a Frenzy."},
+
+    -- MARA
+    [13282] = {"Ноксион: залп яда и апперкот; временами исчезает и оставляет мелких слизней. Убивайте слизней.", "Noxxion: Toxic Volley and Uppercut; now and then hides and leaves small spawns. Kill the spawns."},
+    [12203] = {"Оползень: каменный великан, отбрасывает танка и топчет. Танк держит спину к стене.", "Landslide: rock giant, Knock Away and Trample. Tank with your back to a wall."},
+    [12201] = {"Принцесса Терадрас: пыльное поле, бросает валуны, пугает взглядом и сбивает с ног. Держите её у стены.", "Princess Theradras: Dust Field, throws boulders, fears with Repulsive Gaze and Knockdown. Tank her against a wall."},
+
+    -- ST
+    [8580] = {"Атал'аларион: появляется, если активировать статуи внизу в правильном порядке. Сильно бьёт в ближнем бою.", "Atal'alarion: appears when the statues on the lower level are activated in the right order. Hits hard in melee."},
+    [5710] = {"Джаммал'ан Пророк: барьер падает после шести троллей на балконах. Порча превращает игрока во врага, ставит тотемы и лечится.", "Jammal'an the Prophet: barrier drops after the six balcony trolls. His Hex turns a player hostile; uses totems and heals."},
+    [5709] = {"Тень Эраникуса: становится доступна после драконов. Усыпляет всю группу и бьёт по площади, держите её от группы.", "Shade of Eranikus: attackable after the dragons die. Deep Slumber sleeps the group, also War Stomp. Keep him off the group."},
+
+    -- BRD
+    [9025] = {"Лорд Роккор: огненный шок, земной шок и сотрясение земли. Простой бой.", "Lord Roccor: Flame Shock, Earth Shock and Ground Tremor. Simple fight."},
+    [9018] = {"Верховный дознаватель Герштан: Слово Тьмы: Боль, ментальный крик и сожжение маны. Прерывайте.", "High Interrogator Gerstahn: Shadow Word: Pain, Psychic Scream and Mana Burn. Interrupt her."},
+    [9027] = {"Горош Дервиш: один из случайных боссов Круга Закона, крутит вихрь. Ближнему бою отходить.", "Gorosh the Dervish: one of the random Ring of Law bosses, uses Whirlwind. Melee step out."},
+    [9041] = {"Страж Стилгисс: в хранилище вместе с псом Вереком, кольцо льда и ледяные стрелы.", "Warder Stilgiss: in the Vault together with his hound Verek, uses Frost Nova and Frostbolt."},
+    [9476] = {"Страж Думгрип: выходит с големами, когда открыты все сейфы хранилища.", "Watchman Doomgrip: comes out with golems once all the Vault safes are opened."},
+    [9017] = {"Лорд Инсендиус: у Чёрной наковальни, огненная буря и мощный удар с отбрасыванием.", "Lord Incendius: at the Black Anvil, Fire Storm and Mighty Blow that knocks back."},
+    [9033] = {"Генерал Гневная Кузня: на низком здоровье зовёт подкрепление дворфов. Тратьте силы в конце.", "General Angerforge: at low health calls Anvilrage reinforcements. Save cooldowns for the end."},
+    [9156] = {"Посол Огнехлыст: из рун вокруг выходят горящие духи и усиливают его. Убивайте духов до того, как дойдут.", "Ambassador Flamelash: Burning Spirits come from the runes and empower him. Kill them before they reach him."},
+    [9938] = {"Магмус: топот по площади; в зале статуи дышат огнём, не стойте у них.", "Magmus: War Stomp; the statues in the hall breathe fire, do not stand in front of them."},
+    [8929] = {"Принцесса Мойра: лечит императора, взрыв разума и Слово Тьмы: Боль. Прерывайте лечение.", "Princess Moira Bronzebeard: heals the Emperor, Mind Blast and Shadow Word: Pain. Interrupt the heals."},
+    [9019] = {"Император Дагран Тауриссан: Длань Тауриссана оглушает, Аватара пламени бьёт огнём вокруг.", "Emperor Dagran Thaurissan: Hand of Thaurissan stuns, Avatar of Flame burns everyone around."},
+
+    -- LBRS
+    [9196] = {"Верховный лорд Омокк: отбрасывает танка, бой у края обрыва. Держите спину к стене.", "Highlord Omokk: Knock Away on the tank, fought near a ledge. Keep your back to a wall."},
+    [9236] = {"Тёмный охотник Вош'гаджин: порча, проклятие крови и рассечение.", "Shadow Hunter Vosh'gajin: Hex, Curse of Blood and Cleave."},
+    [10596] = {"Мать Тлеющая Паутина: кристаллизация оглушает, Материнское молоко травит. Снимайте яд.", "Mother Smolderweb: Crystallize stuns, Mother's Milk poisons. Cure the poison."},
+    [10584] = {"Урок Гибельный Вой: вызывается у кучи подношений Урока, сначала идут волны огров.", "Urok Doomhowl: summoned at Urok's Tribute Pile, waves of ogres come first."},
+    [9736] = {"Интендант Зигрис: стреляет, бросает оглушающие бомбы и пьёт зелья лечения.", "Quartermaster Zigris: shoots, throws Stun Bombs and drinks healing potions."},
+    [10220] = {"Халикон: ворг, после её смерти приходит Гизрул Поработитель.", "Halycon: worg, Gizrul the Slavener arrives after she dies."},
+    [10268] = {"Гизрул Поработитель: появляется после Халикон, впадает в бешенство.", "Gizrul the Slavener: comes after Halycon dies, goes into a Frenzy."},
+    [9568] = {"Властитель Змейталак: на половине здоровья зовёт двух помощников. Будьте готовы их взять.", "Overlord Wyrmthalak: at half health calls two adds. Be ready to pick them up."},
+
+    -- UBRS
+    [9816] = {"Пиростраж Угольный Провидец: событие начинается у алтаря, сначала тюремщики. Огненный выброс и огненный столб.", "Pyroguard Emberseer: the event starts at the altar, the Incarcerators come first. Fire Nova and Flamestrike."},
+    [10264] = {"Солакар Огненный Венец: в гнездовье, приходит после волн дракончиков и смотрителей.", "Solakar Flamewreath: in the Rookery, comes after waves of whelps and handlers."},
+    [10339] = {"Гит: дракон, на котором приезжает Ренд после волн на арене. Дышит разными дыханиями.", "Gyth: the dragon Rend rides in on after the arena waves. Uses several breath attacks."},
+    [10429] = {"Вождь Ренд Чернорук: сначала волны орков и драконов, потом Гит. Затем Ренд спешивается, крутит вихрь.", "Warchief Rend Blackhand: first waves of orcs and dragons, then Gyth. Then Rend dismounts and uses Whirlwind."},
+    [10430] = {"Зверь: огненные шары, огненный взрыв отбрасывает, рёв пугает. Танк у стены.", "The Beast: Fireball, Flamebreak knocks back and Terrifying Roar fears. Tank against a wall."},
+    [10363] = {"Генерал Драккисат: с двумя стражами, Воспламенение дезориентирует игрока, огненный столб.", "General Drakkisath: with two elite guards, Conflagration disorients a player, also Flamestrike."},
+
+    -- DM_E
+    [14354] = {"Пузиллин: убегает, догоняйте по залам. В конце дерётся с бесами, взрывная волна. С него ключ.", "Pusillin: runs away, chase him through the halls. At the end fights with imps, Blast Wave. Drops the Crescent Key."},
+    [11490] = {"Зеврим Терновое Копыто: Жертва приковывает игрока и наносит урон, лечите его.", "Zevrim Thornhoof: Sacrifice pins a player and drains him, heal that player."},
+    [13280] = {"Гидророжденный: гейзер подбрасывает, ныряет под воду и выныривает.", "Hydrospawn: Massive Geyser throws players up, submerges and resurfaces."},
+    [11492] = {"Алззин Перевёртыш: меняет облики, проклятие увядания и отбрасывание.", "Alzzin the Wildshaper: shifts forms, casts Wither and uses Knock Away."},
+
+    -- DM_W
+    [11489] = {"Тендрис Варпвуд: древо, опутывает корнями и топчет.", "Tendris Warpwood: treant, Entangle and Trample."},
+    [11488] = {"Иллиана Вороний Дуб: охотница с медведем, залп стрел и огненная ловушка.", "Illyanna Ravenoak: hunter with a bear pet, Volley and Immolation Trap."},
+    [11487] = {"Магистр Календрис: облик тьмы, взрыв разума и пытка разума. Прерывайте.", "Magister Kalendris: Shadowform, Mind Blast and Mind Flay. Interrupt him."},
+    [11496] = {"Иммол'тар: освобождается после пяти кристаллов-пилонов. Зовёт глаза-помощников, топчет.", "Immol'thar: freed after the five pylons are shut down. Summons Eyes of Immol'thar and Tramples."},
+    [11486] = {"Принц Тортелдрин: вихрь, чародейский взрыв, притягивает игроков к себе и прерывает касты.", "Prince Tortheldrin: Whirlwind, Arcane Blast, summons players to himself and Counterspells."},
+
+    -- DM_N
+    [14325] = {"Капитан Кромкруш: устрашающий крик пугает, на помощь зовёт стражников-огров.", "Captain Kromcrush: Intimidating Shout fears, calls ogre guards to help."},
+    [11501] = {"Король Гордок: вместе с магом Чо'Рашем, смертельный удар и громовая поступь. Сначала Чо'Раш.", "King Gordok: with the mage Cho'Rush, Mortal Strike and War Stomp. Kill Cho'Rush first."},
+
+    -- SCHOLO
+    [10506] = {"Киртонос Глашатай: вызывается Кровью невинных на жаровне. Меняет облик летучей мыши и человека, обезоруживает.", "Kirtonos the Herald: summoned with the Blood of Innocents at the brazier. Switches between bat and human form, Disarms."},
+    [10503] = {"Джандис Барова: создаёт много своих копий, проклятие крови. Ищите настоящую.", "Jandice Barov: creates many illusions of herself, Curse of Blood. Find the real one."},
+    [11622] = {"Рэттлгор: громовая поступь и отбрасывание. Танк у стены.", "Rattlegore: War Stomp and Knock Away. Tank against a wall."},
+    [10508] = {"Рас Ледяной Шёпот: залп ледяных стрел, кольцо холода и ледяная броня. Прерывайте.", "Ras Frostwhisper: Frostbolt Volley, Chill Nova and Ice Armor. Interrupt him."},
+    [11261] = {"Доктор Теолен Крастинов: кровотечение и бешенство на низком здоровье.", "Doctor Theolen Krastinov: Rend and a Frenzy at low health."},
+    [1853] = {"Тёмный магистр Гандлинг: приходит после шести боссов в боковых комнатах. Портал тьмы уносит игрока в комнату с нежитью.", "Darkmaster Gandling: appears after the six side room bosses. Shadow Portal sends a player into a room full of undead."},
+
+    -- STRAT_LIVE
+    [11143] = {"Почтальон Малоун: появляется после открытия трёх почтовых ящиков Ключом от города.", "Postmaster Malown: appears after three postboxes are opened with the Key to the City."},
+    [10808] = {"Тимми Жестокий: появляется на площади, когда зачищена нежить вокруг.", "Timmy the Cruel: appears in the square once the undead around it are cleared."},
+    [10997] = {"Канонир Вилли: зовёт стрелков Алого ордена и отбрасывает. Убивайте стрелков.", "Cannon Master Willey: calls Crimson Riflemen and uses Knock Away. Kill the riflemen."},
+    [10813] = {"Бальназар: Великий рыцарь Датрохан превращается в демона. Подчиняет разум, пугает и бьёт залпом тьмы.", "Balnazzar: Grand Crusader Dathrohan turns into the demon. Mind controls, fears and casts Shadow Bolt Volley."},
+
+    -- STRAT_UD
+    [10436] = {"Баронесса Анастари: вселяется в игрока и управляет им, вопль банши и немота.", "Baroness Anastari: possesses a player and controls him, also Banshee Wail and Silence."},
+    [10437] = {"Неруб'энкан: зовёт склепных жуков и опутывает паутиной.", "Nerub'enkan: summons Crypt Scarabs and uses Encasing Webs."},
+    [10438] = {"Малеки Бледный: ледяные стрелы, похищение жизни и ледяная гробница. Прерывайте.", "Maleki the Pallid: Frostbolt, Drain Life and Ice Tomb. Interrupt him."},
+    [10439] = {"Рамштайн Ненасытный: выходит после трёх зиккуратов, топчет. После его смерти идёт волна нежити.", "Ramstein the Gorger: comes after the three ziggurats, Trample. After he dies a wave of undead attacks."},
+    [10440] = {"Барон Ривендер: поднимает скелетов, Смертельный союз и смертельный удар. Скелетов бейте по площади.", "Baron Rivendare: Raise Dead skeletons, Death Pact and Mortal Strike. AoE the skeletons."},
+}
+local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
+P.BossNotes = {}
+for npc, pair in pairs(NOTES) do P.BossNotes[npc] = russian and pair[1] or pair[2] end

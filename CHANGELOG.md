@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.43.3
+- Fixed: "Interface action failed because of an AddOn" in fights inside dungeons. The plate and icon switches of the object highlight wait until the fight is over.
+- "Way to the boss" turns the small floor plan back to the boss's floor and makes his pin pulse.
+- The small floor plan is live: hover a boss for his level, how he comes out, a note on the fight and his loot weighed for you; right-click a boss for the large atlas plan.
+- A short note on 123 bosses of the classic dungeons (what they do that matters, a tip), in English and Russian, in that tooltip.
+- Inside a dungeon the hand no longer hangs over a corpse being looted or another creature: only over things.
+
 ## 3.43.2
 - The panel no longer folds down to the current step in a fight inside a dungeon: the page stays whole, the small floor plan too.
 - The world map opened by the addon is the small (windowed) one, not the full-screen one.

@@ -447,6 +447,12 @@ local EN = {
     ["Переход "] = "Passage ",
     [" • на другом этаже"] = " • on another floor",
     ["ПКМ: большой план в атласе. Потяни, чтобы переставить. Крестик убирает план; щелчок по боссу в трекере возвращает."] = "Right-click: large plan in the atlas. Drag to move. The cross hides the plan; clicking a boss in the tracker brings it back.",
+    ["убит"] = "killed",
+    ["следующий"] = "next",
+    ["уровень %d"] = "level %d",
+    ["Добыча"] = "Loot",
+    [" |cffffd34d• лучшее в слот|r"] = " |cffffd34d• best in slot|r",
+    ["ПКМ — большой план в атласе."] = "Right-click — the large atlas plan.",
     [" • этаж %d/%d"] = " • floor %d/%d",
     [" • он на другом этаже"] = " • it is on another floor",
     [" • ты в «"] = " • you are in «",
@@ -1266,7 +1272,6 @@ local EN = {
     ["лучшее в слот: "] = "best in slot: ",
     ["лучше надетого: "] = "better than equipped: ",
     ["тебе подходит: "] = "fits you: ",
-    ["Добыча"] = "Loot",
     ["Правая кнопка по боссу в списке отмечает его убитым или возвращает.|r"] = "Right-click a boss in the list to mark it dead or bring it back.|r",
     ["По желанию"] = "Optional",
     ["Убит в этом заходе"] = "Dead this run",
@@ -2194,9 +2199,13 @@ function C.ObjectGlow(on)
     return false
 end
 
+-- Seen in the game, in a fight inside Razorfen Downs: "Interface action failed because of
+-- an AddOn". The switches of the plates and the icons are not touched in a fight; the
+-- thing in sight is weighed again when it ends.
+local function fighting() return InCombatLockdown and InCombatLockdown() end
 function C.QuestObjectIcon(on)
     local db = C.char
-    if not (db and db.glowKept and not db.noGlow) then return end
+    if not (db and db.glowKept and not db.noGlow) or fighting() then return end
     local want = on and "1" or "0"
     if cvar("SoftTargetIconGameObject") ~= want then pcall(cvar, "SoftTargetIconGameObject", want) end
 end
@@ -2399,7 +2408,7 @@ end
 function C.ObjectSign(on, note)
     local db = C.char
     objectOn = on and true or nil
-    if db and db.glowKept and not db.noGlow then
+    if db and db.glowKept and not db.noGlow and not fighting() then
         local want = on and "1" or "0"
         if cvar("SoftTargetNameplateInteract") ~= want then pcall(cvar, "SoftTargetNameplateInteract", want) end
     end

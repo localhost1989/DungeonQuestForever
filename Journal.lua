@@ -1259,8 +1259,15 @@ function P.SoftTargetChanged(guid)
             -- The owner, at the gong that calls Tuten'kash out: "the gong does not light up; I
             -- told you to light the quest things." What it is goes untold in here, and what
             -- can be used in a dungeon is mostly the run's (a gong, a chest, a quest thing):
-            -- the hand hangs over it.
-            if atlas.ObjectSign then atlas.ObjectSign(true, "inside, the thing not told") end
+            -- the hand hangs over it. Not over a creature: "the hand comes when I loot a mob,
+            -- that is not right; only over things to pick up." A creature, alive or dead, has
+            -- a kind or is dead (told or secret, the answer is there); a thing has neither.
+            local creature = false
+            for _, ask in ipairs({UnitCreatureType, UnitIsDead, UnitIsPlayer}) do
+                local ok, said = pcall(ask, "softinteract")
+                if ok and said ~= nil and said ~= false then creature = true break end
+            end
+            if atlas.ObjectSign then atlas.ObjectSign(not creature, creature and "inside, a creature" or "inside, the thing not told") end
             return
         end
     end
@@ -1289,8 +1296,10 @@ if CreateFrame and UIParent then
     -- A quest taken or done while the object is in sight: weighed again (the sound is not
     -- rung twice in half a minute).
     pcall(soft.RegisterEvent, soft, "QUEST_LOG_UPDATE")
+    -- (The switches wait out a fight: weighed again at its end.)
+    pcall(soft.RegisterEvent, soft, "PLAYER_REGEN_ENABLED")
     soft:SetScript("OnEvent", function(_, event, _, newTarget)
-        if event == "QUEST_LOG_UPDATE" then pcall(P.SoftTargetChanged) else pcall(P.SoftTargetChanged, newTarget) end
+        if event == "PLAYER_SOFT_INTERACT_CHANGED" then pcall(P.SoftTargetChanged, newTarget) else pcall(P.SoftTargetChanged) end
     end)
 end
 
@@ -1873,6 +1882,7 @@ local function layout(self)
                 block:Ready("red", (npc and P.HasPlan and P.HasPlan(npc)) and function()
                     if db then db.floorOff = nil end
                     P.Refresh()
+                    if P.FlashFloor then P.FlashFloor() end
                 end or nil, L"Путь к боссу", L"План этажа с путём к этому боссу.")
             end
         elseif entry.status then

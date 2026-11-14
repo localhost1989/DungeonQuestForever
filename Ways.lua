@@ -908,6 +908,16 @@ end
 
 -- The living bosses of the run, for the sign over the head: by number where a run is
 -- written, by name where it was learnt.
+-- What the run says of a boss, by his number: how he comes out, where he stands.
+function P.StopNote(npc)
+    if not npc then return end
+    for _, run in pairs(runs) do
+        for _, stop in ipairs(run) do
+            if stop.npc == npc or (stop.also and tContains and tContains(stop.also, npc)) then return stop.note, stop.way end
+        end
+    end
+end
+
 function P.RunBosses(d)
     if not d then return end
     local dead = fallen(d)
