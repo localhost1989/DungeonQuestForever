@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.41.0
+- A "Share" word on top of the panel when in a group: one click shares every quest of the dungeon in your log with the group, and asks in the group chat for the shareable ones you lack (with a word about the addon). Group members with the addon share the asked quests by themselves.
+- A shareable quest given neither at the entrance nor inside is no longer an errand to run to: it goes last with "ask the group to share it: no need to run there", and is left out of "Take N more" and the nearest errand.
+
+## 3.40.2
+- The panel has no dark ground again by default: it reads as part of the game's own quest list (/dq back gives the dark ground).
+
+## 3.40.1
+- Closer to the approved layout: no dashes before the lines, the rule under each section label.
+- "Chains done: ask the group to share" no longer shows while the last step of a chain is still to do.
+
+## 3.40.0
+- Addons of the group and the guild tell each other their version, unseen; when someone near you has a later one, your chat says once that a new version is out and to update it with the CurseForge or Wago app.
+- After a boss of a dungeon run, out of combat, the group hears one line about the addon with its CurseForge link - only when someone in the group does not have it, and not more than once in two hours. Switch it off in the minimap menu or with /dq share.
+
+## 3.39.0
+- A new layout of the panel and the book (designed with ChatGPT, approved by the owner):
+  - On top, one status plate in one of five colours with a button: gold "Take N more quests of M" (way to the nearest), blue "Hand in N" (way to hand in), green "All taken: you can go in" (shortest way to the entrance), grey "You have been inside already", red "Next boss" inside (way to the boss).
+  - Outside, two sections: "To take" and "Taken"; each quest is its name in gold, one line of what to do, with whom, where and how far, and a dim note (a group member can share it, take it at the entrance).
+  - Inside: the next boss as the red plate, "What to do at the boss", the bosses, then the quests.
+  - The book's right page is dark, with gold headings: What to do, Where, Chain.
+  - The tips are no longer on the panel.
+
 ## 3.38.1
 - The right page of the book is readable again: the frame's own dark marble lay over the parchment.
 

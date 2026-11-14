@@ -22,7 +22,9 @@ local SIGN = {
     lock = "Interface\\LFGFrame\\UI-LFG-ICON-LOCK",
 }
 local WORD = {take=L"Доступно", log=L"В процессе", ready=L"Можно сдать", done=L"Выполнено", lock=L"Недоступно"}
-local INK, FADED, RUST = "|cff2b1a08", "|cff6b6257", "|cff7a1e00"
+-- The right page is dark since the layout of 14.11.2026 (ChatGPT's, approved by the owner):
+-- cream text, muted grey, gold headings.
+local INK, FADED, RUST = "|cffe6e0d2", "|cffbcb7ab", "|cfff5cb66"
 
 -- The owner: "a click on a boss, and the things he drops are in the description; and
 -- the drop that is of use to me lit up - I play a mage, the boss that interests me must
@@ -394,7 +396,7 @@ local function questPage(id, row, item)
         elseif item and item.kind == "step" then status = status .. L": не выполнен предыдущий шаг"
         elseif row.note then status = status .. ": " .. row.note end
     end
-    head(L"Цели")
+    head(L"Что делать")
     local live = P.IsActive and P.IsActive(id) and P.Objectives and P.Objectives(id)
     if live and live ~= "" then lines[#lines+1] = INK .. L"Твой прогресс: " .. live .. "|r" end
     if info.text then lines[#lines+1] = INK .. info.text .. "|r" end
@@ -408,7 +410,7 @@ local function questPage(id, row, item)
     if steps then
         local at = now
         for i, step in ipairs(steps) do if step == id then at = i end end
-        head(L"Цепочка заданий (шаг " .. at .. L" из " .. #steps .. ")")
+        head(L"Цепочка • шаг " .. at .. L" из " .. #steps)
         for i, step in ipairs(steps) do
             local name = P.Title(step) or ("#" .. step)
             local s = stepState(step, i, now)
@@ -512,9 +514,9 @@ local function draw()
             local info = P.QuestInfo and P.QuestInfo(r.id) or {}
             local parts = {}
             if info.required and info.required > 0 then parts[#parts+1] = L"Требуется уровень " .. info.required end
-            if item.steps then parts[#parts+1] = L"|cff6cc4ffЦепочка " .. (item.now or #item.steps) .. "/" .. #item.steps .. "|r" end
+            if item.steps then parts[#parts+1] = L"цепочка " .. (item.now or #item.steps) .. "/" .. #item.steps end
             if #parts == 0 then parts[1] = WORD[item.state] end
-            sub = table.concat(parts, "  ")
+            sub = table.concat(parts, " • ")
             right = info.level and info.level > 0 and tostring(info.level) or nil
             item.level = info.level
         elseif item.kind == "step" then
@@ -818,20 +820,23 @@ local function create()
 
     -- The right page: parchment, with the quest in the game's own quest fonts.
     local paper = frame:CreateTexture(nil, "BACKGROUND", nil, 7)
-    if paper.SetColorTexture then paper:SetColorTexture(.90, .83, .66, 1) end
+    if paper.SetColorTexture then paper:SetColorTexture(.161, .125, .086, .96) end
     paper:SetPoint("TOPLEFT", frame, "TOPLEFT", LEFT + 14, -26)
     paper:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -8, 8)
     local grain = frame:CreateTexture(nil, "BORDER")
     grain:SetTexture("Interface\\AchievementFrame\\UI-Achievement-Parchment-Horizontal")
     grain:SetAllPoints(paper)
     -- Seen in the game at more than half: a dark brown page the ink did not read on.
-    if grain.SetAlpha then grain:SetAlpha(.2) end
+    -- The page is dark now, with light text: the grain is put away.
+    grain:Hide()
     local width = W - LEFT - 54
-    frame.title = frame:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
+    frame.title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    if frame.title.SetTextColor then frame.title:SetTextColor(.96, .80, .40) end
     frame.title:SetPoint("TOPLEFT", paper, "TOPLEFT", 18, -16)
     frame.title:SetWidth(width)
     frame.title:SetJustifyH("LEFT")
-    frame.info = frame:CreateFontString(nil, "OVERLAY", "QuestFontNormalSmall")
+    frame.info = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    if frame.info.SetTextColor then frame.info:SetTextColor(.74, .72, .67) end
     frame.info:SetPoint("TOPLEFT", frame.title, "BOTTOMLEFT", 0, -6)
     frame.info:SetWidth(width)
     frame.info:SetJustifyH("LEFT")
@@ -850,7 +855,8 @@ local function create()
     frame.status:SetWidth(width - 34)
     frame.status:SetJustifyH("LEFT")
     frame.status:SetWordWrap(false)
-    frame.body = frame:CreateFontString(nil, "OVERLAY", "QuestFont")
+    frame.body = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    if frame.body.SetTextColor then frame.body:SetTextColor(.90, .88, .82) end
     frame.body:SetPoint("TOPLEFT", plate, "BOTTOMLEFT", 0, -6)
     frame.body:SetWidth(width)
     frame.body:SetJustifyH("LEFT")
