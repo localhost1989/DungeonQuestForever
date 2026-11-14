@@ -1138,6 +1138,7 @@ end
 -- The owner: "can a boss not have at least a description written?" What a boss does that
 -- matters and a short tip, for the bosses of the classic dungeons (the dungeons of this
 -- client alone are left out: nothing sure is known of them). By creature id: {ru, en}.
+-- BEGIN LOOT (both languages are written here: the locale table leaves this part alone)
 local NOTES = {
     -- RFC
     [11517] = {"Огглфлинт: вожак троггов у входа, бьёт рассечением по всем перед собой. Танку стоит развернуть его от группы.", "Oggleflint: trogg leader near the entrance, Cleaves everyone in front of him. Tank should face him away from the group."},
@@ -1308,6 +1309,7 @@ local NOTES = {
     [10439] = {"Рамштайн Ненасытный: выходит после трёх зиккуратов, топчет. После его смерти идёт волна нежити.", "Ramstein the Gorger: comes after the three ziggurats, Trample. After he dies a wave of undead attacks."},
     [10440] = {"Барон Ривендер: поднимает скелетов, Смертельный союз и смертельный удар. Скелетов бейте по площади.", "Baron Rivendare: Raise Dead skeletons, Death Pact and Mortal Strike. AoE the skeletons."},
 }
+-- END LOOT
 local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
 P.BossNotes = {}
 for npc, pair in pairs(NOTES) do P.BossNotes[npc] = russian and pair[1] or pair[2] end

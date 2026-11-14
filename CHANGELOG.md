@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.44.0
+- A click on a boss in the list opens the window of his loot beside the row: each thing with its picture in the colour of its quality, its slot and kind, its stats, and a plate: BiS, better than worn +N, worn, or not for your class (then dimmed). Hover a thing for the game's tooltip; shift-click links it. The boss whose loot is open wears a gold frame; the same click again closes it.
+- The parts "Bosses" and "Quests" fold and unfold by a click on their heading.
+
 ## 3.43.3
 - Fixed: "Interface action failed because of an AddOn" in fights inside dungeons. The plate and icon switches of the object highlight wait until the fight is over.
 - "Way to the boss" turns the small floor plan back to the boss's floor and makes his pin pulse.

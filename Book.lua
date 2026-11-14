@@ -1216,3 +1216,292 @@ P.Loot = {
     [14327]={18301,2,19, 18302,4,0, 18311,2,10, 18325,4,2},
 }
 -- END LOOT
+
+-- ------------------------------------------
+-- The loot of a boss, beside his row in the panel
+-- ------------------------------------------
+-- The owner: "a left click on a boss, and all he drops: what things, which stats, which
+-- are the best for the slot." As ChatGPT drew it and the owner approved (14.11.2026): a
+-- small dark window with a gold rim beside the list, a corner pointing at the boss; each
+-- thing with its picture in the colour of its quality, its slot and kind, its stats, and
+-- on the right a plate: BiS, better than worn +N, or not for the class (then dimmed).
+local function rgba(h, a)
+    return {tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255,
+        a or (#h == 8 and tonumber(h:sub(7, 8), 16) / 255) or 1}
+end
+-- The sizes and colours of ChatGPT's code layout (art/код-макет-14.11/добыча-босса-размеры-и-цвета.txt).
+local LOOT = {width=366, head=44, pad=8, icon=42, tagw=80, gap=22,
+    bg=rgba("17120FF5"), headBg=rgba("251A12FA"), rim=rgba("B08B4E"), inner=rgba("523920"), divider=rgba("80623F99"),
+    row=rgba("241A14E8"), rowAlt=rgba("1B1612E8"), noRow=rgba("181818EA"), noText=rgba("8A8783"), iconBg=rgba("24142B"),
+    title=rgba("F2CC6D"), sub=rgba("B9B4AA"), slot=rgba("B9B4AA"), stat=rgba("ECE3D1"),
+    bis={bg=rgba("562361"), rim=rgba("B94BE4"), text=rgba("FFE1FF")},
+    better={bg=rgba("233E1D"), rim=rgba("5EAD49"), text=rgba("C1F1AA")},
+    no={bg=rgba("29292A"), rim=rgba("656566"), text=rgba("B3B3B3")}}
+-- The rim of the picture and the name, by quality (the layout's lighter names for blue and purple).
+local QUALITY_LOOK = {
+    [0] = {rim=rgba("9D9D9D"), name=rgba("A3A3A3")}, [1] = {rim=rgba("FFFFFF"), name=rgba("FFFFFF")},
+    [2] = {rim=rgba("1EFF00"), name=rgba("1EFF00")}, [3] = {rim=rgba("0070DD"), name=rgba("69B5FF")},
+    [4] = {rim=rgba("A335EE"), name=rgba("D395FF")}, [5] = {rim=rgba("FF8000"), name=rgba("FF8000")}}
+local FOR_CLASS = {MAGE=L"не для мага", PRIEST=L"не для жреца", WARLOCK=L"не для чернокнижника", WARRIOR=L"не для воина",
+    ROGUE=L"не для разбойника", HUNTER=L"не для охотника", DRUID=L"не для друида", SHAMAN=L"не для шамана", PALADIN=L"не для паладина"}
+
+local lootFrame
+local function colour(tex, c) if tex and tex.SetColorTexture then tex:SetColorTexture(c[1], c[2], c[3], c[4] or 1) end end
+
+-- A plate with a rim and a word, in the column at the right of a row.
+local function plate(parent)
+    local f = CreateFrame("Frame", nil, parent)
+    f.rim = f:CreateTexture(nil, "BACKGROUND")
+    f.rim:SetAllPoints()
+    f.bg = f:CreateTexture(nil, "BORDER")
+    f.bg:SetPoint("TOPLEFT", 1, -1)
+    f.bg:SetPoint("BOTTOMRIGHT", -1, 1)
+    f.text = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.text:SetPoint("CENTER")
+    f.text:SetJustifyH("CENTER")
+    if f.text.SetFont and f.text.GetFont then
+        local font = f.text:GetFont()
+        if font then pcall(f.text.SetFont, f.text, font, 10, "") end
+    end
+    function f:Look(look, word, wide)
+        colour(self.rim, look.rim)
+        colour(self.bg, look.bg)
+        self.text:SetText(word)
+        self.text:SetTextColor(look.text[1], look.text[2], look.text[3])
+        local width = tonumber(self.text.GetStringWidth and self.text:GetStringWidth()) or 30
+        local lines = select(2, word:gsub("\n", "")) + 1
+        self:SetSize(wide and LOOT.tagw or math.max(37, math.min(LOOT.tagw, width + 10)), lines > 1 and (lines * 12 + 6) or 19)
+        self:Show()
+    end
+    return f
+end
+
+local function lootRow(i)
+    local f = lootFrame
+    local row = f.rows[i]
+    if row then return row end
+    row = CreateFrame("Button", nil, f)
+    f.rows[i] = row
+    row.fill = row:CreateTexture(nil, "BACKGROUND")
+    row.fill:SetAllPoints()
+    row.edge = row:CreateTexture(nil, "BORDER")
+    row.edge:SetHeight(1)
+    row.edge:SetPoint("BOTTOMLEFT", 0, 0)
+    row.edge:SetPoint("BOTTOMRIGHT", 0, 0)
+    colour(row.edge, LOOT.divider)
+    row.frame = row:CreateTexture(nil, "BORDER")
+    row.frame:SetSize(LOOT.icon, LOOT.icon)
+    row.frame:SetPoint("TOPLEFT", LOOT.pad, -LOOT.pad)
+    row.back = row:CreateTexture(nil, "ARTWORK", nil, 1)
+    row.back:SetPoint("TOPLEFT", row.frame, "TOPLEFT", 2, -2)
+    row.back:SetPoint("BOTTOMRIGHT", row.frame, "BOTTOMRIGHT", -2, 2)
+    colour(row.back, LOOT.iconBg)
+    row.icon = row:CreateTexture(nil, "ARTWORK", nil, 2)
+    row.icon:SetPoint("TOPLEFT", row.frame, "TOPLEFT", 2, -2)
+    row.icon:SetPoint("BOTTOMRIGHT", row.frame, "BOTTOMRIGHT", -2, 2)
+    local textWidth = LOOT.width - 4 - LOOT.pad * 2 - LOOT.icon - LOOT.tagw - 16
+    row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    row.name:SetPoint("TOPLEFT", row.frame, "TOPRIGHT", 8, 0)
+    row.name:SetWidth(textWidth)
+    row.name:SetJustifyH("LEFT")
+    row.slot = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    row.slot:SetPoint("TOPLEFT", row.name, "BOTTOMLEFT", 0, -3)
+    row.slot:SetWidth(textWidth)
+    row.slot:SetJustifyH("LEFT")
+    row.stats = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    row.stats:SetPoint("TOPLEFT", row.slot, "BOTTOMLEFT", 0, -3)
+    row.stats:SetWidth(textWidth)
+    row.stats:SetJustifyH("LEFT")
+    row.tag = plate(row)
+    row.tag:SetPoint("TOPRIGHT", row, "TOPRIGHT", -LOOT.pad, -LOOT.pad)
+    row.tag2 = plate(row)
+    row.tag2:SetPoint("TOPRIGHT", row.tag, "BOTTOMRIGHT", 0, -6)
+    row:SetScript("OnEnter", function(self)
+        if not self.id then return end
+        GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+        if GameTooltip.SetItemByID then pcall(GameTooltip.SetItemByID, GameTooltip, self.id)
+        else pcall(GameTooltip.SetHyperlink, GameTooltip, "item:" .. self.id) end
+        GameTooltip:Show()
+    end)
+    row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    -- Shift-click puts the thing into the chat, as everywhere in the game.
+    row:SetScript("OnClick", function(self)
+        local link = self.id and GetItemInfo and select(2, GetItemInfo(self.id))
+        if link and IsModifiedClick and IsModifiedClick("CHATLINK") and ChatEdit_InsertLink then ChatEdit_InsertLink(link) end
+    end)
+    return row
+end
+
+local function buildLoot()
+    local f = CreateFrame("Frame", "DungeonQuestForeverLoot", UIParent)
+    lootFrame = f
+    f:SetFrameStrata("HIGH")
+    f:SetClampedToScreen(true)
+    f:EnableMouse(true)
+    f:SetWidth(LOOT.width)
+    f.rim = f:CreateTexture(nil, "BACKGROUND", nil, 1)
+    f.rim:SetAllPoints()
+    colour(f.rim, LOOT.rim)
+    f.inner = f:CreateTexture(nil, "BACKGROUND", nil, 2)
+    f.inner:SetPoint("TOPLEFT", 2, -2)
+    f.inner:SetPoint("BOTTOMRIGHT", -2, 2)
+    colour(f.inner, LOOT.inner)
+    f.bg = f:CreateTexture(nil, "BACKGROUND", nil, 3)
+    f.bg:SetPoint("TOPLEFT", 3, -3)
+    f.bg:SetPoint("BOTTOMRIGHT", -3, 3)
+    colour(f.bg, LOOT.bg)
+    f.headBg = f:CreateTexture(nil, "BACKGROUND", nil, 4)
+    f.headBg:SetPoint("TOPLEFT", 3, -3)
+    f.headBg:SetPoint("TOPRIGHT", -3, -3)
+    f.headBg:SetHeight(LOOT.head - 3)
+    colour(f.headBg, LOOT.headBg)
+    f.title = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    f.title:SetPoint("TOPLEFT", LOOT.pad + 2, -9)
+    f.title:SetPoint("RIGHT", f, "RIGHT", -30, 0)
+    f.title:SetJustifyH("LEFT")
+    f.title:SetWordWrap(false)
+    f.title:SetTextColor(LOOT.title[1], LOOT.title[2], LOOT.title[3])
+    f.sub = f:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    f.sub:SetPoint("TOPLEFT", f.title, "BOTTOMLEFT", 0, -2)
+    f.sub:SetTextColor(LOOT.sub[1], LOOT.sub[2], LOOT.sub[3])
+    f.headLine = f:CreateTexture(nil, "ARTWORK")
+    f.headLine:SetHeight(1)
+    f.headLine:SetPoint("TOPLEFT", 3, -LOOT.head)
+    f.headLine:SetPoint("TOPRIGHT", -3, -LOOT.head)
+    colour(f.headLine, LOOT.divider)
+    local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+    close:SetSize(24, 24)
+    close:SetPoint("TOPRIGHT", 0, 0)
+    close:SetScript("OnClick", function() P.HideLoot() end)
+    -- The corner pointing at the boss in the list: a square turned by 45 degrees, its
+    -- rim and its inside, half out of the window's right side.
+    f.cornerRim = f:CreateTexture(nil, "BORDER")
+    f.cornerRim:SetSize(16, 16)
+    colour(f.cornerRim, LOOT.rim)
+    f.corner = f:CreateTexture(nil, "ARTWORK")
+    f.corner:SetSize(12, 12)
+    colour(f.corner, LOOT.bg)
+    for _, t in ipairs({f.cornerRim, f.corner}) do
+        if t.SetRotation then pcall(t.SetRotation, t, math.pi / 4) end
+    end
+    f.rows = {}
+    f:SetScript("OnHide", function(self) self.npc = nil; if P.Refresh then pcall(P.Refresh) end end)
+    if f.RegisterEvent then
+        pcall(f.RegisterEvent, f, "GET_ITEM_INFO_RECEIVED")
+        f:SetScript("OnEvent", function(self) if self:IsShown() and self.entry then P.DrawLoot() end end)
+    end
+end
+
+local function height(fs) return tonumber(fs and fs.GetStringHeight and fs:GetStringHeight()) or 14 end
+
+function P.DrawLoot()
+    local f = lootFrame
+    if not (f and f.entry) then return end
+    local entry = f.entry
+    f.title:SetText(entry.name or "")
+    local loot = P.LootFor and P.LootFor(entry.npc) or {}
+    f.sub:SetText(#loot > 0 and (L"добыча босса") or (L"добычи в базе нет"))
+    local class = playerClass()
+    for _, row in ipairs(f.rows) do row:Hide() end
+    local y = LOOT.head + 1
+    for i, thing in ipairs(loot) do
+        local row = lootRow(i)
+        row.id = thing.id
+        local worth = thing.worth or {}
+        local name, quality, icon
+        if GetItemInfo then
+            local got = {GetItemInfo(thing.id)}
+            if got[1] then name, quality, icon = got[1], got[3], got[10] end
+        end
+        quality = quality or worth.quality or 1
+        icon = icon or (GetItemIcon and GetItemIcon(thing.id)) or "Interface\\Icons\\INV_Misc_QuestionMark"
+        local look = QUALITY_LOOK[quality] or QUALITY_LOOK[1]
+        local unusable = not thing.mine or worth.unusable
+        row.icon:SetTexture(icon)
+        row.icon:SetAlpha(unusable and .45 or 1)
+        colour(row.frame, look.rim)
+        colour(row.fill, unusable and LOOT.noRow or (i % 2 == 0 and LOOT.rowAlt or LOOT.row))
+        row.name:SetText(name or thing.name)
+        local slot = {}
+        if worth.place then slot[#slot+1] = worth.place end
+        if thing.kind and thing.kind ~= worth.place then slot[#slot+1] = thing.kind end
+        row.slot:SetText(table.concat(slot, " • "))
+        row.stats:SetText((worth.stats and worth.stats ~= "") and (worth.stats:gsub(", ", " • ")) or "")
+        local nameC, slotC, statC = look.name, LOOT.slot, LOOT.stat
+        if unusable then nameC, slotC, statC = LOOT.noText, LOOT.noText, LOOT.noText end
+        row.name:SetTextColor(nameC[1], nameC[2], nameC[3])
+        row.slot:SetTextColor(slotC[1], slotC[2], slotC[3])
+        row.stats:SetTextColor(statC[1], statC[2], statC[3])
+        row.tag:Hide()
+        row.tag2:Hide()
+        local tags = 0
+        if unusable then
+            row.tag:Look(LOOT.no, FOR_CLASS[class] or (L"не для твоего класса"), true)
+            tags = 19
+        else
+            local free = row.tag
+            if worth.best then row.tag:Look(LOOT.bis, "BiS"); free = row.tag2; tags = 19 + 6 end
+            if worth.known and (worth.gain or 0) > 0 and not worth.worn then
+                free:Look(LOOT.better, ((L"лучше надетого +%d"):format(math.floor(worth.gain + .5)):gsub(" %+", "\n+", 1)), true)
+                tags = tags + 30
+            elseif worth.worn then
+                free:Look(LOOT.no, L"надето", true)
+                tags = tags + 19
+            end
+        end
+        local text = height(row.name) + 3 + height(row.slot) + (row.stats:GetText() ~= "" and (3 + height(row.stats)) or 0)
+        local h = math.max(LOOT.icon, text, tags) + LOOT.pad * 2
+        row:ClearAllPoints()
+        row:SetPoint("TOPLEFT", f, "TOPLEFT", 3, -y)
+        row:SetPoint("TOPRIGHT", f, "TOPRIGHT", -3, -y)
+        row:SetHeight(h)
+        row.edge:SetShown(i < #loot)
+        row:Show()
+        y = y + h
+    end
+    f:SetHeight(y + 3 + (#loot == 0 and 6 or 0))
+end
+
+local function stand(f, block)
+    f:ClearAllPoints()
+    if block and block.GetTop then
+        f:SetPoint("RIGHT", block, "LEFT", -LOOT.gap, 0)
+        f.cornerRim:ClearAllPoints()
+        f.cornerRim:SetPoint("CENTER", f, "RIGHT", 0, 0)
+        f.corner:ClearAllPoints()
+        f.corner:SetPoint("CENTER", f, "RIGHT", -1, 0)
+        f.cornerRim:Show()
+        f.corner:Show()
+    else
+        f:SetPoint("CENTER")
+        f.cornerRim:Hide()
+        f.corner:Hide()
+    end
+end
+
+-- Opened beside a row of the panel; the same boss again puts it away.
+function P.ToggleLoot(entry, block)
+    if lootFrame and lootFrame:IsShown() and lootFrame.npc == entry.npc then P.HideLoot() return false end
+    if not lootFrame then buildLoot() end
+    local f = lootFrame
+    f.entry, f.npc = entry, entry.npc
+    P.DrawLoot()
+    stand(f, block)
+    f:Show()
+    if P.Refresh then pcall(P.Refresh) end
+    return true
+end
+
+-- Stood again beside the row of its boss after the panel is laid out anew.
+function P.AnchorLoot(block)
+    local f = lootFrame
+    if not (f and f:IsShown() and block) then return end
+    stand(f, block)
+end
+
+function P.HideLoot()
+    if lootFrame and lootFrame:IsShown() then lootFrame:Hide() end
+end
+
+-- The boss whose loot is open (his row wears the gold frame).
+function P.LootOpenFor() return lootFrame and lootFrame:IsShown() and lootFrame.npc or nil end

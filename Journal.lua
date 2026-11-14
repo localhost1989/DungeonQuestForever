@@ -1516,6 +1516,12 @@ local PLATE = {
     grey = {bg=hex("2D3138", .88), bar=hex("A7AFBC"), text="f1f3f6"},
     red = {bg=hex("4A1F1F", .88), bar=hex("E04E4E"), text="ffd7d7"},
 }
+-- The gold frame of a boss row: his loot open beside it, or a best-in-slot thing in it.
+-- (ChatGPT's code layout: fill #624617B8, rim 2 px #E1B03F. A boss with a best-in-slot thing
+-- is told by the gold dot and the words after his name, as on the layout.)
+local GILD = {
+    open = {fill=hex("624617", .72), edge=hex("E1B03F"), size=2},
+}
 local function fontOf(entry)
     local own = ownFonts()
     if entry.section or entry.group or entry.routeCount then return own.label or GameFontNormalMed2 or GameFontNormal end
@@ -1667,8 +1673,11 @@ local function bossRows(d, rows, inside)
         end
     end
     if total == 0 then return {} end
-    table.insert(list, 1, {section=L"Боссы • убито " .. dead .. L" из " .. total,
-        about=L"Все боссы подземелья по порядку. Убитый остаётся в списке зачёркнутым. ПКМ по боссу отмечает его убитым или возвращает."})
+    -- The owner: "the parts Bosses and Quests have to fold" (the layout of ChatGPT, approved).
+    local head = {section=L"Боссы • убито " .. dead .. L" из " .. total, fold="bosses",
+        about=L"Все боссы подземелья по порядку. Щелчок по боссу — его добыча. ПКМ — отметить убитым или вернуть. Щелчок по заголовку сворачивает список."}
+    if db and db.folds and db.folds.bosses then return {head} end
+    table.insert(list, 1, head)
     return list
 end
 
@@ -1752,7 +1761,7 @@ local function layout(self)
         if block.CreateTexture then
             if label and not block.rule then
                 block.rule = block:CreateTexture(nil, "ARTWORK")
-                if block.rule.SetColorTexture then block.rule:SetColorTexture(.655, .522, .302, .6) end
+                if block.rule.SetColorTexture then block.rule:SetColorTexture(.608, .490, .310, .6) end   -- #9B7D4F99
                 block.rule:SetHeight(1)
                 block.rule:SetPoint("BOTTOMLEFT", block, "BOTTOMLEFT", 0, -3)
                 block.rule:SetPoint("BOTTOMRIGHT", block, "BOTTOMRIGHT", 0, -3)
@@ -1795,6 +1804,8 @@ local function layout(self)
             end
         end
         if block.Dress then block:Dress(sign) end
+        if block.Gild then block:Gild(nil) end
+        if block.FoldSign then block:FoldSign(nil) end
         self.fromBlockOffsetY = (label and i > first) and -13 or (sign and block.Dress and (nativeLook() and -6 or -9) or -4)
         if browsing and entry.group then
             block:SetHeader(labelTone .. entry.section .. "|r")
@@ -1862,6 +1873,9 @@ local function layout(self)
                 elseif entry.big then
                     block:SetHeader("  |cff" .. PLATE.red.text .. L"Следующий босс: " .. entry.name .. "|r" .. (near and (L"|cff71c886 • рядом, метка над ним|r") or ""))
                 else
+                    local open = P.LootOpenFor and P.LootOpenFor() == entry.npc
+                    if block.Gild then block:Gild(open and "open" or nil) end
+                    if open and P.AnchorLoot then P.AnchorLoot(block) end
                     block:SetHeader("  " .. entry.name .. (near and (L"|cff71c886 • рядом, метка над ним|r") or entry.next and (L"|cffffd34d • следующий|r")
                         or entry.optional and (DIM .. L" • по желанию|r") or "")
                         .. ((entry.best or 0) > 0 and (L"|cffffd34d • лучшее в слот: " .. entry.best .. "|r")
@@ -1902,6 +1916,7 @@ local function layout(self)
         elseif entry.section then
             block:SetHeader(labelTone .. entry.section .. "|r")
             if entry.under then addLine(block, "under", DIM .. entry.under .. "|r") end
+            if entry.fold and block.FoldSign then block:FoldSign((db.folds and db.folds[entry.fold]) and "folded" or "open") end
         elseif entry.via then
             local far = entry.place and P.DistanceText(entry.place)
             block:SetHeader("  " .. entry.title .. (far and (DIM .. " • " .. far .. "|r") or ""))
@@ -2793,6 +2808,68 @@ local function newBoard()
             go:Show()
             self.height = (self.height or 0) + 34
         end
+        -- The gold frame of a boss row (the layout of ChatGPT, approved 14.11.2026): "open"
+        -- while his loot window stands beside it, "bis" (softer) while he drops a thing that
+        -- is the best for its slot; nil, none.
+        function block:Gild(mode)
+            if not mode then
+                if self.gild then self.gild:Hide() end
+                return
+            end
+            if not self.gild then
+                local g = CreateFrame("Frame", nil, self)
+                g:SetPoint("TOPLEFT", self, "TOPLEFT", -4, 4)
+                g:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 4, -4)
+                g.fill = g:CreateTexture(nil, "BACKGROUND")
+                g.fill:SetAllPoints()
+                g.edges = {}
+                for i = 1, 4 do g.edges[i] = g:CreateTexture(nil, "BORDER") end
+                g.edges[1]:SetPoint("TOPLEFT"); g.edges[1]:SetPoint("TOPRIGHT")
+                g.edges[2]:SetPoint("BOTTOMLEFT"); g.edges[2]:SetPoint("BOTTOMRIGHT")
+                g.edges[3]:SetPoint("TOPLEFT"); g.edges[3]:SetPoint("BOTTOMLEFT")
+                g.edges[4]:SetPoint("TOPRIGHT"); g.edges[4]:SetPoint("BOTTOMRIGHT")
+                if g.EnableMouse then g:EnableMouse(false) end
+                self.gild = g
+            end
+            local g, look = self.gild, GILD[mode] or GILD.open
+            if g.fill.SetColorTexture then g.fill:SetColorTexture(look.fill[1], look.fill[2], look.fill[3], look.fill[4]) end
+            for i, edge in ipairs(g.edges) do
+                if edge.SetColorTexture then edge:SetColorTexture(look.edge[1], look.edge[2], look.edge[3], look.edge[4]) end
+                if i <= 2 then edge:SetHeight(look.size) else edge:SetWidth(look.size) end
+            end
+            if g.SetFrameLevel and self.GetFrameLevel then g:SetFrameLevel(math.max(0, (self:GetFrameLevel() or 1) - 1)) end
+            g:Show()
+        end
+        -- The sign of a part that folds, at the right of its label (ChatGPT's code layout:
+        -- 19 x 19, ground #291E18, rim #A98851, the sign #F9CB5C): a minus open, a plus folded.
+        function block:FoldSign(state)
+            if state == nil then
+                if self.foldSign then self.foldSign:Hide() end
+                return
+            end
+            if not self.foldSign then
+                local f = CreateFrame("Frame", nil, self)
+                f:SetSize(19, 19)
+                f:SetPoint("TOPRIGHT", self, "TOPRIGHT", (self.rightEdgeOffset or 0) - 2, 2)
+                if f.EnableMouse then f:EnableMouse(false) end
+                local function tex(layer, sub) return f:CreateTexture(nil, layer, nil, sub) end
+                f.rim, f.ground, f.across, f.down = tex("BACKGROUND", 1), tex("BACKGROUND", 2), tex("ARTWORK"), tex("ARTWORK")
+                f.rim:SetAllPoints()
+                f.ground:SetPoint("TOPLEFT", 1, -1)
+                f.ground:SetPoint("BOTTOMRIGHT", -1, 1)
+                f.across:SetSize(9, 2)
+                f.across:SetPoint("CENTER")
+                f.down:SetSize(2, 9)
+                f.down:SetPoint("CENTER")
+                local function paint(t, h)
+                    if t.SetColorTexture then t:SetColorTexture(tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255, 1) end
+                end
+                paint(f.rim, "A98851"); paint(f.ground, "291E18"); paint(f.across, "F9CB5C"); paint(f.down, "F9CB5C")
+                self.foldSign = f
+            end
+            self.foldSign.down:SetShown(state == "folded")
+            self.foldSign:Show()
+        end
         -- A line through the name: a boss that is dead.
         function block:Strike(on)
             if not on then
@@ -2939,10 +3016,9 @@ local function attach()
                 return
             end
             if entry.stop then
-                if entry.npc and P.HasPlan and P.HasPlan(entry.npc) then
-                    if db then db.floorOff = nil end
-                    P.Refresh()
-                end
+                -- The owner: "a left click on a boss in the list, and all he drops can be
+                -- seen". The window of his loot beside the row; a second click puts it away.
+                if entry.npc and not entry.dim and not entry.wing and P.ToggleLoot then P.ToggleLoot(entry, block) end
                 return
             end
             if entry.book then
@@ -2972,6 +3048,13 @@ local function attach()
                 return
             end
             if entry.section then
+                if entry.fold then
+                    db.folds = db.folds or {}
+                    db.folds[entry.fold] = not db.folds[entry.fold] or nil
+                    if entry.fold == "bosses" and db.folds.bosses and P.HideLoot then P.HideLoot() end
+                    P.Refresh()
+                    return
+                end
                 if entry.rows and entry.rows[1] then openRoute(entry.rows[1]) end
                 return
             end
@@ -3640,11 +3723,13 @@ function P.Refresh()
                 -- The bosses before the quests, as on the layout.
                 for _, row in ipairs(folded) do table.insert(detailRows, row) end
                 if #tasks[1] + #tasks[2] + #tasks[3] > 0 then
-                    table.insert(detailRows, {section=L"Задания", about=L"Задания этого похода: что ещё надо взять внутри, что в журнале, что готово к сдаче."})
-                    for _, list in ipairs(tasks) do
-                        for _, row in ipairs(list) do
-                            row.brief = true
-                            table.insert(detailRows, row)
+                    table.insert(detailRows, {section=L"Задания", fold="tasks", about=L"Задания этого похода: что ещё надо взять внутри, что в журнале, что готово к сдаче. Щелчок по заголовку сворачивает список."})
+                    if not (db.folds and db.folds.tasks) then
+                        for _, list in ipairs(tasks) do
+                            for _, row in ipairs(list) do
+                                row.brief = true
+                                table.insert(detailRows, row)
+                            end
                         end
                     end
                 end
