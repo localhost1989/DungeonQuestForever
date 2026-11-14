@@ -1403,7 +1403,8 @@ local function drawNav(self, options)
                 link=function() if P.ToggleBook then P.ToggleBook(selected) end end}
             -- The owner: "one button on top: share all the quests with the group, and ask
             -- them to share the ones missing; and our addon's word goes in there."
-            if IsInGroup and IsInGroup() and P.ShareWithGroup then
+            -- (Always shown: alone it was nowhere to be found; out of a group it says so.)
+            if P.ShareWithGroup then
                 items[#items+1] = {text=L"Поделиться", tip=L"Поделиться с группой всеми заданиями этого подземелья, что у тебя в журнале, и попросить в чате группы недостающие. Аддон у других поделится ими сам.",
                     link=function() P.ShareWithGroup() end}
             end
@@ -3709,29 +3710,13 @@ function P.Refresh()
                         end
                     end
                 end
-                -- The owner: "the quest I have to take in Undercity is somewhere in the middle,
-                -- and the ones I will take and do by the way in are up on top: rank them by
-                -- the distance from the dungeon." The errands to run to go far from the
-                -- dungeon first and nearest to it last: the road ends at the door. (Another
-                -- continent is the farthest of all; a place unknown goes last of them.)
-                do
-                    local doors = {P.Door and P.Door(selected), atlas.Entrance and atlas.Entrance(selected)}
-                    local function fromDungeon(row)
-                        if not row.place then return -1 end
-                        local best
-                        for _, door in ipairs(doors) do
-                            local ok, yards = pcall(atlas.Span, row.place, door)
-                            if ok and yards and (not best or yards < best) then best = yards end
-                        end
-                        return best or 1e9
-                    end
-                    for i, row in ipairs(errands) do row.fromDungeon, row.index2 = fromDungeon(row), i end
-                    table.sort(errands, function(a, b)
-                        if a.fromDungeon ~= b.fromDungeon then return a.fromDungeon > b.fromDungeon end
-                        return a.index2 < b.index2
-                    end)
-                end
-                -- Taken on the way in, then asked of the group: after everything else.
+                -- The order of the getting ready, in the owner's words: "first get ready for the
+                -- dungeon: the quests one cannot go in without, taken somewhere outside or
+                -- shared by the group; what is by the way in is done on arriving" (he was led
+                -- first to a quest by the door). Three stages: (1) far from the dungeon, to be
+                -- run to, the farthest first; (2) to ask of the group; (3) by the dungeon - at
+                -- the way in or within its neighbourhood - the farthest of them first, so the
+                -- road ends at the door. (Another continent is the farthest of all.)
                 for _, which in ipairs({"atDoor", "askGroup"}) do
                     for _, group in ipairs(order) do
                         for _, row in ipairs(group.rows) do
@@ -3742,6 +3727,29 @@ function P.Refresh()
                             end
                         end
                     end
+                end
+                do
+                    local NEARBY = 1500
+                    local doors = {P.Door and P.Door(selected), atlas.Entrance and atlas.Entrance(selected)}
+                    local function fromDungeon(row)
+                        if not row.place then return -1 end
+                        local best
+                        for _, door in ipairs(doors) do
+                            local ok, yards = pcall(atlas.Span, row.place, door)
+                            if ok and yards and (not best or yards < best) then best = yards end
+                        end
+                        return best or 1e9
+                    end
+                    for i, row in ipairs(errands) do
+                        row.fromDungeon, row.index2 = fromDungeon(row), i
+                        row.nearDungeon = row.atDoor or (row.fromDungeon >= 0 and row.fromDungeon <= NEARBY) or nil
+                        row.stage = row.askGroup and 2 or row.nearDungeon and 3 or 1
+                    end
+                    table.sort(errands, function(a, b)
+                        if a.stage ~= b.stage then return a.stage < b.stage end
+                        if a.fromDungeon ~= b.fromDungeon then return a.fromDungeon > b.fromDungeon end
+                        return a.index2 < b.index2
+                    end)
                 end
                 -- The owner: "when all the chains are done, a notice: you have taken all the
                 -- quests, but these ask to be shared." No chain left out here, and quests
@@ -3763,8 +3771,6 @@ function P.Refresh()
                 if askNow then
                     local names = {}
                     for _, row in ipairs(askFor) do names[#names+1] = "«" .. P.Title(row.step or row.id) .. "»" end
-                    table.insert(detailRows, 1, {status=L"Цепочки сделаны — попроси группу поделиться", good=true, plate="blue",
-                        note=table.concat(names, ", ")})
                     if shareWas[selected.key] == false then
                         local text = atlas.DungeonName(selected) .. (L": цепочки сделаны. Попроси группу поделиться: ") .. table.concat(names, ", ")
                         say(text)
@@ -3857,9 +3863,21 @@ function P.Refresh()
                         for _, row in ipairs(have) do table.insert(detailRows, row) end
                     end
                     -- The status of the page when there is something to do out here.
-                    local lead
-                    for _, row in ipairs(errands) do if not row.askGroup then lead = row break end end
-                    if lead and not askNow then
+                    local lead = errands[1]
+                    if lead and lead.stage == 2 then
+                        -- To be asked of the group: the plate says which, and its button asks.
+                        local names, asks = {}, 0
+                        for _, row in ipairs(errands) do
+                            if row.stage == 2 then asks = asks + 1; names[#names+1] = "«" .. P.Title(row.step or row.id) .. "»" end
+                        end
+                        table.insert(detailRows, 1, {status=L"Попроси группу поделиться: " .. asks, plate="blue",
+                            lines={table.concat(names, ", ")},
+                            go=function() if P.ShareWithGroup then P.ShareWithGroup() end end,
+                            goText=L"Попросить поделиться",
+                            goNote=L"Поделиться с группой своими заданиями этого подземелья и попросить в чате группы эти. Аддон у других поделится ими сам."})
+                        lead = nil
+                    end
+                    if lead then
                         local who = lead.place and atlas.PlaceName(lead.place)
                         local zone = lead.place and lead.place.mapID and atlas.ZoneName(lead.place.mapID)
                         local far = P.Reach(lead.place)
@@ -3881,7 +3899,8 @@ function P.Refresh()
                             if who then parts[#parts+1] = who end
                             if zone and zone ~= who then parts[#parts+1] = zone end
                             if far then parts[#parts+1] = far end
-                            status = {status=left > 0 and (L"Возьми ещё " .. left .. " " .. plural(left, L"задание", L"задания", L"заданий") .. L" из " .. #prep)
+                            status = {status=lead.stage == 3 and (L"У входа: " .. (lead.handin and (L"сдать") or lead.working and (L"доделать") or (L"взять")) .. " «" .. P.Title(lead.step or lead.id) .. "»")
+                                or left > 0 and (L"Возьми ещё " .. left .. " " .. plural(left, L"задание", L"задания", L"заданий") .. L" из " .. #prep)
                                 or (L"Доделай снаружи: " .. #work), plate="gold",
                                 lines={L"Начни с: " .. table.concat(parts, " • ")},
                                 goText=L"Путь к первому", goNote=L"Стрелка поведёт к первому делу самым быстрым путём: сначала дальние от подземелья, у входа — последними."}
@@ -4454,7 +4473,7 @@ do
     function P.ShareWithGroup()
         if not (selected and result) then return end
         local channel = groupChannel()
-        if not channel then say(L"Ты не в группе: делиться не с кем.") return end
+        if not channel then say(L"Ты не в группе: делиться не с кем. Вступи в группу — тогда кнопка поделится твоими заданиями и попросит недостающие.") return end
         local mineIds, want, names = {}, {}, {}
         for _, row in ipairs(result.rows) do
             local id = row.step or row.id

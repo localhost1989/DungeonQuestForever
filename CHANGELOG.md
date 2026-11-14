@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.42.0
+- The getting ready goes in three stages: first the quests far from the dungeon you have to run to, then those to ask of the group, then what is by the way in (done on arriving). The status follows: "Take N more" with the first errand, "Ask the group to share: N" with an "Ask to share" button, or "At the entrance: ..." last.
+- The "Share" word is always on top; out of a group it says to join one.
+
 ## 3.41.2
 - Fixed: an item your class cannot wear (leather for a mage, an axe for a priest) is no longer weighed as "better than worn" or "best in slot", in the loot line or anywhere else.
 
