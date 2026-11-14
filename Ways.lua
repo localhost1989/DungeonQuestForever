@@ -1854,13 +1854,83 @@ function P.LearnFlights()
     if P.Refresh then pcall(P.Refresh) end
 end
 
+-- The owner, at the flight master the way led to: "can we light up on the flight map
+-- where we have to fly?" The point the way flies to gets a light and the pointing hand on
+-- the game's flight map, and its name is said once.
+local taxiMark
+local function flightWanted()
+    local goal = P.char and P.char.goal
+    local plan = goal and P.Plan(goal)
+    for _, leg in ipairs(plan and plan.legs or {}) do
+        if leg.fly then return leg.land end
+    end
+    return plan and plan.fly and plan.land or nil
+end
+function P.MarkFlight()
+    if taxiMark then taxiMark:Hide() end
+    local land = flightWanted()
+    if not (land and NumTaxiNodes and TaxiNodeName) then return end
+    local town = land:match("^(.-),") or land
+    local ok, count = pcall(NumTaxiNodes)
+    for i = 1, ok and tonumber(count) or 0 do
+        local okName, name = pcall(TaxiNodeName, i)
+        local button = _G["TaxiButton" .. i]
+        if okName and type(name) == "string" and button and button.IsShown and button:IsShown()
+            and (name == land or name:find(town, 1, true) or land:find((name:match("^(.-),") or name), 1, true)) then
+            if not taxiMark then
+                taxiMark = CreateFrame("Frame", "DungeonQuestForeverTaxiMark", UIParent)
+                taxiMark:SetSize(40, 40)
+                taxiMark:SetFrameStrata("DIALOG")
+                taxiMark:EnableMouse(false)
+                taxiMark.glow = taxiMark:CreateTexture(nil, "BACKGROUND")
+                taxiMark.glow:SetTexture("Interface\\Cooldown\\star4")
+                taxiMark.glow:SetBlendMode("ADD")
+                taxiMark.glow:SetVertexColor(.4, 1, .45)
+                taxiMark.glow:SetSize(72, 72)
+                taxiMark.glow:SetPoint("CENTER")
+                taxiMark.hand = taxiMark:CreateTexture(nil, "OVERLAY")
+                taxiMark.hand:SetSize(30, 30)
+                taxiMark.hand:SetPoint("BOTTOM", taxiMark, "TOP", 0, -6)
+                local faction = UnitFactionGroup and UnitFactionGroup("player")
+                local hand = faction == "Horde" and "hand_horde" or faction == "Alliance" and "hand_alliance" or "arrow"
+                taxiMark.hand:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\" .. hand)
+                if taxiMark.hand.SetRotation then taxiMark.hand:SetRotation(math.pi) end
+                pcall(function()
+                    local pulse = taxiMark.glow:CreateAnimationGroup()
+                    pulse:SetLooping("BOUNCE")
+                    local fade = pulse:CreateAnimation("Alpha")
+                    fade:SetFromAlpha(.35)
+                    fade:SetToAlpha(1)
+                    fade:SetDuration(.6)
+                    taxiMark.pulse = pulse
+                end)
+            end
+            taxiMark:SetParent(button:GetParent() or UIParent)
+            taxiMark:SetFrameStrata("DIALOG")
+            taxiMark:ClearAllPoints()
+            taxiMark:SetPoint("CENTER", button, "CENTER")
+            taxiMark:Show()
+            if taxiMark.pulse then taxiMark.pulse:Play() end
+            taxiMark.name = name
+            if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage(L"|cffedc36fDungeon Quest Forever|r • лети в: " .. name) end
+            return name
+        end
+    end
+end
+
 do
     local watch = CreateFrame and CreateFrame("Frame", "DungeonQuestForeverFlights", UIParent)
     if watch and watch.RegisterEvent then
         pcall(watch.RegisterEvent, watch, "TAXIMAP_OPENED")
-        watch:SetScript("OnEvent", function()
+        pcall(watch.RegisterEvent, watch, "TAXIMAP_CLOSED")
+        watch:SetScript("OnEvent", function(_, event)
+            if event == "TAXIMAP_CLOSED" then
+                if taxiMark then taxiMark:Hide() end
+                return
+            end
             -- The game fills the map a moment after it opens.
-            if C_Timer and C_Timer.After then C_Timer.After(.3, function() pcall(P.LearnFlights) end) else pcall(P.LearnFlights) end
+            local function opened() pcall(P.LearnFlights); pcall(P.MarkFlight) end
+            if C_Timer and C_Timer.After then C_Timer.After(.3, opened) else opened() end
         end)
         local since = 0
         watch:SetScript("OnUpdate", function(_, elapsed)

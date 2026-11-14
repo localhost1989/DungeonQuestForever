@@ -189,6 +189,17 @@ function P.Progress(d)
             if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) then ready = ready + 1 end
         elseif availableBranch(id) then
             total = total + 1
+            -- A step of its chain in the log is the quest under way: the owner, at the
+            -- list of dungeons, "where I have quests not handed in, a question mark should
+            -- hang, not an exclamation mark."
+            local ok, steps = pcall(P.Chain, id)
+            for _, step in ipairs(ok and type(steps) == "table" and steps or {}) do
+                if step ~= id and active(step) then
+                    taken = taken + 1
+                    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(step) then ready = ready + 1 end
+                    break
+                end
+            end
         end
     end
     return finished, total, taken, ready

@@ -308,10 +308,10 @@ local function stateOf(row)
     return "take"
 end
 
--- How far a dungeon is done: handed in, all, in the log.
+-- How far a dungeon is done: handed in, all, in the log, ready to hand in.
 local function progressOf(d)
-    local finished, total, taken = P.Progress(d)
-    return {finished=finished or 0, total=total or 0, taken=taken or 0}
+    local finished, total, taken, ready = P.Progress(d)
+    return {finished=finished or 0, total=total or 0, taken=taken or 0, ready=ready or 0}
 end
 
 local function chainOf(id)
@@ -331,9 +331,19 @@ local function build()
     items = {}
     if not dungeon then return end
     if mode == "dungeons" then
+        -- The owner: "so that the done dungeons can be hidden, and marked done too: the
+        -- Blackfathom Deeps I will not go to any more." Marked by hand (the right click,
+        -- the same mark as the panel's menu, db.hidden) or all handed in: passed; the
+        -- button on top hides the passed.
+        local db = P.char or {}
+        db.hidden = db.hidden or {}
         for _, d in ipairs(P.Catalog()) do
             local c = progressOf(d)
-            if c.total > 0 then items[#items+1] = {kind="dungeon", d=d, count=c, height=40} end
+            local marked = db.hidden[d.key] and true or false
+            local passed = marked or c.finished >= c.total
+            if c.total > 0 and not (db.bookHideDone and passed) then
+                items[#items+1] = {kind="dungeon", d=d, count=c, marked=marked, passed=passed, height=40}
+            end
         end
         return
     end
@@ -470,13 +480,15 @@ local function draw()
     local name = dungeon and atlas.DungeonName(dungeon) or (L"Подземелья")
     book.name:SetText(mode == "dungeons" and (L"Подземелья") or name)
     if mode == "dungeons" then
-        book.meta:SetText(L"Уровень персонажа: " .. (UnitLevel and UnitLevel("player") or "?"))
+        book.meta:SetText(L"Уровень персонажа: " .. (UnitLevel and UnitLevel("player") or "?") .. L"  •  ПКМ — отметить пройденным")
     else
         local c = dungeon and progressOf(dungeon) or {finished=0, total=0}
         book.meta:SetText((L"Уровень: %d–%d    Выполнено: %d/%d"):format(dungeon.minLevel or 0, dungeon.maxLevel or 0, c.finished, c.total))
     end
     view.name, view.meta = name, book.meta.text
     book.switch.label:SetText(mode == "dungeons" and (L"Назад") or (L"Подземелья"))
+    book.hideDone:SetShown(mode == "dungeons")
+    book.hideDone.label:SetText((P.char and P.char.bookHideDone) and (L"Показать пройденные") or (L"Скрыть пройденные"))
     -- The list.
     offset = math.max(0, math.min(offset, math.max(0, #items - 1)))
     local y, shown = 0, 0
@@ -520,9 +532,12 @@ local function draw()
             title = (item.small and "|cffc8b27a" or "|cff6cc4ff") .. item.text .. "|r"
         elseif item.kind == "dungeon" then
             local c = item.count
-            sign = c.finished >= c.total and SIGN.done or c.taken > 0 and SIGN.log or SIGN.take
-            title = "|cffffd100" .. atlas.DungeonName(item.d) .. "|r"
+            -- Quests in the log, or a step of a chain: "?" (gold when one is ready to hand in);
+            -- something left to take: "!"; all handed in or marked passed: the tick.
+            sign = item.passed and SIGN.done or c.ready > 0 and SIGN.ready or c.taken > 0 and SIGN.log or SIGN.take
+            title = (item.marked and "|cff9a9a9a" or "|cffffd100") .. atlas.DungeonName(item.d) .. "|r"
             sub = (L"Уровень %d–%d  •  выполнено %d/%d"):format(item.d.minLevel or 0, item.d.maxLevel or 0, c.finished, c.total)
+                .. (item.marked and (L"  •  отмечено пройденным") or "")
         end
         row.plate:SetShown(plate)
         row.sign:SetShown(sign ~= nil)
@@ -681,8 +696,12 @@ local function create()
         frame:SetScript("OnHyperlinkLeave", function() GameTooltip:Hide() end)
     end)
 
+    -- The owner, at the right page: "how can anything be read here?" The frame of the game
+    -- this book is made on lays its own dark marble over the inside, over the parchment:
+    -- dark ink on dark. Its marble is put away and the pages lie on top.
+    if type(frame.InsetBg) == "table" and frame.InsetBg.Hide then frame.InsetBg:Hide() end
     -- The left page: dark, with the cards.
-    local left = frame:CreateTexture(nil, "BACKGROUND")
+    local left = frame:CreateTexture(nil, "BACKGROUND", nil, 7)
     if left.SetColorTexture then left:SetColorTexture(.07, .05, .04, .92) end
     left:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -26)
     left:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 8, 8)
@@ -704,6 +723,19 @@ local function create()
     switch:SetScript("OnClick", function()
         mode = mode == "dungeons" and "quests" or "dungeons"
         offset, picked, lootAt = 0, nil, 0
+        draw()
+    end)
+    local hide = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.hideDone = hide
+    hide:SetSize(150, 22)
+    hide:SetPoint("RIGHT", switch, "LEFT", -6, 0)
+    if hide.SetFrameLevel and frame.GetFrameLevel then hide:SetFrameLevel((frame:GetFrameLevel() or 1) + 10) end
+    hide.label = hide:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    hide.label:SetPoint("CENTER")
+    hide:SetScript("OnClick", function()
+        local db = P.char
+        if db then db.bookHideDone = not db.bookHideDone or nil end
+        offset = 0
         draw()
     end)
     local list = CreateFrame("Frame", nil, frame)
@@ -759,7 +791,15 @@ local function create()
         row:SetScript("OnClick", function(self, mouse)
             local item = self.item
             if not item then return end
-            if item.kind == "dungeon" then
+            if item.kind == "dungeon" and mouse == "RightButton" then
+                -- Marked passed, or back in the list.
+                local db = P.char
+                if db then
+                    db.hidden = db.hidden or {}
+                    db.hidden[item.d.key] = not db.hidden[item.d.key] or nil
+                    if P.Refresh then P.Refresh() end
+                end
+            elseif item.kind == "dungeon" then
                 dungeon, mode, offset, picked, lootAt = item.d, "quests", 0, nil, 0
                 if P.Choose then P.Choose(item.d) end
             elseif item.kind == "boss" and mouse == "RightButton" then
@@ -777,7 +817,7 @@ local function create()
     end
 
     -- The right page: parchment, with the quest in the game's own quest fonts.
-    local paper = frame:CreateTexture(nil, "BACKGROUND")
+    local paper = frame:CreateTexture(nil, "BACKGROUND", nil, 7)
     if paper.SetColorTexture then paper:SetColorTexture(.90, .83, .66, 1) end
     paper:SetPoint("TOPLEFT", frame, "TOPLEFT", LEFT + 14, -26)
     paper:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -8, 8)

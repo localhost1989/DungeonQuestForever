@@ -19,6 +19,8 @@ local probing, cleaned, planGuide
 local led
 -- By dungeon: whether at the last refresh everything outside was taken (nil: not seen yet).
 local readyWas = {}
+-- By dungeon: whether at the last refresh the chains were done and quests to ask for left.
+local shareWas = {}
 -- Whether the last refresh found the player inside the dungeon of the page; nil at first.
 local wasInside
 
@@ -1243,11 +1245,25 @@ P.WantedFor = wantedFor
 local glowSaid = {}
 function P.SoftTargetChanged(guid)
     if not db or db.noGlow then return end
-    local id = atlas.ObjectIDFromGUID(guid or (UnitGUID and UnitGUID("softinteract")))
+    local raw = guid or (UnitGUID and UnitGUID("softinteract"))
+    local id = atlas.ObjectIDFromGUID(raw)
+    -- Inside a dungeon the game may not tell an addon which thing is in sight (its number
+    -- is a "secret"), and the things there are mostly the run's own: the game's icon goes
+    -- over every one. (The owner, at the quest's book in the Library: "I did not see the
+    -- light.")
+    local inside = IsInInstance and IsInInstance()
+    local secret = raw ~= nil and issecretvalue and issecretvalue(raw)
+    if inside and raw ~= nil and (secret or id) then
+        if atlas.QuestObjectIcon then atlas.QuestObjectIcon(true) end
+        if secret then
+            if atlas.ObjectSign then atlas.ObjectSign(false, "inside, the thing not told") end
+            return
+        end
+    end
     local quest = id and wantedFor(id)
     -- The game's icon over it only if a quest wants it: not over chairs and mailboxes;
     -- and the hand over it, as over a boss.
-    if atlas.QuestObjectIcon then atlas.QuestObjectIcon(quest ~= nil) end
+    if atlas.QuestObjectIcon then atlas.QuestObjectIcon(quest ~= nil or (inside and id ~= nil)) end
     if atlas.ObjectSign then atlas.ObjectSign(quest ~= nil, id and ("object " .. id .. " quest " .. tostring(quest or "-")) or nil) end
     if not quest then return end
     local now = GetTime and GetTime() or 0
@@ -1827,7 +1843,7 @@ local function layout(self)
                 addLine(block, "line" .. i, line)
             end
         elseif entry.status then
-            block:SetHeader("  " .. (entry.ready and "|cff7dff8a" or entry.muted and "|cffb0b0b0" or entry.good and "|cff71c886" or "|cffffd34d") .. entry.status .. "|r")
+            block:SetHeader("  " .. (entry.ready and "|cff7dff8a" or entry.share and "|cff7fd4ff" or entry.muted and "|cffb0b0b0" or entry.good and "|cff71c886" or "|cffffd34d") .. entry.status .. "|r")
             if entry.order then addLine(block, "order", "|cffffffff" .. entry.order .. "|r") end
             if entry.hint then addLine(block, "hint", entry.hint) end
             if entry.note then addLine(block, "note", DIM .. entry.note .. "|r") end
@@ -1929,7 +1945,6 @@ local function layout(self)
                     local c = info and info.level and info.level > 0 and GetQuestDifficultyColor(info.level)
                     if type(c) == "table" and c.r then tone = ("|cff%02x%02x%02x"):format(c.r * 255, c.g * 255, c.b * 255) end
                 end
-                block:SetHeader("  " .. tone .. (P.Title(goal or entry.id) or title) .. "|r")
                 local chain = ""
                 if goal then
                     local _, at, total = chainOf(goal)
@@ -1949,6 +1964,15 @@ local function layout(self)
                     end
                 end
                 local taken = entry.state == "active"
+                -- The owner: "beside the quests that can be shared, a mark that they are
+                -- shared; beside the chains, a mark that it is a chain", so that it is plain
+                -- which one he has to go through himself and which a friend can give.
+                local tags = ""
+                if not locked and (goal or links) then tags = tags .. " " .. ORANGE .. L"цепочка|r" end
+                if not locked and not taken and entry.share and not (goal or links) then
+                    tags = tags .. " |TInterface\\Icons\\INV_Misc_GroupNeedMore:14:14|t" .. BLUE .. L"делится|r"
+                end
+                block:SetHeader("  " .. tone .. (P.Title(goal or entry.id) or title) .. "|r" .. tags)
                 local act, said
                 if locked then
                     act = entry.note or (L"пока недоступно")
@@ -2071,7 +2095,7 @@ local function layout(self)
                     addLine(block, "act", act)
                     whereLine(false)
                 end
-                if entry.shared and not locked then addLine(block, "shared", L"им может поделиться группа") end
+                if entry.atDoor and not taken then addLine(block, "door", BLUE .. L"у входа: возьми по дороге в подземелье|r") end
             elseif entry.line then
                 -- An errand in a list: its quest and how far its giver is.
                 local far = P.Reach(entry.place)
@@ -3558,6 +3582,17 @@ function P.Refresh()
                     if distance and (not group.distance or distance < group.distance) then group.distance = distance end
                     row.brief, row.errand, row.chain = true, true, row.step ~= row.id or row.leads ~= nil
                     row.shared = kind == "take" and row.share
+                    -- The owner, in the Razorfen Downs: "the first quest was the one taken by
+                    -- the instance; mark it as taken on the way into the dungeon; first we
+                    -- have to do all the chains." A quest given within a few hundred yards of
+                    -- the way in is taken on the way: it goes last, and says so.
+                    row.atDoor = nil
+                    if kind == "take" and place and atlas.Span then
+                        for _, door in ipairs({P.Door and P.Door(selected), atlas.Entrance and atlas.Entrance(selected)}) do
+                            local ok, yards = pcall(atlas.Span, place, door)
+                            if ok and yards and yards <= 300 then row.atDoor = true end
+                        end
+                    end
                     row.handin = kind == "turnin" or kind == "chainturnin"
                     row.working = kind == "work"
                     row.rank, row.index = ranks[kind], #group.rows + 1
@@ -3594,12 +3629,47 @@ function P.Refresh()
                         return a.index < b.index
                     end)
                     for _, row in ipairs(group.rows) do
-                        errands[#errands+1] = row
-                        row.line = true
-                        local list = row.working and work or row.handin and hand or take
-                        list[#list+1] = row
+                        if not row.atDoor then
+                            errands[#errands+1] = row
+                            row.line = true
+                            local list = row.working and work or row.handin and hand or take
+                            list[#list+1] = row
+                        end
                     end
                 end
+                -- Taken on the way in: after everything else.
+                for _, group in ipairs(order) do
+                    for _, row in ipairs(group.rows) do
+                        if row.atDoor then
+                            errands[#errands+1] = row
+                            row.line = true
+                            take[#take+1] = row
+                        end
+                    end
+                end
+                -- The owner: "when all the chains are done, a notice: you have taken all the
+                -- quests, but these ask to be shared." No chain left out here, and quests
+                -- left that a member of the group can share: said on top, and once in the
+                -- middle of the screen when it comes to that.
+                local chainsLeft, askFor = #doing > 0, {}
+                for _, row in ipairs(errands) do
+                    if row.chain then chainsLeft = true end
+                    if row.share and not row.chain and not row.working and not row.handin then askFor[#askFor+1] = row end
+                end
+                local askNow = not chainsLeft and #askFor > 0
+                if askNow then
+                    local names = {}
+                    for _, row in ipairs(askFor) do names[#names+1] = "«" .. P.Title(row.step or row.id) .. "»" end
+                    table.insert(detailRows, 1, {status=L"Цепочки сделаны — попроси группу поделиться", good=true, share=true,
+                        note=table.concat(names, ", ")})
+                    if shareWas[selected.key] == false then
+                        local text = atlas.DungeonName(selected) .. (L": цепочки сделаны. Попроси группу поделиться: ") .. table.concat(names, ", ")
+                        say(text)
+                        if RaidNotice_AddMessage and RaidWarningFrame then pcall(RaidNotice_AddMessage, RaidWarningFrame, text, {r=.5, g=.83, b=1}) end
+                        if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.READY_CHECK or 8960) end
+                    end
+                end
+                shareWas[selected.key] = askNow
                 local toTake, toDo = #take, #work + #hand + #doing
                 local any = toTake + toDo + inLog + #shelves.inside > 0
                 -- The owner, of five sections by the kind of errand, one quest in two of

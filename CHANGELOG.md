@@ -1,5 +1,22 @@
 # Changelog
 
+## 3.38.1
+- The right page of the book is readable again: the frame's own dark marble lay over the parchment.
+
+## 3.38.0
+- Marks beside the quest names: "chain" (you go through it yourself) and "shared" with the group icon (a group member can give it to you).
+- When every chain outside is done and quests a group member can share are left, the panel says "Chains done: ask the group to share" with their names, and once in the middle of the screen with a sound.
+
+## 3.37.0
+- Quests given within a few hundred yards of the way into the dungeon go last in the list and say "at the entrance: take it on the way in"; chains and errands elsewhere come first.
+
+## 3.36.0
+- On the flight map, the point your way flies to is lit and pointed at with the hand, and its name is said ("fly to: ...").
+- Inside a dungeon, where the game does not tell an addon which object is in sight, the game's interact icon is shown over every usable object.
+
+## 3.35.0
+- The book's list of dungeons: a dungeon where a quest or a step of its chain is in your log shows "?" (gold when ready to hand in) instead of "!"; right-click marks a dungeon done (or back); "Hide done" hides the done and marked ones.
+
 ## 3.34.0
 - Lighter: only the walking graph of the continent you are on is kept read (about 5 MB instead of up to 15 MB), in cells four times larger (reading it is four times faster); the quest data keeps only the game's language (about 0.6 MB less).
 - The arrow counts its way ten times a second instead of twenty (it still turns with you every frame).
