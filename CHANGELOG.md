@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.43.0
+- "Share quests" on the status plate now shares every quest of the dungeon in your log with the group and asks in one English line for the ones you lack (with their English names). Others with the addon share them by themselves.
+- The chat lines carry no web address any more, just "find it on CurseForge".
+- Ready state: when only what is by the way in is left (to take, finish or hand in by the entrance or the pad), the green "All quests taken - you can go into the dungeon" shows, with "on the way: ..." and the shortest way.
+- Fixed: the flight map lit a wrong point (Brackenwall instead of Freewind Post). The point lit is now the one the panel and the arrow show, by its whole name.
+- Right-click on a quest opens the journal on that quest; the dark window it used to open is gone.
+
 ## 3.42.0
 - The getting ready goes in three stages: first the quests far from the dungeon you have to run to, then those to ask of the group, then what is by the way in (done on arriving). The status follows: "Take N more" with the first errand, "Ask the group to share: N" with an "Ask to share" button, or "At the entrance: ..." last.
 - The "Share" word is always on top; out of a group it says to join one.

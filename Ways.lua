@@ -1859,6 +1859,13 @@ end
 -- the game's flight map, and its name is said once.
 local taxiMark
 local function flightWanted()
+    -- Seen in the game: the panel and the arrow said "Flight: Freewind Post", the hand on
+    -- the flight map stood on Brackenwall. The point lit is the one the arrow and the panel
+    -- show; a way counted again only where they show no flight.
+    local heading = atlas.Target and atlas.Target()
+    local prefix = L"Перелёт: "
+    local title = heading and type(heading.title) == "string" and heading.title
+    if title and title:sub(1, #prefix) == prefix and #title > #prefix then return title:sub(#prefix + 1) end
     local goal = P.char and P.char.goal
     local plan = goal and P.Plan(goal)
     for _, leg in ipairs(plan and plan.legs or {}) do
@@ -1870,13 +1877,30 @@ function P.MarkFlight()
     if taxiMark then taxiMark:Hide() end
     local land = flightWanted()
     if not (land and NumTaxiNodes and TaxiNodeName) then return end
-    local town = land:match("^(.-),") or land
+    -- The name as it stands first; else the town before the comma, the same on both sides
+    -- (a name found inside another, or an empty one, once lit the wrong point).
+    local function town(name) return (name:match("^(.-),") or name):gsub("^%s+", ""):gsub("%s+$", "") end
     local ok, count = pcall(NumTaxiNodes)
+    local shown = {}
     for i = 1, ok and tonumber(count) or 0 do
         local okName, name = pcall(TaxiNodeName, i)
         local button = _G["TaxiButton" .. i]
-        if okName and type(name) == "string" and button and button.IsShown and button:IsShown()
-            and (name == land or name:find(town, 1, true) or land:find((name:match("^(.-),") or name), 1, true)) then
+        if okName and type(name) == "string" and name ~= "" and button and button.IsShown and button:IsShown() then
+            shown[#shown+1] = {name=name, button=button}
+        end
+    end
+    local pick
+    for _, node in ipairs(shown) do if node.name == land then pick = node break end end
+    if not pick and town(land) ~= "" then
+        for _, node in ipairs(shown) do if town(node.name) == town(land) then pick = node break end end
+    end
+    if P.char then
+        P.char.flightLog = {land=land, lit=pick and pick.name or false, shown=#shown,
+            at=GetServerTime and GetServerTime() or 0}
+    end
+    if pick then
+        local name, button = pick.name, pick.button
+        do
             if not taxiMark then
                 taxiMark = CreateFrame("Frame", "DungeonQuestForeverTaxiMark", UIParent)
                 taxiMark:SetSize(40, 40)

@@ -1072,7 +1072,7 @@ local EN = {
     ["Нажми на строку, чтобы увидеть следующий шаг."] = "Click the line to see the next step.",
     ["\nЗаданием может поделиться участник группы."] = "\nA party member can share this quest.",
     ["\n\nЦепочка заданий (шаг "] = "\n\nQuest chain (step ",
-    ["\nЩелчок — раскрыть или свернуть. Правая кнопка — карта и подробности."] = "\nClick — expand or collapse. Right-click — map and details.",
+    ["\nЩелчок — раскрыть или свернуть. Правая кнопка — журнал этого задания."] = "\nClick — expand or collapse. Right-click — this quest in the journal.",
     ["\nНажми, чтобы показать место на карте."] = "\nClick to show the place on the map.",
     ["Дальше"] = "Next",
     ["Предыдущая страница"] = "Previous page",
@@ -1101,12 +1101,16 @@ local EN = {
     ["Задания"] = "Quests",
     ["Задания этого похода: что ещё надо взять внутри, что в журнале, что готово к сдаче."] = "Quests for this run: what to pick up inside, what is in log, what is ready to turn in.",
     [": цепочки сделаны. Попроси группу поделиться: "] = ": chains done. Ask the group to share: ",
+    ["сдать"] = "hand in",
+    ["доделать"] = "finish",
+    ["взять"] = "take",
     ["в журнале: "] = "in the log: ",
     [" — делается внутри"] = ", done inside",
     [" — делаются внутри"] = ", done inside",
     ["снаружи брать нечего"] = "nothing to pick up outside",
     ["Все задания взяты — можно идти в подземелье"] = "All quests taken: you can go into the dungeon",
     ["Брать нечего — можно идти в подземелье"] = "Nothing to take: you can go into the dungeon",
+    ["по дороге: "] = "on the way: ",
     ["Ты уже был внутри"] = "You have been inside already",
     ["там осталось: "] = "left there: ",
     ["Взять снаружи • "] = "To take • ",
@@ -1114,7 +1118,7 @@ local EN = {
     ["Уже взято • "] = "Taken • ",
     ["Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри."] = "Quests in your log: what to do with them now: finish outside, hand in, or do inside.",
     ["Попроси группу поделиться: "] = "Ask the group to share: ",
-    ["Попросить поделиться"] = "Ask to share",
+    ["Поделиться заданиями"] = "Share quests",
     ["Поделиться с группой своими заданиями этого подземелья и попросить в чате группы эти. Аддон у других поделится ими сам."] = "Share your quests of this dungeon with the group and ask for these in the group chat. Others with the addon share them by themselves.",
     ["Сдай "] = "Hand in ",
     ["задание"] = "quest",
@@ -1125,9 +1129,6 @@ local EN = {
     ["Путь к сдаче"] = "Way to hand in",
     ["Стрелка поведёт к тому, кому сдавать, самым быстрым путём."] = "The arrow leads to the one to hand it to, by the fastest way.",
     ["У входа: "] = "At the entrance: ",
-    ["сдать"] = "hand in",
-    ["доделать"] = "finish",
-    ["взять"] = "take",
     ["Возьми ещё "] = "Take ",
     ["Доделай снаружи: "] = "Finish outside: ",
     ["Начни с: "] = "Start with: ",
@@ -1349,6 +1350,9 @@ local function store(kind)
     -- The other language is let go at once (the owner: "make it lighter"): each field read
     -- in two languages becomes the one the game speaks.
     for _, entry in pairs(all) do
+        -- The English name is kept beside it: the lines said to the group are in English.
+        local name = entry.name
+        if type(name) == "table" and name.__en ~= nil then entry.nameEn = name.__en end
         for field, value in pairs(entry) do
             if type(value) == "table" and (value.__ru ~= nil or value.__en ~= nil) then entry[field] = pick(value) end
         end
@@ -1358,6 +1362,11 @@ local function store(kind)
         local entry = all[id]
         if entry == nil then return nil end
         return pick(entry[field])
+    end
+    -- The name in English (for a line to a group of every tongue).
+    function s.GetEn(id)
+        local entry = all[id]
+        return entry and (entry.nameEn or entry.name) or nil
     end
     function s.GetAllIds()
         local ids = {}
@@ -1501,7 +1510,7 @@ function C.Init(db)
     for area, key in pairs(keys) do
         local entry = D.dungeons[area]
         if entry then
-            local d = {key=key, name=pick(entry[1]), areaId=area, instanceID=instanceOf[area], faction=factions[area] or "Both",
+            local d = {key=key, name=pick(entry[1]), nameEn=type(entry[1]) == "table" and entry[1].__en or entry[1], areaId=area, instanceID=instanceOf[area], faction=factions[area] or "Both",
                 quests={}, tips=tipKeys[key], minLevel=0, maxLevel=0}
             areaOwner[area] = d
             for _, other in ipairs(entry[2] or {}) do areaOwner[other] = d end

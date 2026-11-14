@@ -2987,10 +2987,13 @@ local function attach()
                 local step = readStep[entry.secret] or (entry.action == entry.secret[1] and 1 or 0)
                 readStep[entry.secret] = step < #entry.secret and step + 1 or nil
                 tracker:MarkDirty()
-            elseif entry.prep and tracker.isBoard and nativeLook() and mouse ~= "RightButton" then
+            elseif entry.prep and tracker.isBoard and nativeLook() and mouse == "RightButton" then
+                -- The owner: "how do we get to the journal? a right click on the quest, and
+                -- the black window it opened is not needed any more." The book opens on it.
+                if P.OpenBook then P.OpenBook(selected, entry.step ~= entry.id and entry.step or entry.id) end
+            elseif entry.prep and tracker.isBoard and nativeLook() then
                 -- In the look of the game's quests a click unfolds the quest in place and
-                -- sets the arrow; a click on the unfolded one folds it again. The window
-                -- with the map and the buttons is behind the right button.
+                -- sets the arrow; a click on the unfolded one folds it again.
                 local key = ((entry.step ~= entry.id and entry.id) or entry.leads) or entry.id
                 if unfolded == key then
                     unfolded = nil
@@ -3044,7 +3047,7 @@ local function attach()
                 tip(block.HeaderButton, P.Title(e.id), (e.detail or e.note or "")
                     .. (e.share and e.state == "missing" and (L"\nЗаданием может поделиться участник группы.") or "")
                     .. (chain and (L"\n\nЦепочка заданий (шаг " .. at .. L" из " .. total .. "):\n" .. table.concat(chain, "\n")) or "")
-                    .. ((e.prep and tracker.isBoard and nativeLook()) and (L"\nЩелчок — раскрыть или свернуть. Правая кнопка — карта и подробности.")
+                    .. ((e.prep and tracker.isBoard and nativeLook()) and (L"\nЩелчок — раскрыть или свернуть. Правая кнопка — журнал этого задания.")
                         or (L"\nНажми, чтобы показать место на карте.")))
             end
         end
@@ -3807,7 +3810,18 @@ function P.Refresh()
                         if not beenInside and row.state == "done" and atlas.StartsInside and atlas.StartsInside(row.id) then beenInside = true end
                     end
                 end
-                if any and not errands[1] and #doing == 0 then
+                -- The owner, the quests shared in Orgrimmar and two of them to be done by the
+                -- dungeon itself: "there is no state 'all ready, go in' and the shortest
+                -- way." What is left only by the dungeon (stage 3) is done on the way in: ready.
+                local nearOnly = not errands[1] or errands[1].stage == 3
+                local byTheWay = {}
+                for _, row in ipairs(errands) do
+                    if row.stage == 3 and #byTheWay < 3 then
+                        local verb = row.handin and (L"сдать") or row.working and (L"доделать") or (L"взять")
+                        byTheWay[#byTheWay+1] = verb .. " «" .. P.Title(row.step or row.id) .. "»"
+                    end
+                end
+                if any and nearOnly and #doing == 0 then
                     -- Nothing left outside: the one thing to do is go in, and the line
                     -- under the green one says through which door and how far it is.
                     -- The owner, on the green row in the game: "the shortest way is a good button,
@@ -3817,6 +3831,7 @@ function P.Refresh()
                     local option = P.DoorOption and P.DoorOption(selected)
                     local taken = inLog > 0 and (L"в журнале: " .. inLog .. (inLog == 1 and (L" — делается внутри") or (L" — делаются внутри"))) or (L"снаружи брать нечего")
                     local head = inLog > 0 and (L"Все задания взяты — можно идти в подземелье") or (L"Брать нечего — можно идти в подземелье")
+                    if #byTheWay > 0 then taken = L"по дороге: " .. table.concat(byTheWay, ", ") end
                     -- The owner, back from Gnomeregan with its quests handed in: "it says all is
                     -- taken and I can go, but I have been through it already; one quest is left,
                     -- and maybe I will not do it." After a run the page says so, quietly: what
@@ -3873,11 +3888,11 @@ function P.Refresh()
                         table.insert(detailRows, 1, {status=L"Попроси группу поделиться: " .. asks, plate="blue",
                             lines={table.concat(names, ", ")},
                             go=function() if P.ShareWithGroup then P.ShareWithGroup() end end,
-                            goText=L"Попросить поделиться",
+                            goText=L"Поделиться заданиями",
                             goNote=L"Поделиться с группой своими заданиями этого подземелья и попросить в чате группы эти. Аддон у других поделится ими сам."})
                         lead = nil
                     end
-                    if lead then
+                    if lead and lead.stage ~= 3 then
                         local who = lead.place and atlas.PlaceName(lead.place)
                         local zone = lead.place and lead.place.mapID and atlas.ZoneName(lead.place.mapID)
                         local far = P.Reach(lead.place)
@@ -3929,10 +3944,10 @@ function P.Refresh()
                 -- portal; after a finished run, the way out. A ghost is led whatever is left.
                 -- Once for each such moment: taken off by hand, the arrow stays off.
                 local ghost = UnitIsGhost and UnitIsGhost("player") and true or false
-                local clear = any and toTake == 0 and toDo == 0
+                local clear = any and nearOnly and #doing == 0
                 -- Only when it turns so before his eyes (the last quest out here taken or
                 -- handed in), not at every login: then a sound and a line in the middle.
-                local nowReady = clear and not errands[1] and #doing == 0 and not beenInside
+                local nowReady = clear and not beenInside
                 if readyWas[selected.key] == false and nowReady then
                     local text = atlas.DungeonName(selected) .. (L": все задания взяты — можно идти в подземелье. Кнопка пути — на панели.")
                     say(text)
@@ -4393,8 +4408,9 @@ end
 -- addon of ours. In English: the groups are of every tongue. /dq share, or the menu, stops it.
 do
     local PREFIX = "DQForever"
-    local AD = "Dungeon Quest Forever (addon): every quest of the dungeon before you go, the shortest way there, "
-        .. "bosses in order and their loot - curseforge.com/wow/addons/dungeon-quest-forever"
+    -- (No web address: a link in the chat cannot be copied; the name is searched for.)
+    local AD = "Dungeon Quest Forever (addon, find it on CurseForge): every quest of the dungeon before you go, "
+        .. "the shortest way there, bosses in order and their loot."
     local peers, newsSaid, lastHello, waiting = {}, false, {}, false
     local function mine()
         local get = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
@@ -4474,6 +4490,9 @@ do
         if not (selected and result) then return end
         local channel = groupChannel()
         if not channel then say(L"Ты не в группе: делиться не с кем. Вступи в группу — тогда кнопка поделится твоими заданиями и попросит недостающие.") return end
+        -- The owner: "it writes Russian into an English chat; such links nobody can copy;
+        -- the button should share my quests and ask them to share theirs." So: ours pushed,
+        -- one line in English with the English names, the addon named to be searched for.
         local mineIds, want, names = {}, {}, {}
         for _, row in ipairs(result.rows) do
             local id = row.step or row.id
@@ -4481,16 +4500,25 @@ do
                 mineIds[#mineIds+1] = id
             elseif row.state ~= "done" and row.state ~= "active" and row.share and row.step == row.id and not (row.levelLocked or row.unknown) then
                 want[#want+1] = id
-                names[#names+1] = "[" .. (P.Title(id) or id) .. "]"
+                names[#names+1] = (P.QuestDB and P.QuestDB.GetEn and P.QuestDB.GetEn(id)) or tostring(id)
             end
         end
         for i, id in ipairs(mineIds) do push(id, (i - 1) * 1.2) end
-        if #want > 0 then
-            if C_ChatInfo and C_ChatInfo.SendAddonMessage then pcall(C_ChatInfo.SendAddonMessage, PREFIX, "ASK:" .. table.concat(want, ","), channel) end
-            local tail = " - Dungeon Quest Forever (addon) shows every quest of the dungeon: curseforge.com/wow/addons/dungeon-quest-forever"
-            local list = table.concat(names, " ")
-            if #list + #tail + 30 > 255 then list = list:sub(1, 255 - #tail - 34) .. "..." end
-            local line = "Could someone share: " .. list .. "?" .. tail
+        if C_ChatInfo and C_ChatInfo.SendAddonMessage and #want > 0 then
+            pcall(C_ChatInfo.SendAddonMessage, PREFIX, "ASK:" .. table.concat(want, ","), channel)
+        end
+        if #mineIds + #want > 0 then
+            local place = selected.nameEn or atlas.DungeonName(selected)
+            local tail = " (Dungeon Quest Forever addon - find it on CurseForge)"
+            local line
+            if #want > 0 then
+                local list = table.concat(names, ", ")
+                local head = (#mineIds > 0 and ("Sharing my " .. place .. " quests - ") or "") .. "please share yours: "
+                if #head + #list + #tail > 250 then list = list:sub(1, 250 - #head - #tail - 3) .. "..." end
+                line = head .. list .. tail
+            else
+                line = "Sharing my " .. place .. " quests - share yours too!" .. tail
+            end
             if SendChatMessage then pcall(SendChatMessage, line, channel) end
             if db then db.toldAt = GetServerTime and GetServerTime() or 0 end
         end
