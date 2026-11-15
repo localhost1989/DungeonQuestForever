@@ -1155,7 +1155,7 @@ local function settingsMenu(owner, menu)
     menu:CreateCheckbox(L"Тёмный фон панели", function() return db.boardBack == true end, slash("back"))
     menu:CreateCheckbox(L"Сигнал при входе в зал", function() return not db.noPing end, slash("ping"))
     menu:CreateCheckbox(L"Подсвечивать предметы для заданий", function() return not db.noGlow end, slash("glow"))
-    menu:CreateCheckbox(L"Рассказывать группе об аддоне", function() return not db.noShare end, slash("share"))
+    menu:CreateCheckbox(L"Рассказывать группе и рейду об аддоне", function() return not db.noShare end, slash("share"))
     menu:CreateCheckbox(L"Вести стрелку по дорогам, в обход гор", function() return not db.noPaths end, slash("paths"))
     menu:CreateCheckbox(L"Метка над нужным персонажем", function() return not db.noSign end, slash("sign"))
     menu:CreateCheckbox(L"Кнопка у миникарты", function() return not db.minimapHidden end, slash("minimap"))
@@ -4701,8 +4701,8 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
     end
     if msg and msg:match("^%s*share%s*$") then
         db.noShare = not db.noShare or nil
-        say(db.noShare and (L"Группе об аддоне больше не рассказываю.")
-            or (L"После первого босса похода расскажу группе об аддоне одной строкой — если в ней есть кто-то без него, и не чаще раза в два часа."))
+        say(db.noShare and (L"Группе и рейду об аддоне больше не рассказываю.")
+            or (L"После первого босса расскажу группе или рейду об аддоне одной строкой — если там есть кто-то без него, и не чаще раза в два часа."))
         return
     end
     if msg and msg:match("^%s*paths%s*$") then
@@ -4814,8 +4814,8 @@ end
 -- version, unseen, and one older than another's says so in its chat once.
 -- And: "the addon has to make itself known: at some moment a line with the link to it,
 -- and a short word of what it is." After the first boss of a run, out of combat, in the
--- chat of the group: once in two hours at most, and only when someone in the group has no
--- addon of ours. In English: the groups are of every tongue. /dq share, or the menu, stops it.
+-- chat of the group or the raid: once in two hours at most, and only when someone there
+-- has no addon of ours. In English: the groups are of every tongue. /dq share, or the menu, stops it.
 do
     local PREFIX = "DQForever"
     -- (No web address: a link in the chat cannot be copied; the name is searched for.)
@@ -4938,14 +4938,22 @@ do
     function P.TellGroup()
         if not db or db.noShare then return end
         local channel = groupChannel()
-        if not channel or channel == "RAID" then return end
+        -- (In a raid too, since 15.11.2026: the owner asked for it.)
+        if not channel then return end
         if not (IsInInstance and IsInInstance()) then return end
         local now = GetServerTime and GetServerTime() or 0
         if db.toldAt and now - db.toldAt < 7200 then return end
         local without = false
-        for i = 1, (GetNumGroupMembers and GetNumGroupMembers() or 1) - 1 do
-            local ok, name = pcall(UnitName, "party" .. i)
-            if ok and (name == nil or (issecretvalue and issecretvalue(name)) or not peers[name]) then without = true end
+        -- In a party the others are party1..4; in a raid raid1..40, the player among them.
+        local raid = channel == "RAID"
+        local count = GetNumGroupMembers and GetNumGroupMembers() or 1
+        for i = 1, raid and count or count - 1 do
+            local unit = (raid and "raid" or "party") .. i
+            local me = raid and UnitIsUnit and UnitIsUnit(unit, "player")
+            if not me then
+                local ok, name = pcall(UnitName, unit)
+                if ok and (name == nil or (issecretvalue and issecretvalue(name)) or not peers[name]) then without = true end
+            end
         end
         if not without then return end
         if InCombatLockdown and InCombatLockdown() then waiting = true return end

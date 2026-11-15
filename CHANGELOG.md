@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.47.2
+- The one line about the addon after the first boss goes to a raid too, not only to a group (still only when someone there has no addon, and once in two hours at most). The setting is now called "Tell the group and the raid about the addon".
+
 ## 3.47.1
 - After an update the addon says once in the chat what is new.
 
