@@ -611,6 +611,10 @@ local function bossName(stop)
     local heard = P.char and P.char.bossNames and P.char.bossNames[stop.npc]
     if type(heard) == "string" and heard ~= "" then return heard end
     local ok, name = pcall(function() return NpcDB and NpcDB.Get and NpcDB.Get(stop.npc, "name") end)
+    -- (The new bosses of Forever have only their English names in the database: on a
+    -- Russian client the name written here, "Вар'така", goes before "Var'Taka".)
+    if ok and type(name) == "string" and GetLocale and GetLocale() == "ruRU" and not name:find("[\208\209]")
+        and tostring(stop.name):find("[\208\209]") then return stop.name end
     return ok and type(name) == "string" and name ~= "" and name or stop.name
 end
 

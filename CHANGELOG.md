@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.48.4
+- A goal taken from a thing in the world, not from a creature, is called an object: "object 'Gri'lek the Wanderer'", the tablet at the bottom of the Vile Reef, was taken for an NPC. The Vile Reef step of the Drowned City's chain has a hint how to find the tablet.
+- The Drowned City's bosses are called by their Russian names on a Russian client (the database has only the English ones).
+
 ## 3.48.3
 - The Drowned City has its bosses in order: Zul'Alai, Var'Taka, the Primeval Elemental (optional, in the underwater room off the Deep Archives), Captain Dreadrise, Deathless Marrow, Min'loth the Serpent.
 - Fixed: a groupmate who died was taken for a boss, and once raised, for a boss alive again: every mark of the run was wiped. Players are never bosses now, and where a dungeon's bosses are not written only the game's own word of a boss's death counts.

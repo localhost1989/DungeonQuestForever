@@ -1317,6 +1317,9 @@ local NOTES = {
 -- run about looking for the Garrett chest and cannot find it; the hard quests need hints").
 -- By quest id: {ru, en}. Checked against the Warcraft Wiki pages of the objects.
 local HINTS = {
+    -- The Vile Reef (Stranglethorn), a step of the Drowned City's chain
+    [629] = {"Обломок таблички берут с каменной таблички «Гри'лек Странник» — это не NPC. Она на дне Коварного рифа, к западу от Гром'гола: ныряй к ней и щёлкни по ней.",
+        "The Tablet Shard is taken from a stone tablet called \"Gri'lek the Wanderer\": it is not an NPC. It lies on the bottom of the Vile Reef, west of Grom'gol: dive to it and click it."},
     -- Uldaman, the tunnels before the portal
     [2342] = {"Сундук семейства Гарретт — в туннелях прямо перед порталом в Ульдаман (Южный общий зал), не внутри подземелья. Дойди до портала, встань к нему лицом и иди вдоль стены налево.",
         "The Garrett Family Chest is in the tunnels right in front of the Uldaman portal (South Common Hall), not inside the dungeon. Go to the portal, face it and follow the wall to the left."},

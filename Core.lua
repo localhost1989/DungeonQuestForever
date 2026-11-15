@@ -18,6 +18,7 @@ local EN = {
     ["туннель фурболгов, портал в глубине"] = "a furbolg tunnel, the portal deep inside",
     ["Терраса ваятеля"] = "Shaper's Terrace",
     ["вверх по лестнице от Укрытия Маршала"] = "up the stairs from Marshal's Refuge",
+    ["объект «%s»"] = "object '%s'",
     ["Вход: "] = "Entrance: ",
     ["Не открыта"] = "Not discovered",
     ["Распорядитель полётов: "] = "Flight master: ",
@@ -1852,7 +1853,14 @@ function C.QuestWork(id, d)
             local map = areaToMap[area]
             if not (map and map > 0) then return end
             local candidate = {mapID=map, x=spot[1], y=spot[2]}
-            if not outdoor then outdoor, candidate.name = candidate, source.db.Get(source.id, "name") end
+            -- A thing in the world, not a creature (the owner, 15.11.2026, at the Vile Reef:
+            -- "I was looking for some NPC, not a tablet": the tablet is called "Gri'lek the
+            -- Wanderer"). Its name is said as an object's.
+            if not outdoor then
+                local what = source.db.Get(source.id, "name")
+                if source.db == ObjectDB and type(what) == "string" then what = (L"объект «%s»"):format(what) end
+                outdoor, candidate.name = candidate, what
+            end
             if not myC then return true end
             local okAt, c, X, Y = pcall(C.Yards, candidate)
             if not (okAt and c == myC and X and Y) then return end
