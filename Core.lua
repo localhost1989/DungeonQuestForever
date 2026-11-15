@@ -1323,8 +1323,8 @@ local EN = {
     ["добыча босса"] = "boss loot",
     ["добычи в базе нет"] = "no loot in the data",
     ["не для твоего класса"] = "not for your class",
-    ["лучше надетого +%d"] = "better than worn +%d",
-    ["надето"] = "worn",
+    ["лучше надетого +%d"] = "better than equipped +%d",
+    ["надето"] = "equipped",
 }
 -- LOCALE END
 local russianClient = (GetLocale and GetLocale() or "enUS") == "ruRU"

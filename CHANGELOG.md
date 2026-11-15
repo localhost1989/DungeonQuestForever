@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.45.1
+- Fixed: the way could fly to a point you have not discovered yet (counted before your flight points were known). When the flight map opens and your points are learnt, the way to the goal is counted again and the arrow set anew.
+- The English words of the loot window: "better than equipped +N", "equipped".
+
 ## 3.45.0
 - Open the bug reporter from the quest book, next to Close, or type /dq bug. The link goes straight to a new GitHub issue.
 - Optional Wago Analytics measures book usage, quest reading, loot previews and requests for directions when analytics is enabled in Wago App.

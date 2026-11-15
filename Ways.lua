@@ -1861,6 +1861,20 @@ function P.LearnFlights()
         DEFAULT_CHAT_FRAME:AddMessage(L"|cffedc36fDungeon Quest Forever|r • запомнил твои точки перелётов: " .. matched .. L" из " .. #nodes
             .. L". Теперь дорога считается с ними.")
     end
+    -- The owner, at the flight master of Undercity: "I have no flight there." The way had
+    -- been counted before his points were known, and flew to Kargath. Now they are: the way
+    -- to the goal is counted again and the arrow set anew where it differs.
+    local goal, target = P.char.goal, atlas.Target and atlas.Target()
+    if goal and target and goal.mapID then
+        local plan = P.Plan(goal)
+        if plan and plan.point then
+            if target.title ~= plan.title or target.mapID ~= plan.point.mapID or target.x ~= plan.point.x or target.y ~= plan.point.y then
+                atlas.AddMarker(plan.point, plan.title, "entrance")
+            end
+        elseif not plan and (target.mapID ~= goal.mapID or target.x ~= goal.x or target.y ~= goal.y) then
+            atlas.AddMarker(goal, goal.label, goal.kind, goal.id)
+        end
+    end
     if P.Refresh then pcall(P.Refresh) end
 end
 
