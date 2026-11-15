@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.48.5
+- The step of a chain stands in the gold line, by the quest's name ("The Only Good Brinescale...  2/4"); the line under it begins with the step itself.
+- A quest to finish out here says what the goal is taken from: "The Third Troll Legend: 0/1 • object 'Fall of Gurubashi' • Stranglethorn Vale", "Rock Elemental Shard: 3/5 • Rock Elemental • Badlands". The Gurubashi Legends step of the Drowned City's chain has a hint how to find the tablet.
+
 ## 3.48.4
 - A goal taken from a thing in the world, not from a creature, is called an object: "object 'Gri'lek the Wanderer'", the tablet at the bottom of the Vile Reef, was taken for an NPC. The Vile Reef step of the Drowned City's chain has a hint how to find the tablet.
 - The Drowned City's bosses are called by their Russian names on a Russian client (the database has only the English ones).

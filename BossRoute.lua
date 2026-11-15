@@ -1320,6 +1320,8 @@ local HINTS = {
     -- The Vile Reef (Stranglethorn), a step of the Drowned City's chain
     [629] = {"Обломок таблички берут с каменной таблички «Гри'лек Странник» — это не NPC. Она на дне Коварного рифа, к западу от Гром'гола: ныряй к ней и щёлкни по ней.",
         "The Tablet Shard is taken from a stone tablet called \"Gri'lek the Wanderer\": it is not an NPC. It lies on the bottom of the Vile Reef, west of Grom'gol: dive to it and click it."},
+    [95748] = {"Третье предание троллей берут с каменной таблички «Водопад Гурубаши» — это не NPC. Она на северо-западе Тернистой долины, у воды: подойди и щёлкни по ней.",
+        "The Third Troll Legend is taken from a stone tablet called \"Fall of Gurubashi\": it is not an NPC. It is in the north-west of Stranglethorn, by the water: walk up and click it."},
     -- Uldaman, the tunnels before the portal
     [2342] = {"Сундук семейства Гарретт — в туннелях прямо перед порталом в Ульдаман (Южный общий зал), не внутри подземелья. Дойди до портала, встань к нему лицом и иди вдоль стены налево.",
         "The Garrett Family Chest is in the tunnels right in front of the Uldaman portal (South Common Hall), not inside the dungeon. Go to the portal, face it and follow the wall to the left."},

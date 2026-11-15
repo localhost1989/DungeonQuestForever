@@ -2250,7 +2250,16 @@ local function layout(self)
                 -- The layout of 14.11.2026: the name in gold (grey when it is not to be had
                 -- yet), nothing beside it; "chain" and "shared" are said in the lines under it.
                 if native then tone = locked and "|cff8e8c87" or "|cfff5cb66" end
-                block:SetHeader("  " .. tone .. (P.Title(goal or entry.id) or title) .. "|r")
+                -- The step of a chain stands in the gold line, by the name (the owner,
+                -- 15.11.2026: "put 2 of 4 in the yellow part: it all runs together and it is not
+                -- clear what to do next in the chain"); the line under it begins with the step.
+                local chainAt, chainTotal = linkNow, links and #links
+                if native and not chainTotal and goal then
+                    local _, a, t = chainOf(goal)
+                    chainAt, chainTotal = a, t
+                end
+                local count = (native and chainAt and chainTotal and chainTotal > 1) and ("  |cffffffff" .. chainAt .. "/" .. chainTotal .. "|r") or ""
+                block:SetHeader("  " .. tone .. (P.Title(goal or entry.id) or title) .. "|r" .. count)
                 local act, said
                 if locked then
                     act = entry.note or (L"пока недоступно")
@@ -2385,10 +2394,13 @@ local function layout(self)
                         far = P.Reach(entry.place)
                         tail = ": " .. who .. ((zone and zone ~= who) and (" • " .. zone) or "")
                     elseif entry.working and not (entry.work and entry.work.dungeon) and entry.place and entry.place.mapID and not locked then
-                        -- Work out here: where; how far stands at the right.
+                        -- Work out here: from whom or from what, and where; how far stands at the
+                        -- right. (The owner, 15.11.2026: "The Third Troll Legend • Stranglethorn":
+                        -- nothing said it is taken from the tablet "Fall of Gurubashi".)
                         local zone = atlas.ZoneName(entry.place.mapID)
+                        local from = entry.work and entry.work.name
                         far = P.Reach(entry.place)
-                        tail = zone and (" • " .. zone) or ""
+                        tail = ((type(from) == "string" and from ~= "") and (" • " .. from) or "") .. (zone and (" • " .. zone) or "")
                     end
                     if far and block.Distance then
                         -- "10.8 км через проход": the figure at the right, the rest under it.
@@ -2401,7 +2413,7 @@ local function layout(self)
                         addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
                     else
                         local line = (plain(core) .. plain(tail)):gsub("^%s*•%s*", "")
-                        addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. line .. "|r")
+                        addLine(block, "act", "|cffe6e0d2" .. line .. "|r")
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     local note
