@@ -1552,7 +1552,13 @@ function C.Init(db)
         return not at or now - at > 1800
     end
     for i = #db.markers, 1, -1 do
-        if stale(db.markers[i].at) then table.remove(db.markers, i) end
+        if stale(db.markers[i].at) then table.remove(db.markers, i)
+        elseif C.Localize then
+            -- (A point kept on the continent's map from before 3.48.9: on its zone's map.)
+            local m = db.markers[i]
+            local placed = C.Localize(m)
+            if placed ~= m then m.mapID, m.x, m.y = placed.mapID, placed.x, placed.y end
+        end
     end
     db.pending = nil
     if db.goal and (stale(db.goal.at) or #db.markers == 0) then db.goal = nil end
@@ -1674,6 +1680,28 @@ function C.DungeonName(d)
     end
     if not name or name == "" then name = d.name end
     return name
+end
+
+-- A place on the map of a continent, put on the map of the zone it lies in (nil-safe; the
+-- place itself where that cannot be told).
+function C.Localize(place)
+    if not (place and place.mapID and place.x and place.y and C_Map and C_Map.GetMapInfo and C_Map.GetMapInfoAtPosition) then return place end
+    local info = C_Map.GetMapInfo(place.mapID)
+    local continentType = Enum and Enum.UIMapType and Enum.UIMapType.Continent or 2
+    if not (info and info.mapType == continentType) then return place end
+    local ok, at = pcall(C_Map.GetMapInfoAtPosition, place.mapID, place.x / 100, place.y / 100)
+    if not (ok and type(at) == "table" and at.mapID and at.mapID ~= place.mapID) then return place end
+    local zone = at
+    while zone and zone.mapType and zone.mapType > 3 and zone.parentMapID and zone.parentMapID ~= 0 do zone = C_Map.GetMapInfo(zone.parentMapID) end
+    if not (zone and zone.mapID and zone.mapType == 3) then return place end
+    local okR, left, right, top, bottom = pcall(C_Map.GetMapRectOnMap, zone.mapID, place.mapID)
+    if not (okR and left and right and top and bottom and right ~= left and bottom ~= top) then return place end
+    local x, y = (place.x / 100 - left) / (right - left), (place.y / 100 - top) / (bottom - top)
+    if x < 0 or x > 1 or y < 0 or y > 1 then return place end
+    local out = {}
+    for k, v in pairs(place) do out[k] = v end
+    out.mapID, out.x, out.y = zone.mapID, x * 100, y * 100
+    return out
 end
 
 function C.Entrance(d)
@@ -2889,6 +2917,8 @@ function C.OnMarkersChanged()
 end
 
 function C.AddMarker(point, title, kind, questID)
+    -- (Every point on the map of its zone: one on the continent's map was weighed as a zone.)
+    if point and C.Localize then point = C.Localize(point) end
     local list = C.Markers()
     for i = #list, 1, -1 do list[i] = nil end
     local marker = {mapID=point.mapID, x=point.x, y=point.y, title=title, kind=kind, npcID=point.npcID, questID=questID, up=point.up,

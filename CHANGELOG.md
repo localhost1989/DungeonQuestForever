@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.48.9
+- Fixed: the way to a portal you had walked through was weighed as if the continent were a zone, and led through "Pass: Eastern Kingdoms" (the Drowned City's door). The portal is put on the map of its zone.
+- Been inside with quests of the dungeon still in your log: the arrow leads in again by itself when nothing is left outside.
+
 ## 3.48.8
 - A click on a chain quest unfolds nothing (its steps are there already): it sets the arrow and says in one line, in the chat and in the middle of the screen, what to do now: "Now, step 2 of 4: hand in «...» — Kin'vilai".
 - The steps of a chain stand under the quest with dashes, as the goals of a quest do: done ones struck out, the one under way bright, the ones ahead grey. Click a step to set the arrow and see what to do there; hover it for its state.

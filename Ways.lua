@@ -106,6 +106,10 @@ local function portalOf(d)
     local seen = P.char and P.char.portals and P.char.portals[d.key]
     local spot = seen or inner[d.key]
     if not spot then return end
+    -- (A portal walked through is kept on the map of the continent; the way is weighed by
+    -- zones, and the continent read as a zone made "Pass: Eastern Kingdoms" of the Drowned
+    -- City's door, 15.11.2026. It is put on the map of its zone.)
+    if atlas.Localize then spot = atlas.Localize(spot) end
     return {mapID=spot.mapID, x=spot.x, y=spot.y, label=L"Портал подземелья", hint=inner[d.key] and inner[d.key].hint, real=true, door=d.key}
 end
 
@@ -1709,6 +1713,7 @@ end
 
 function P.Plan(place)
     if UnitIsGhost and UnitIsGhost("player") then return end
+    if place and atlas.Localize then place = atlas.Localize(place) end
     if not (place and place.mapID) then return blindPlan(place) end
     if UnitOnTaxi and UnitOnTaxi("player") then
         local kept = aloft[spotKey(place)]

@@ -4638,7 +4638,10 @@ function P.Refresh()
                     if PlaySound then pcall(PlaySound, SOUNDKIT and SOUNDKIT.READY_CHECK or 8960) end
                 end
                 readyWas[selected.key] = nowReady
-                local moment = (ghost or (clear and not beenInside)) and (selected.key .. (ghost and ":ghost" or "")) or nil
+                -- (Been inside, and quests of it still in the log: the way in is still the next
+                -- thing - the owner, 15.11.2026: "all the quests are taken: send me inside".)
+                local leftInside = #(shelves.taken or {}) + #doing > 0
+                local moment = (ghost or (clear and (not beenInside or leftInside))) and (selected.key .. (ghost and ":ghost" or "")) or nil
                 if not moment then
                     led = nil
                 elseif led ~= moment and P.Door(selected) and not (atlas.Target and atlas.Target()) then
