@@ -1800,7 +1800,7 @@ local function layout(self)
                 -- what is done, so it is not used here.)
                 local taken = entry.state == "active"
                 sign = (entry.levelLocked or entry.unknown) and SIGN.lock or entry.handin and SIGN.ready
-                    or taken and SIGN.log or SIGN.take
+                    or taken and SIGN.log or (entry.askGroup and nativeLook() and "Interface\\Icons\\INV_Misc_GroupNeedMore") or SIGN.take
             elseif entry.id then
                 local id = entry.step or entry.id
                 sign = (entry.levelLocked or entry.unknown) and SIGN.lock or entry.handin and SIGN.ready
@@ -1810,6 +1810,7 @@ local function layout(self)
         if block.Dress then block:Dress(sign) end
         if block.Gild then block:Gild(nil) end
         if block.FoldSign then block:FoldSign(nil) end
+        if block.Distance then block:Distance(nil) end
         self.fromBlockOffsetY = (label and i > first) and -13 or (sign and block.Dress and (nativeLook() and -6 or -9) or -4)
         if browsing and entry.group then
             block:SetHeader(labelTone .. entry.section .. "|r")
@@ -2045,7 +2046,11 @@ local function layout(self)
                 elseif entry.handin then
                     act = chain .. GREEN .. L"сдать|r" .. named
                 elseif entry.working then
-                    act = chain .. BLUE .. L"сделать|r" .. named .. (entry.work and entry.work.text and (": " .. entry.work.text) or "")
+                    -- The owner: "I have taken quests, and I do not understand where they are
+                    -- done: in the dungeon, or now?" Out here, and it says so.
+                    -- (Work in another dungeon keeps "do": the line of the place says its door.)
+                    act = chain .. BLUE .. ((entry.work and entry.work.dungeon) and (L"сделать|r") or (L"сделать снаружи|r")) .. named
+                        .. (entry.work and entry.work.text and (": " .. entry.work.text) or "")
                 elseif taken then
                     act = entry.handInside and (chain .. GREEN .. L"сдать внутри|r" .. named .. (type(entry.handInside) == "string" and (": " .. entry.handInside) or ""))
                         or (goal and (chain .. GREEN .. L"в журнале|r" .. named .. DIM .. L", делается внутри|r") or (GREEN .. L"в журнале|r" .. DIM .. L", делается внутри|r"))
@@ -2154,16 +2159,32 @@ local function layout(self)
                         local _, a, t = chainOf(goal)
                         at, total = a, t
                     end
-                    local tail = ""
+                    local tail, far = "", nil
                     if toSomeone then
                         local zone = entry.place.mapID and atlas.ZoneName(entry.place.mapID)
-                        local far = P.Reach(entry.place)
-                        tail = ": " .. who .. ((zone and zone ~= who) and (" • " .. zone) or "") .. (far and (" • " .. far) or "")
+                        far = P.Reach(entry.place)
+                        tail = ": " .. who .. ((zone and zone ~= who) and (" • " .. zone) or "")
+                    elseif entry.working and not (entry.work and entry.work.dungeon) and entry.place and entry.place.mapID and not locked then
+                        -- Work out here: where; how far stands at the right.
+                        local zone = atlas.ZoneName(entry.place.mapID)
+                        far = P.Reach(entry.place)
+                        tail = zone and (" • " .. zone) or ""
                     end
-                    addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. plain(core) .. plain(tail) .. "|r")
+                    if far and block.Distance then
+                        -- "10.8 км через проход": the figure at the right, the rest under it.
+                        local main, rest = far:match("^([%d%.]+ %S+)[,%s]*(.*)$")
+                        block:Distance(main or far, (rest ~= "" and rest) or nil)
+                    end
+                    -- In the part "the group shares" the line says where to run if nobody does
+                    -- (the layout of 15.11.2026); the part's name says the rest.
+                    if entry.askGroup and not taken and toSomeone then
+                        addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
+                    else
+                        addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. plain(core) .. plain(tail) .. "|r")
+                    end
                     local note
                     if entry.atDoor and not taken then note = L"у входа — возьми по дороге в подземелье"
-                    elseif entry.askGroup and not taken then note = L"попроси группу поделиться — бежать не нужно"
+                    elseif entry.askGroup and not taken then note = nil
                     elseif entry.share and not taken and not total and not locked then note = L"может поделиться группа" end
                     -- The owner: "the shareable quests are not marked well." A quest the group can
                     -- give wears the group's picture and the light blue of the layout.
@@ -2812,6 +2833,36 @@ local function newBoard()
             go:Show()
             self.height = (self.height or 0) + 34
         end
+        -- The owner: "the mileage has to be put somewhere: it sits badly, it draws no eye."
+        -- The layout of 15.11.2026 (ChatGPT's, variant 1, approved): how far, in gold, at the
+        -- right of the quest's name; under it, small, how ("via the pass", "by flight").
+        function block:Distance(main, note)
+            if not main then
+                if self.farText then self.farText:Hide(); self.farNote:Hide() end
+                self.reserve = nil
+                return
+            end
+            if not self.farText then
+                self.farText = self:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+                self.farText:SetJustifyH("RIGHT")
+                if self.farText.SetTextColor then self.farText:SetTextColor(1, .82, 0) end
+                self.farNote = self:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+                self.farNote:SetJustifyH("RIGHT")
+                if self.farNote.SetTextColor then self.farNote:SetTextColor(.66, .64, .6) end
+            end
+            self.farText:ClearAllPoints()
+            self.farText:SetPoint("TOPRIGHT", self, "TOPRIGHT", (self.rightEdgeOffset or 0) - 2, 0)
+            self.farText:SetText(main)
+            self.farText:Show()
+            self.farNote:ClearAllPoints()
+            self.farNote:SetPoint("TOPRIGHT", self.farText, "BOTTOMRIGHT", 0, -2)
+            self.farNote:SetText(note or "")
+            self.farNote:SetShown(note ~= nil and note ~= "")
+            local w1 = tonumber(self.farText.GetStringWidth and self.farText:GetStringWidth()) or 40
+            local w2 = (note and note ~= "") and (tonumber(self.farNote.GetStringWidth and self.farNote:GetStringWidth()) or 60) or 0
+            self.reserve = {title=w1 + 8, line=(w2 > 0) and (w2 + 8) or nil}
+            self.HeaderText:SetWidth(math.max(40, blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0) - self.reserve.title))
+        end
         -- The gold frame of a boss row (the layout of ChatGPT, approved 14.11.2026): "open"
         -- while his loot window stands beside it, "bis" (softer) while he drops a thing that
         -- is the best for its slot; nil, none.
@@ -2945,7 +2996,8 @@ local function newBoard()
             local indent = native and ((self.inset or 0) > 0 and (self.inset + 6) or INDENT)
                 or ((self.inset or 0) > 0 and (self.inset + 6) or INDENT)
             local width = blockWidth - indent + (self.rightEdgeOffset or 0)
-            line.Text:SetWidth(width - lead)
+            local spare = (self.count == 1 and self.reserve and self.reserve.line) or 0
+            line.Text:SetWidth(width - lead - spare)
             line.Text:SetText(text)
             local height = line.Text:GetStringHeight() or 13
             line:SetSize(width, height)
@@ -3974,16 +4026,29 @@ function P.Refresh()
                     for _, row in ipairs(prep) do
                         if row.state == "active" or row.working or row.handin or row.stepActive then have[#have+1] = row else toGet[#toGet+1] = row end
                     end
-                    if #toGet > 0 then
-                        table.insert(detailRows, {prepSection=true, section=L"Взять снаружи • " .. #toGet,
-                            about=L"Задания, которые ещё не взяты: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа, чтобы путь кончался у двери. Щелчок ставит стрелку."})
-                        for _, row in ipairs(toGet) do table.insert(detailRows, row) end
+                    -- The owner: "see how awkward it all is; why not parts: the chains, what can
+                    -- be taken, what can be shared?" The layout of 15.11.2026 (ChatGPT's,
+                    -- approved): what is not taken in parts, each with its count and folding:
+                    -- chains, what the group can share, what to take oneself, what comes later;
+                    -- then what is taken. Within a part the order is the order of the errands.
+                    local parts = {chains={}, group={}, self={}, later={}}
+                    for _, row in ipairs(toGet) do
+                        local chained = (row.step ~= row.id) or row.leads
+                        -- (What begins inside the dungeon cannot be taken out here: it waits under "later".)
+                        local key = (row.levelLocked or row.unknown or row.begins) and "later" or row.askGroup and "group" or chained and "chain" or "self"
+                        table.insert(parts[key == "chain" and "chains" or key], row)
                     end
-                    if #have > 0 then
-                        table.insert(detailRows, {prepSection=true, section=L"Уже взято • " .. #have,
-                            about=L"Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри."})
-                        for _, row in ipairs(have) do table.insert(detailRows, row) end
+                    local function part(key, title, about, rows)
+                        if #rows == 0 then return end
+                        table.insert(detailRows, {prepSection=true, fold="prep_" .. key, section=title .. " • " .. #rows, about=about})
+                        if db.folds and db.folds["prep_" .. key] then return end
+                        for _, row in ipairs(rows) do table.insert(detailRows, row) end
                     end
+                    part("chains", L"Цепочки", L"Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список.", parts.chains)
+                    part("group", L"Раздаст группа", L"Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список.", parts.group)
+                    part("self", L"Взять самому", L"Задания, которые надо взять самому: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа. Щелчок по заголовку сворачивает список.", parts.self)
+                    part("later", L"Позже", L"Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список.", parts.later)
+                    part("have", L"Уже взято", L"Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри. Щелчок по заголовку сворачивает список.", have)
                     -- The status of the page when there is something to do out here.
                     local lead = errands[1]
                     if lead and lead.stage == 2 then

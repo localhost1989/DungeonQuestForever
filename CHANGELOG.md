@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.46.0
+- Before the dungeon, what is not taken stands in parts, each with its count, folding by a click on its heading: Chains, The group shares (with the group's picture, and where to run if nobody shares), Take yourself, Later (level too low, or taken inside); then Taken.
+- Fixed: the tooltip over a boss on the small floor plan broke when the boss had no level in the data.
+- A taken quest with work out here says so: "do out here: <goal> • zone • distance" (it said only "do"); work inside keeps "in the log, done inside".
+- How far a quest is stands in gold at the right of its name, with "via the pass" or "by flight faster" small under it, instead of at the end of the line.
+
 ## 3.45.1
 - Fixed: the way could fly to a point you have not discovered yet (counted before your flight points were known). When the flight map opens and your points are learnt, the way to the goal is counted again and the arrow set anew.
 - The English words of the loot window: "better than equipped +N", "equipped".

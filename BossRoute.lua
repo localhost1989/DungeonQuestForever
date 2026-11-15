@@ -1009,8 +1009,11 @@ function P.BossTip(owner, npc, boss, d, dead, isNext)
     GameTooltip:SetText(name, 1, .82, .2, 1, true)
     local state = dead and (L"убит") or isNext and (L"следующий") or nil
     local level = boss and boss.level and ((L"уровень %d"):format(boss.level)) or nil
-    if state or level then
-        GameTooltip:AddLine(table.concat({level, state}, " • "), dead and .6 or .45, dead and .6 or .9, dead and .6 or .5)
+    local said = {}
+    if level then said[#said+1] = level end
+    if state then said[#said+1] = state end
+    if #said > 0 then
+        GameTooltip:AddLine(table.concat(said, " • "), dead and .6 or .45, dead and .6 or .9, dead and .6 or .5)
     end
     local note = P.StopNote and P.StopNote(npc)
     if note then GameTooltip:AddLine(note, 1, .82, .2, true) end
