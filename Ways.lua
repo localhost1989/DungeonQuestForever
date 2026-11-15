@@ -224,6 +224,19 @@ end
 -- at each. Written by hand from the classic dungeon; the names are read from the quest
 -- database by number, the ones here are the fallback. quests: {quest, what is there}.
 local runs = {
+    -- The Drowned City (Forever, 15.11.2026): the bosses by Warcraft Tavern's guide, their
+    -- numbers from QuestieDB 1.1.1; the Russian names the client gave in the owner's run
+    -- (Зул'алай, Вар'така, Первородный элементаль, Мин'лот-Змей). The elemental stands in
+    -- an underwater room off the Deep Archives.
+    DROWNED = {
+        {npc=258905, also={270882}, name=L"Зул'алай"},
+        {npc=258924, also={270883}, name=L"Вар'така", way={L"зал «Глубинные архивы»"}},
+        {npc=263886, also={270887}, name=L"Первородный элементаль", optional=true,
+            way={L"в Глубинных архивах направо, в затопленный тоннель", L"плыви до подводной комнаты"}},
+        {npc=260042, also={270884}, name="Captain Dreadrise"},
+        {npc=260202, also={269586, 270885}, name="Deathless Marrow"},
+        {npc=260243, also={260274, 267852, 269466, 270886}, name=L"Мин'лот-Змей"},
+    },
     GNOMER = {
         -- way: how to walk to him, in words, from the guides: on the first run nothing
         -- else tells the player where a boss is.
@@ -595,6 +608,8 @@ end
 
 local function bossName(stop)
     if stop.title then return stop.title end
+    local heard = P.char and P.char.bossNames and P.char.bossNames[stop.npc]
+    if type(heard) == "string" and heard ~= "" then return heard end
     local ok, name = pcall(function() return NpcDB and NpcDB.Get and NpcDB.Get(stop.npc, "name") end)
     return ok and type(name) == "string" and name ~= "" and name or stop.name
 end
@@ -826,6 +841,8 @@ end
 -- group asked "do we jump" and the page had hidden the boss below. So: walking in with
 -- marks older than three quarters of an hour is a new run; a boss marked dead and seen
 -- alive is a new run; and /dq run says so by hand.
+function P.HasRun(d) return d and runs[d.key] ~= nil end
+
 function P.NewRun()
     if P.char then P.char.kills = nil end
 end
@@ -1019,6 +1036,12 @@ function P.Killed(d, npc, name)
     if not (run and P.char) then return false end
     for _, stop in ipairs(run) do
         if stop.npc and ((npc and isBoss(stop, npc)) or (name and (name == stop.name or name == bossName(stop)))) then
+            -- (The name the client gives him, kept: the new bosses are written with the
+            -- English names where the Russian ones were not known.)
+            if npc and name and name ~= stop.name and GetLocale and GetLocale() == "ruRU" and not tostring(stop.name):find("[\208\209]") then
+                P.char.bossNames = P.char.bossNames or {}
+                P.char.bossNames[stop.npc] = name
+            end
             local dead = fallen(d)
             if dead[stop.npc] then return false end
             P.char.kills = P.char.kills or {}

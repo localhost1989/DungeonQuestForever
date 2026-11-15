@@ -4566,8 +4566,14 @@ local function seenDead(unit)
     if not d then return false end
     local ok, gone = pcall(UnitIsDead, unit)
     if not ok or (issecretvalue and issecretvalue(gone)) then return false end
+    -- (The owner in the Drowned City, 15.11.2026: a groupmate died, was "killed" as a boss,
+    -- was raised, and her being alive again was taken for a new run: every mark was gone.
+    -- A player is never a boss; and where no run is written only the game's own word of a
+    -- boss's death, BOSS_KILL, makes one, not any body under the cursor.)
+    if UnitIsPlayer and UnitIsPlayer(unit) then return false end
     local npc, name = atlas.NpcIDFromGUID(atlas.PlainText(UnitGUID(unit))), UnitName and atlas.PlainText(UnitName(unit))
-    if not npc and not name then return false end
+    if not npc then return false end
+    if P.HasRun and not P.HasRun(d) then return false end
     -- Dead: struck off. Marked dead and standing there alive: the marks are another run's.
     if gone then return P.Killed(d, npc, name) end
     return P.Revived ~= nil and P.Revived(d, npc, name)

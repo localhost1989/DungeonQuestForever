@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.48.3
+- The Drowned City has its bosses in order: Zul'Alai, Var'Taka, the Primeval Elemental (optional, in the underwater room off the Deep Archives), Captain Dreadrise, Deathless Marrow, Min'loth the Serpent.
+- Fixed: a groupmate who died was taken for a boss, and once raised, for a boss alive again: every mark of the run was wiped. Players are never bosses now, and where a dungeon's bosses are not written only the game's own word of a boss's death counts.
+
 ## 3.48.2
 - The tips of the new dungeons (the Drowned City's underwater room and rare encounters, Alcaz Prison's keyring, Krol'dok Stronghold's keys and Bossman Toof) are written step by step: a click on the tip shows the next step.
 
