@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.6
+- Fixed: a long quest name that went onto a second line beside the distance at the right was drawn over by the line under it.
+
 ## 3.48.5
 - The step of a chain stands in the gold line, by the quest's name ("The Only Good Brinescale...  2/4"); the line under it begins with the step itself.
 - A quest to finish out here says what the goal is taken from: "The Third Troll Legend: 0/1 • object 'Fall of Gurubashi' • Stranglethorn Vale", "Rock Elemental Shard: 3/5 • Rock Elemental • Badlands". The Gurubashi Legends step of the Drowned City's chain has a hint how to find the tablet.

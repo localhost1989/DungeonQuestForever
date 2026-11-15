@@ -3095,7 +3095,20 @@ local function newBoard()
             local w1 = tonumber(self.farText.GetStringWidth and self.farText:GetStringWidth()) or 40
             local w2 = (note and note ~= "") and (tonumber(self.farNote.GetStringWidth and self.farNote:GetStringWidth()) or 60) or 0
             self.reserve = {title=w1 + 8, line=(w2 > 0) and (w2 + 8) or nil}
-            self.HeaderText:SetWidth(math.max(40, blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0) - self.reserve.title))
+            -- Narrowed, a long name goes on a second line: the block is told how much taller
+            -- it is, or the line under it is drawn over it (seen 15.11.2026 on "Идол древней
+            -- империи Гурубаши" with "за морем" at the right).
+            local text = self.HeaderText
+            local old = tonumber(text.GetHeight and text:GetHeight()) or 0
+            text:SetWidth(math.max(40, blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0) - self.reserve.title))
+            pcall(function()
+                local new = tonumber(text:GetStringHeight())
+                if new and new > old + 1 then
+                    text:SetHeight(new)
+                    if type(self.height) == "number" then self.height = self.height + (new - old) end
+                    if self.HeaderButton and self.HeaderButton.SetHeight then self.HeaderButton:SetHeight(new) end
+                end
+            end)
         end
         -- The gold frame of a boss row (the layout of ChatGPT, approved 14.11.2026): "open"
         -- while his loot window stands beside it, "bis" (softer) while he drops a thing that
