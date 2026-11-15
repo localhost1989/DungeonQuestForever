@@ -4554,6 +4554,20 @@ function P.Refresh()
                             table.insert(byTheDoor(row) and atEntrance or outside, row)
                         else inside[#inside+1] = row end
                     end
+                    -- The nearest first (the owner, 15.11.2026: "sort the hand-ins by who is
+                    -- nearer, not at the top; the nearest is the goal to take first").
+                    local function yards(row)
+                        if row.nearYards == nil then row.nearYards = (row.place and P.Distance and P.Distance(row.place)) or false end
+                        return row.nearYards or math.huge
+                    end
+                    for _, list in ipairs({outside, atEntrance}) do
+                        for i, row in ipairs(list) do row.nearOrder, row.nearYards = i, nil end
+                        table.sort(list, function(a, b)
+                            local ya, yb = yards(a), yards(b)
+                            if ya ~= yb then return ya < yb end
+                            return a.nearOrder < b.nearOrder
+                        end)
+                    end
                     part("outside", L"Сделать до входа", L"Взятые задания, которые делаются снаружи: доделать или сдать до входа в подземелье. Щелчок по заданию раскрывает его и ставит стрелку. Щелчок по заголовку сворачивает список.", outside)
                     part("chains", L"Цепочки", L"Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список.", parts.chains)
                     part("group", L"Раздаст группа", L"Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список.", parts.group)
@@ -4567,9 +4581,19 @@ function P.Refresh()
                     -- The owner: "I do not see the point of this hint, Ask the group to share: it can
                     -- go." What the group can share has its part in the list and the button "Группа"
                     -- in the header; the plate leads to the first errand one has to run for.
-                    local lead
+                    -- The plate leads to the nearest thing to run for out here (the owner: "the
+                    -- nearest is the goal to take first"); the stages as before where none is.
+                    local lead, leadYards
                     for _, row in ipairs(errands) do
-                        if row.stage ~= 2 then lead = row break end
+                        if row.stage == 1 then
+                            local y = (row.place and P.Distance and P.Distance(row.place)) or math.huge
+                            if not lead or y < leadYards then lead, leadYards = row, y end
+                        end
+                    end
+                    if not lead then
+                        for _, row in ipairs(errands) do
+                            if row.stage ~= 2 then lead = row break end
+                        end
                     end
                     if lead and lead.stage ~= 3 then
                         local who = lead.place and atlas.PlaceName(lead.place)

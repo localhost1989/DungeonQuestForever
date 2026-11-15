@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.11
+- "Do before going in" and "Do at the entrance" go from the nearest to the farthest, and the plate on top leads to the nearest thing to run for out here.
+
 ## 3.48.10
 - The tip of a dungeon told to the group goes in English on any client: the groups are of every tongue.
 
