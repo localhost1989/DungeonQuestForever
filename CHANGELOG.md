@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.10
+- The tip of a dungeon told to the group goes in English on any client: the groups are of every tongue.
+
 ## 3.48.9
 - Fixed: the way to a portal you had walked through was weighed as if the continent were a zone, and led through "Pass: Eastern Kingdoms" (the Drowned City's door). The portal is put on the map of its zone.
 - Been inside with quests of the dungeon still in your log: the arrow leads in again by itself when nothing is left outside.

@@ -3,7 +3,7 @@
 ## Notes: Dungeon quests in the quest tracker: what to pick up before you go, the way there, bosses and loot
 ## Notes-ruRU: Задания подземелий, подготовка и маршрут в трекере заданий
 ## Author: localhost1989
-## Version: 3.48.9
+## Version: 3.48.10
 ## OptionalDeps: WagoAnalytics
 ## X-License: GPL-3.0-or-later
 ## X-Website: https://github.com/localhost1989/DungeonQuestForever

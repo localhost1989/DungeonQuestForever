@@ -102,7 +102,9 @@ local function schedule()
         if token ~= generation or not canSend(db, key) or destination() ~= key then return end
         local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
         if not send then return end
-        local body = tips[key][GetLocale() == "ruRU" and 1 or 2]
+        -- In English always: the groups are of every tongue (the owner, 15.11.2026, his tip of
+        -- the Drowned City in Russian to an English group: "russia eh").
+        local body = tips[key][2]
         local ok, result = pcall(send, signature .. body, channel())
         if ok and (result == nil or result == 0 or result == true) then remember(db, key) end
     end)
