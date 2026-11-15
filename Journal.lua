@@ -3273,8 +3273,10 @@ local function newBoard()
             -- it is, or the line under it is drawn over it (seen 15.11.2026 on "Идол древней
             -- империи Гурубаши" with "за морем" at the right).
             local text = self.HeaderText
-            local old = tonumber(text.GetHeight and text:GetHeight()) or 0
+            local old = tonumber(text.GetStringHeight and text:GetStringHeight()) or 0
             text:SetWidth(math.max(40, blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0) - self.reserve.title))
+            -- (Set again, so that it is laid out in the new width at once and measured so.)
+            if text.GetText and text:GetText() then text:SetText(text:GetText()) end
             pcall(function()
                 local new = tonumber(text:GetStringHeight())
                 if new and new > old + 1 then
@@ -3369,7 +3371,11 @@ local function newBoard()
             self.struck = nil
             for _, line in ipairs(self.lines) do line:Hide() end
             self.count = 0
-            self.HeaderText:SetWidth(blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0))
+            -- (The room of the distance at the right, if it is placed already, is left before
+            -- the text is set: the height is then measured as the name will be drawn. Narrowed
+            -- after, the name went onto a second line over the line under it.)
+            local reserve = self.reserve and self.reserve.title or 0
+            self.HeaderText:SetWidth(math.max(40, blockWidth + (self.rightEdgeOffset or 0) - (self.inset or 0) - reserve))
             self.HeaderText:SetText(text)
             self.height = self.HeaderText:GetStringHeight() or 14
         end

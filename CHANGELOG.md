@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.12
+- Fixed for real: a long quest name beside the distance at the right was laid out in the full width and measured as one line, then narrowed to two over the line under it. The name is now set in the width left to it.
+
 ## 3.48.11
 - "Do before going in" and "Do at the entrance" go from the nearest to the farthest, and the plate on top leads to the nearest thing to run for out here.
 
