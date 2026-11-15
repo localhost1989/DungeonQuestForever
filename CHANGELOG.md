@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.48.8
+- A click on a chain quest unfolds nothing (its steps are there already): it sets the arrow and says in one line, in the chat and in the middle of the screen, what to do now: "Now, step 2 of 4: hand in «...» — Kin'vilai".
+- The steps of a chain stand under the quest with dashes, as the goals of a quest do: done ones struck out, the one under way bright, the ones ahead grey. Click a step to set the arrow and see what to do there; hover it for its state.
+- A quest that waits for two forerunners says the second one on its card: "and also: «Enemies in the Water»: Brinescale Trident 7/10" (the chain showed only one of them).
+
 ## 3.48.7
 - The ways out of Thunder Bluff and the Undercity are called the lifts they are: "take the lift down" / "take the lift up" under the arrow and on the way card, instead of "pass between zones".
 - A step of a chain under way says what is left of it, from the quest log (it said only "finish").

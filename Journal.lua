@@ -1691,6 +1691,14 @@ local function addLine(block, key, text, single)
     local hide = (ObjectiveTrackerDashStyle and ObjectiveTrackerDashStyle.Hide) or OBJECTIVE_DASH_STYLE_HIDE or 2
     local line = block:AddObjective(key, text, nil, true, hide)
     if type(line) == "table" and type(line.Dash) == "table" and line.Dash.Hide then pcall(line.Dash.Hide, line.Dash) end
+    -- A line lent before to a step of a chain keeps no click of it.
+    if type(line) == "table" and line.stepOf then
+        line.stepOf, line.rowOf = nil, nil
+        pcall(function()
+            line:SetScript("OnMouseUp", nil); line:SetScript("OnEnter", nil); line:SetScript("OnLeave", nil)
+            if line.EnableMouse then line:EnableMouse(false) end
+        end)
+    end
     local font = ownFonts().sub
     if type(line) == "table" and type(line.Text) == "table" and line.Text.SetFontObject and (font or single or line.Text.cut) then
         pcall(function()
@@ -1739,6 +1747,99 @@ local function addStruck(block, key, text)
     return line
 end
 
+-- The steps of a chain under the quest, each a line with a dash, as the goals of a quest
+-- are (the owner, 15.11.2026: "the chain quests the same as with the mobs: a dash and the
+-- task of the chain, number 1, 2, 3, 4; done ones done; and each can be clicked to see what
+-- to do now"). Done: struck; the one under way: bright; the ones ahead: grey. A click on a
+-- step: the arrow and what to do, as a click on the quest does; ahead, what it waits for.
+local stepClick
+local function chainSteps(block, entry, links, now, from, to)
+    local total = #links
+    local function title(i) return P.Title(links[i]) or "?" end
+    local function clickable(line, i)
+        if type(line) ~= "table" then return end
+        line.stepOf, line.rowOf, line.stepAt, line.stepLinks = links[i], entry, i, links
+        pcall(function()
+            if line.EnableMouse then line:EnableMouse(true) end
+            line:SetScript("OnMouseUp", function(self) if stepClick then stepClick(self) end end)
+            line:SetScript("OnEnter", function(self)
+                local id = self.stepOf
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+                GameTooltip:SetText(self.stepAt .. ". " .. (P.Title(id) or "?"), 1, .83, .35, 1, true)
+                local state = C_QuestLog.IsQuestFlaggedCompleted(id) and (L"сдано")
+                    or P.IsActive(id) and ((C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) and (L"готово — сдай") or (L"в журнале"))
+                    or (self.stepAt > (now or 0)) and (L"впереди: откроется после предыдущего шага") or (L"не взято")
+                GameTooltip:AddLine(state, 1, 1, 1, true)
+                local left = P.IsActive(id) and P.Objectives and P.Objectives(id)
+                if left then GameTooltip:AddLine(left, .8, .8, .8, true) end
+                GameTooltip:AddLine(L"Щелчок — стрелка и что делать на этом шаге.", .6, .6, .6, true)
+                GameTooltip:Show()
+            end)
+            line:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        end)
+    end
+    for i = from, math.min(to, total) do
+        local text = "- " .. i .. ". " .. title(i)
+        if i < (now or 1) then
+            -- A long chain: the steps done in one struck line.
+            if total > 6 and now - 1 > 2 then
+                if i == 1 then clickable(addStruck(block, "chain1", "|cff8e8c87- 1–" .. (now - 1) .. ". " .. title(1) .. " … " .. title(now - 1) .. "|r"), now - 1) end
+            else
+                clickable(addStruck(block, "chain" .. i, "|cff8e8c87" .. text .. "|r"), i)
+            end
+        elseif i == now then
+            clickable(addLine(block, "chain" .. i, "|cffffffff" .. text .. "|r"), i)
+        else
+            if total > 6 and i > now + 2 then
+                addLine(block, "chainRest", "|cff8e8c87- " .. L"ещё шагов: " .. (total - now - 2) .. "|r")
+                break
+            end
+            clickable(addLine(block, "chain" .. i, "|cff9a9a9a" .. text .. "|r"), i)
+        end
+    end
+end
+
+-- What to do now about a quest, in one line: to take it, to finish it, to hand it in.
+function P.NowText(entry)
+    local id = entry.step or entry.id
+    local title = "«" .. (P.Title(id) or "?") .. "»"
+    local okChain, list, at = pcall(P.Chain, ((entry.step ~= entry.id and entry.id) or entry.leads) or entry.id)
+    local head = (okChain and type(list) == "table" and #list > 1 and at) and (L"Сейчас, шаг " .. at .. L" из " .. #list .. ": ") or (L"Сейчас: ")
+    local active = P.IsActive(id)
+    if entry.handin or (entry.stepActive and entry.act == "turnin") or (active and C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) then
+        local to = P.Where(id, "ends")
+        return head .. L"сдай " .. title .. (to and (" — " .. to) or "")
+    end
+    if entry.work and entry.work.text then
+        return head .. title .. ": " .. entry.work.text .. (entry.work.name and (" — " .. entry.work.name) or "")
+    end
+    if active then
+        local left = P.Objectives and P.Objectives(id)
+        return head .. title .. (left and (": " .. left:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", "")) or "") .. ((entry.zone == "inside" or entry.state == "active") and (L" — делается внутри") or "")
+    end
+    local from = P.Where(id, "starts")
+    return head .. L"возьми " .. title .. (from and (" — " .. from) or "")
+end
+
+stepClick = function(line)
+    local id, entry = line.stepOf, line.rowOf
+    if not (id and entry) then return end
+    local current = entry.step or entry.id
+    if id == current then openRoute(entry) return end
+    if C_QuestLog.IsQuestFlaggedCompleted(id) then
+        say(L"Шаг «" .. (P.Title(id) or "?") .. L"» уже сдан.")
+        return
+    end
+    if P.IsActive(id) then
+        local ok, list = pcall(atlas.QuestWork, id, selected)
+        local work = ok and type(list) == "table" and list[1] or nil
+        openRoute({id=id, step=id, state="active", note=(P.Objectives and P.Objectives(id)) or "", work=work, place=work,
+            turnIn=(C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) or nil})
+        return
+    end
+    say(L"Шаг «" .. (P.Title(id) or "?") .. L"» откроется после «" .. (P.Title(current) or "?") .. "».")
+end
+
 -- The goals of a quest in the log, each a line with a dash under the quest, as the game's
 -- own tracker writes them (the owner, 15.11.2026: "the quest yellow, and under it the
 -- sub-quests, with dashes, as done below"). Done ones struck out and dim; the one the
@@ -1781,6 +1882,31 @@ local function hintLine(block, entry)
     -- (Not blue and not under every card: the owner, "all blue, it looks wretched". In the
     -- unfolded card only, labelled like "куда:", and in the tip of the quest.)
     addLine(block, "hint", "|cffffd34d" .. L"как найти:" .. "|r |cffbcb7ab" .. hint .. "|r")
+end
+
+-- The other quests a step waits for beside the chain (a group of forerunners): each on a
+-- line, what is left of it or where to take it.
+local function alsoLines(block, entry)
+    for i, id in ipairs(entry.also or {}) do
+        if i > 2 then break end
+        if not (C_QuestLog.IsQuestFlaggedCompleted and C_QuestLog.IsQuestFlaggedCompleted(id)) then
+            local title = "«" .. (P.Title(id) or "?") .. "»"
+            local text
+            if P.IsActive(id) then
+                if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) then
+                    local to = P.Where(id, "ends")
+                    text = "|cff71c886" .. L"Сдай" .. "|r|cffe6e0d2 " .. title .. (to and (": " .. to) or "") .. "|r"
+                else
+                    local left = P.Objectives and P.Objectives(id)
+                    text = "|cffe6e0d2" .. title .. (left and (": " .. left) or "") .. "|r"
+                end
+            else
+                local from = P.Where(id, "starts")
+                text = "|cffe6e0d2" .. L"взять" .. " " .. title .. (from and (": " .. from) or "") .. "|r"
+            end
+            addLine(block, "also" .. i, "|cffffd34d" .. L"и ещё:" .. "|r " .. text)
+        end
+    end
 end
 
 local function goalLines(block, id, fallback)
@@ -2376,6 +2502,7 @@ local function layout(self)
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     hintLine(block, entry)
+                    alsoLines(block, entry)
                     if entry.place and not locked then
                         local zone = entry.place.mapID and atlas.ZoneName(entry.place.mapID)
                         local far = P.Reach(entry.place)
@@ -2444,6 +2571,8 @@ local function layout(self)
                     end
                     -- In the part "the group shares" the line says where to run if nobody does
                     -- (the layout of 15.11.2026); the part's name says the rest.
+                    local steps = links and #links > 1 and not locked and linkNow
+                    if steps then chainSteps(block, entry, links, linkNow, 1, linkNow) end
                     if entry.askGroup and not taken and toSomeone then
                         addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
                     else
@@ -2459,6 +2588,8 @@ local function layout(self)
                         end
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
+                    if steps then chainSteps(block, entry, links, linkNow, linkNow + 1, #links) end
+                    alsoLines(block, entry)
                     local note
                     if entry.atDoor and not taken then note = L"у входа — возьми по дороге в подземелье"
                     elseif entry.askGroup and not taken then note = nil
@@ -3446,7 +3577,20 @@ local function attach()
                 -- In the look of the game's quests a click unfolds the quest in place and
                 -- sets the arrow; a click on the unfolded one folds it again.
                 local key = ((entry.step ~= entry.id and entry.id) or entry.leads) or entry.id
-                if unfolded == key then
+                -- A chain stands unfolded already, step by step: a click on it unfolds nothing
+                -- more, it says what to do now and sets the arrow (the owner, 15.11.2026: "it is
+                -- not clear how it unfolds and folds; I want to click and know what to do in
+                -- this chain right now").
+                local okChain, chainList = pcall(P.Chain, key)
+                if unfolded ~= key and okChain and type(chainList) == "table" and #chainList > 1 then
+                    unfolded = nil
+                    openRoute(entry, true)
+                    local now = P.NowText and P.NowText(entry)
+                    if now then
+                        say(now)
+                        if RaidNotice_AddMessage and RaidWarningFrame then pcall(RaidNotice_AddMessage, RaidWarningFrame, now, {r=1, g=.86, b=.4}) end
+                    end
+                elseif unfolded == key then
                     unfolded = nil
                     P.Refresh()
                 else

@@ -262,7 +262,16 @@ local function missing(id, path)
                 if done(alt) then satisfied = true break end
             end
         end
-        if not satisfied then nextID = pre break end
+        -- The first is followed; the others of the group are needed as well and are kept
+        -- (the owner, 15.11.2026, killing murlocs for "Enemies in the Water": nothing said it
+        -- was wanted, though "The Only Good Brinescale" asks for it beside the chain).
+        if not satisfied then
+            if not nextID then nextID = pre
+            else
+                path.also = path.also or {}
+                path.also[#path.also+1] = pre
+            end
+        end
     end
     if not nextID and alternatives and #alternatives > 0 then
         for _, pre in ipairs(alternatives) do
@@ -394,7 +403,9 @@ function P.Build(d)
                     if work then row.work, row.place = work, work end
                 end
             else
-                local step, reason = missing(id,{})
+                local route = {}
+                local step, reason = missing(id, route)
+                row.also = route.also
                 local q = atlas.Quests[step] or {}
                 local level = math.max(q.minLevel or 0, field(step,"requiredLevel") or 0)
                 row.step, row.state = step, "missing"
