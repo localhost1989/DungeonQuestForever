@@ -9,7 +9,8 @@ dungeon right in the quest tracker.
   followed step by step, and the arrow moves on by itself when a step is turned in.
 - **The way there.** The arrow takes the short way: flight masters, zeppelins and ships,
   mage teleports, and on foot it follows walkable paths around mountains and cliffs
-  instead of a straight line.
+  instead of a straight line. Flight points you have not discovered yet are shown in silver
+  on the world map and the minimap, even under the fog of war: click one to go to its master.
 - **Inside.** Bosses in order, what is left to do at each, and their loot with the best
   items for your class marked.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
@@ -69,7 +70,8 @@ GPL-3.0-or-later, see `LICENSE`.
   говорит «можно идти в подземелье» и ведёт ко входу.
 - **Дорога.** Стрелка ведёт коротким путём: перелёты, дирижабли и корабли, телепорты мага,
   а пешком — по проходимым тропам в обход гор и обрывов, а не по прямой. На карте полётов
-  подсвечивается точка, куда лететь.
+  подсвечивается точка, куда лететь. Неоткрытые точки перелёта видны серебром на карте мира
+  и на миникарте, даже под туманом войны: щелчок ведёт к распорядителю.
 - **Группа.** Кнопка «Поделиться» раздаёт группе твои задания этого подземелья и просит
   в чате группы недостающие. У кого стоит аддон, поделятся сами.
 - **Внутри.** Боссы по порядку, что осталось сделать у каждого, их добыча с пометкой лучшего

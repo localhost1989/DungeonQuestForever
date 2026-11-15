@@ -64,3 +64,17 @@ exact("Ironforge gate -> Thelsamar", 1455, 18, 51, 1432, 35, 47)
 exact("Sentinel Hill -> Stormwind gate", 1436, 56, 47, 1453, 66, 87)
 exact("Brill -> Undercity gate", 1420, 61, 52, 1420, 62, 65)
 exact("Stormwind trade district -> Goldshire road", 1453, 60, 70, 1453, 66, 87)
+
+-- The owner, running east along the Elwynn road toward the Badlands: "the arrow glitches,
+-- no telling where to run." The node nearest lay behind on the road and the way began by
+-- going back west. Now every node near is a start, at the cost of walking to it: north.
+do
+    P.WalkReset()
+    you = {c=1415, x=18352, y=16920}
+    local target = {mapID=1415, x=19084 / size[1415][1] * 100, y=14084 / size[1415][2] * 100}
+    P.Steer(target)
+    while P.WalkStep(true) do end
+    local dx, dy = P.Steer(target)
+    assert(dx and dy and dy < 0 and math.abs(dx) < -dy, "the way goes north, not back west: " .. tostring(dx) .. "," .. tostring(dy))
+    print("PASS Elwynn road east -> Badlands: the way begins ahead, not behind")
+end

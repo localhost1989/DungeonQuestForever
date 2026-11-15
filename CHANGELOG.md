@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.47.0
+- A taken quest with two goals or more lists them under it with dashes, as the game's tracker does: the done ones struck out (on one line, without the count), the one the arrow leads to bright.
+- A quest with several goals: when the goal the arrow leads to is done, the arrow goes on by itself to the nearest goal left, and the chat says which.
+- Flight points you have not discovered yet, in silver, on the world map (continent and zone, even under the fog of war) and on the minimap; a farther one, within 1500 yards, waits at the rim of the minimap. Hover for its name and flight master; click to set the arrow to him.
+- The arrow holds its bearing for up to three seconds between one walking way and the next, instead of pointing straight across the mountains for a moment.
+- An undiscovered flight point by your way or by the goal stands under the way as a gold plate: "Flight point on the way: <name>", with the zone and distance. Click it to set the arrow to its flight master.
+- The arrow no longer swings to the goal and back while a way is looked for again (off the path, after a fall): it holds its bearing until the new way is found.
+- As a ghost the arrow leads to your body; on rising, back to the goal.
+- The walking way begins at the node near you that makes it shortest, not at the nearest one: off the road it no longer sends you back to where the old way was; and while a new way is found the arrow holds its bearing instead of pointing back.
+- The share button says "Share" with the scroll of a quest; button widths follow their words.
+- Under the name of the dungeon, real buttons with a picture and a word instead of the row of words: Entrance (or Portal, Teleport, Exit), Journal, Group. "Group" shares your quests and asks for the missing ones; the blue "Ask the group to share" plate is gone: the part "The group shares" and the Group button say it. The status plate leads to the first quest you have to run for.
+
+## 3.46.1
+- "Later" (level too low, or taken inside) stands at the very bottom, under "Taken".
+
 ## 3.46.0
 - Before the dungeon, what is not taken stands in parts, each with its count, folding by a click on its heading: Chains, The group shares (with the group's picture, and where to run if nobody shares), Take yourself, Later (level too low, or taken inside); then Taken.
 - Fixed: the tooltip over a boss on the small floor plan broke when the boss had no level in the data.

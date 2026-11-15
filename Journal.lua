@@ -436,6 +436,29 @@ local function say(message)
     DEFAULT_CHAT_FRAME:AddMessage("|cffedc36f" .. title .. "|r • " .. message)
 end
 
+-- One goal of a quest done and others left (the owner in the Badlands, 15.11.2026: the
+-- shards gathered, the fangs and the stomachs still wanted, "the arrow leads me on"): the
+-- arrow goes on to the nearest goal left, by itself. Only when the goal it leads to is
+-- done: between two goals left it does not switch as the player walks.
+local function nextObjective(d)
+    if not (d and atlas.QuestWork and P.Mark) or InCombatLockdown() then return end
+    local target = atlas.Target and atlas.Target()
+    local goal = db and db.goal
+    local id, current
+    if target and target.kind == "objective" and target.questID then id, current = target.questID, target.title
+    elseif goal and goal.kind == "objective" and goal.id then id, current = goal.id, goal.label end
+    if not id or not current or C_QuestLog.IsComplete(id) or not P.IsActive(id) then return end
+    local ok, left = pcall(atlas.QuestWork, id, d)
+    if not (ok and type(left) == "table" and left[1]) then return end
+    for _, spot in ipairs(left) do
+        if spot.name == current then return end
+    end
+    local nextOne = left[1]
+    if not (nextOne.mapID and nextOne.x and nextOne.y and nextOne.name) then return end
+    P.Mark(nextOne, nextOne.name, "objective", id)
+    say(L"Цель выполнена. Стрелка ведёт дальше: " .. nextOne.name .. (nextOne.text and (" • " .. nextOne.text) or ""))
+end
+
 local function tip(owner, title, note)
     GameTooltip:SetOwner(owner, "ANCHOR_LEFT")
     GameTooltip:SetText(title, 1, .83, .35, 1, true)   -- (text, r, g, b, alpha, wrap): "true" as the alpha was an error at every hover
@@ -1311,6 +1334,9 @@ function P.Selected() return selected, result end
 function P.OpenRow(row) openRoute(row) end
 function P.Choose(d) choose(d) end
 
+local SHORT_DOOR = {[L"Ко входу"]=L"Вход", [L"К порталу"]=L"Портал", [L"К телепорту"]=L"Телепорт", [L"К выходу"]=L"Выход"}
+local DOOR_ICON = {Horde="Interface\\Icons\\INV_Misc_Map_01", Alliance="Interface\\Icons\\INV_Misc_Map_01"}   -- (ChatGPT's choice: the map of the way)
+
 -- The way in, in the header: a strip of buttons under the name of the dungeon, one for
 -- each point of the road with the distance to it. The one the arrow leads to is gold.
 -- A click sets the arrow on that point.
@@ -1337,6 +1363,18 @@ local function navButton(nav, i)
     end
     -- In the look of the game's quests a button is a word in a row of words: no plate.
     function button:Plain(on)
+        if self.icon then self.icon:Hide() end
+        if self.pill then
+            self.pillOn = nil
+            local glow = self.GetHighlightTexture and self:GetHighlightTexture()
+            if glow and glow.SetAlpha then glow:SetAlpha(1) end
+            for _, t in pairs({self.pill.outer, self.pill.fill, self.pill.shine, self.pill.shade, self.pill.iconFrame, self.pill.iconBack}) do t:Hide() end
+            for _, t in ipairs(self.pill.inner) do t:Hide() end
+        end
+        if self.SetBackdrop and self.pillBackdrop ~= false then
+            self:SetBackdrop({bgFile="Interface\\Tooltips\\UI-Tooltip-Background", edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
+                tile=true, tileSize=8, edgeSize=10, insets={left=2, right=2, top=2, bottom=2}})
+        end
         if self.SetBackdropColor then self:SetBackdropColor(0, 0, 0, on and 0 or .8) end
         if on and self.SetBackdropBorderColor then self:SetBackdropBorderColor(0, 0, 0, 0) end
         local font = on and ownFonts().sub or ownFonts().button
@@ -1345,6 +1383,94 @@ local function navButton(nav, i)
         self.label:SetPoint("LEFT", on and 0 or 8, 0)
         self:SetHeight(on and 16 or 22)
         if not on then self.link, self.linkTip = nil, nil end
+    end
+    -- The layout of 15.11.2026 (ChatGPT's, variant A, approved), by its code: three
+    -- equal buttons 84 x 28 across the column, 4 apart; a ground going from dark red down
+    -- to near black, an outer rim of gold, an inner one darker, a light line on top; the
+    -- picture 20 x 20 in a frame of its own, then the word, the pair in the middle.
+    -- (art/код-макет-14.11/кнопки-заголовка-размеры-и-цвета.txt)
+    local function rgb(h) return tonumber(h:sub(1, 2), 16) / 255, tonumber(h:sub(3, 4), 16) / 255, tonumber(h:sub(5, 6), 16) / 255 end
+    function button:PillLook(hot)
+        local p = self.pill
+        if not p then return end
+        local top, bottom = hot and "81381F" or "522719", hot and "2E110B" or "1C0B08"
+        local done = false
+        if p.fill.SetGradient and CreateColor then
+            local r1, g1, b1 = rgb(bottom)
+            local r2, g2, b2 = rgb(top)
+            p.fill:SetColorTexture(1, 1, 1, 1)
+            done = pcall(p.fill.SetGradient, p.fill, "VERTICAL", CreateColor(r1, g1, b1, 1), CreateColor(r2, g2, b2, 1))
+        end
+        if not done then p.fill:SetColorTexture(rgb(hot and "592210" or "3B180E")) end
+        p.outer:SetColorTexture(rgb(hot and "FFE0A0" or "B28B50"))
+        p.iconFrame:SetColorTexture(rgb(hot and "FFE0A0" or "99703B"))
+        local r, g, b = rgb((hot or self.leads) and "FFF3CE" or "F5CE72")
+        self.label:SetTextColor(r, g, b)
+    end
+    function button:Pill(icon)
+        if not self.pill then
+            local p = {}
+            local function tex(layer, sub) return self:CreateTexture(nil, layer, nil, sub) end
+            p.outer = tex("BACKGROUND", 1)
+            p.outer:SetAllPoints()
+            p.fill = tex("BACKGROUND", 2)
+            p.fill:SetPoint("TOPLEFT", 1, -1)
+            p.fill:SetPoint("BOTTOMRIGHT", -1, 1)
+            p.inner = {}
+            for k = 1, 4 do p.inner[k] = tex("BORDER", 1); p.inner[k]:SetColorTexture(rgb(k == 1 and "8F6137" or "674222")) end
+            p.inner[1]:SetPoint("TOPLEFT", 2, -2); p.inner[1]:SetPoint("TOPRIGHT", -2, -2); p.inner[1]:SetHeight(1)
+            p.inner[2]:SetPoint("BOTTOMLEFT", 2, 2); p.inner[2]:SetPoint("BOTTOMRIGHT", -2, 2); p.inner[2]:SetHeight(1)
+            p.inner[3]:SetPoint("TOPLEFT", 2, -2); p.inner[3]:SetPoint("BOTTOMLEFT", 2, 2); p.inner[3]:SetWidth(1)
+            p.inner[4]:SetPoint("TOPRIGHT", -2, -2); p.inner[4]:SetPoint("BOTTOMRIGHT", -2, 2); p.inner[4]:SetWidth(1)
+            p.shine = tex("BORDER", 2)
+            p.shine:SetColorTexture(rgb("E2B96E"))
+            p.shine:SetPoint("TOPLEFT", 1, -1); p.shine:SetPoint("TOPRIGHT", -1, -1); p.shine:SetHeight(1)
+            p.shade = tex("BORDER", 2)
+            p.shade:SetColorTexture(rgb("130805"))
+            p.shade:SetPoint("BOTTOMLEFT", 1, 1); p.shade:SetPoint("BOTTOMRIGHT", -1, 1); p.shade:SetHeight(1)
+            p.iconFrame = tex("ARTWORK", 1)
+            p.iconFrame:SetSize(20, 20)
+            p.iconBack = tex("ARTWORK", 2)
+            p.iconBack:SetColorTexture(rgb("130B08"))
+            p.iconBack:SetPoint("TOPLEFT", p.iconFrame, "TOPLEFT", 1, -1)
+            p.iconBack:SetPoint("BOTTOMRIGHT", p.iconFrame, "BOTTOMRIGHT", -1, 1)
+            self.icon = tex("ARTWORK", 3)
+            self.icon:SetPoint("TOPLEFT", p.iconFrame, "TOPLEFT", 1, -1)
+            self.icon:SetPoint("BOTTOMRIGHT", p.iconFrame, "BOTTOMRIGHT", -1, 1)
+            if self.icon.SetTexCoord then self.icon:SetTexCoord(.08, .92, .08, .92) end
+            self.pill = p
+            self:HookScript("OnEnter", function(b) if b.pillOn then b:PillLook(true) end end)
+            self:HookScript("OnLeave", function(b) if b.pillOn then b:PillLook(false) end end)
+        end
+        local p = self.pill
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        for _, t in pairs({p.outer, p.fill, p.shine, p.shade, p.iconFrame, p.iconBack}) do t:Show() end
+        for _, t in ipairs(p.inner) do t:Show() end
+        self.pillOn = true
+        -- (Hovered, it lights by its own colours, not the square glow of the game.)
+        local glow = self.GetHighlightTexture and self:GetHighlightTexture()
+        if glow and glow.SetAlpha then glow:SetAlpha(0) end
+        local font = ownFonts().button
+        if font then pcall(self.label.SetFontObject, self.label, font) end
+        if self.label.SetShadowOffset then self.label:SetShadowOffset(1, -1) end
+        self.icon:SetTexture(icon)
+        self.icon:SetShown(icon ~= nil)
+        p.iconFrame:SetShown(icon ~= nil)
+        p.iconBack:SetShown(icon ~= nil)
+        self:SetHeight(28)
+        self:PillLook(false)
+    end
+    -- The icon and the word stand together in the middle of the button.
+    function button:PillCentre()
+        local p = self.pill
+        if not p then return end
+        local words = tonumber(self.label:GetStringWidth()) or 40
+        local whole = (self.icon:IsShown() and (20 + 4) or 0) + words
+        local left = math.max(4, ((tonumber(self:GetWidth()) or 84) - whole) / 2)
+        p.iconFrame:ClearAllPoints()
+        p.iconFrame:SetPoint("LEFT", self, "LEFT", left, 0)
+        self.label:ClearAllPoints()
+        self.label:SetPoint("LEFT", self, "LEFT", left + (self.icon:IsShown() and 24 or 0), 0)
     end
     button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
     button:SetScript("OnClick", function()
@@ -1381,26 +1507,43 @@ end
 -- the list goes back to the dungeons. The one the arrow leads to is white.
 local function linkRow(self, items)
     local nav = self.nav
-    local room = (self.GetWidth and self:GetWidth() or 260) - 30
-    local left, top = 0, 0
+    -- Three to a row across the column, 4 apart (84 x 28 in a column of 260); a long word
+    -- ("Поделиться") takes the room it needs and the others share the rest.
+    local room = (tonumber(self.GetWidth and self:GetWidth()) or 260) - 4
+    local rows = {}
     for i, item in ipairs(items) do
         local button = navButton(nav, i)
-        button:Plain(true)
+        button:Plain(false)
         button.option, button.choice, button.link, button.linkTip = item.option, nil, item.link, item.tip
         button.text, button.leads = item.text, item.lit and true or false
-        button.label:SetText((item.lit and "|cffffffff" or "|cffffd100") .. "• " .. item.text .. "|r")
-        local width = (button.label:GetStringWidth() or 60) + 6
-        if left > 0 and left + width > room then left, top = 0, top + 16 end
-        button:SetWidth(width)
-        button:ClearAllPoints()
-        button:SetPoint("TOPLEFT", nav, "TOPLEFT", left, -top)
-        button:Show()
-        left = left + width + 4
+        button:Pill(item.icon)
+        button.label:SetText(item.text)
+        button.natural = (tonumber(button.label:GetStringWidth()) or 50) + (item.icon and 24 or 0) + 12
+        local r = math.floor((i - 1) / 3) + 1
+        rows[r] = rows[r] or {}
+        table.insert(rows[r], button)
+    end
+    for r, list in ipairs(rows) do
+        local sum = 0
+        for _, b in ipairs(list) do sum = sum + b.natural end
+        local free = room - 4 * (#list - 1)
+        local left = 0
+        for _, b in ipairs(list) do
+            local w = (sum <= free) and (b.natural + (free - sum) / #list) or (b.natural * free / sum)
+            w = math.floor(w)
+            b:SetWidth(w)
+            b:PillCentre()
+            b:ClearAllPoints()
+            b:SetPoint("TOPLEFT", nav, "TOPLEFT", left, -(r - 1) * 32)
+            b:Show()
+            left = left + w + 4
+        end
     end
     for i = #items + 1, #nav.buttons do nav.buttons[i]:Hide() end
     nav:SetShown(#items > 0)
-    nav.rows = #items > 0 and (top / 16 + 1) or 0
-    self.fromHeaderOffsetY = #items > 0 and -(10 + top + 16) or -6
+    local rows = #items > 0 and math.ceil(#items / 3) or 0
+    nav.rows = rows
+    self.fromHeaderOffsetY = #items > 0 and -(12 + (rows - 1) * 32 + 28) or -6
 end
 
 local function drawNav(self, options)
@@ -1412,24 +1555,29 @@ local function drawNav(self, options)
         for _, option in ipairs(options) do
             local point = option.point
             local leads = target and target.mapID == point.mapID and target.x == point.x and target.y == point.y
-            items[#items+1] = {text=option.short or (L"Ко входу"), option=option, lit=leads}
+            -- The doors by one word on the button: "Вход", "Портал", "Телепорт", "Выход".
+            local word = option.short or (L"Ко входу")
+            word = SHORT_DOOR[word] or word
+            items[#items+1] = {text=word, option=option, lit=leads, icon=DOOR_ICON[UnitFactionGroup and UnitFactionGroup("player") or ""] or DOOR_ICON.Horde}
         end
         if not browsing and selected and not self:IsCollapsed() and not compact then
-            items[#items+1] = {text=L"Журнал", tip=L"Книга: все задания и боссы подземелья, добыча боссов.",
+            items[#items+1] = {text=L"Журнал", tip=L"Книга: все задания и боссы подземелья, добыча боссов.", icon="Interface\\Icons\\INV_Misc_Book_07",
                 link=function() if P.ToggleBook then P.ToggleBook(selected) end end}
             -- The owner: "one button on top: share all the quests with the group, and ask
             -- them to share the ones missing; and our addon's word goes in there."
             -- (Always shown: alone it was nowhere to be found; out of a group it says so.)
             if P.ShareWithGroup then
+                -- The owner: "it says Group; share - where is the sign of sharing?" The word
+                -- says what it does, the scroll of a quest by it.
                 items[#items+1] = {text=L"Поделиться", tip=L"Поделиться с группой всеми заданиями этого подземелья, что у тебя в журнале, и попросить в чате группы недостающие. Аддон у других поделится ими сам.",
-                    link=function() P.ShareWithGroup() end}
+                    icon="Interface\\Icons\\INV_Scroll_03", link=function() P.ShareWithGroup() end}
             end
         end
         -- The junk in the quest log, when there is any: a word that opens the list of it.
         local junk = not compact and not self:IsCollapsed() and P.JunkCount and P.JunkCount() or 0
         if junk > 0 then
             items[#items+1] = {text=L"Мусор: " .. junk, tip=L"Серые неначатые задания без цепочек. Щелчок покажет список и спросит, убрать ли их.",
-                link=function() if P.ShowJunk then P.ShowJunk() end end}
+                icon="Interface\\Icons\\INV_Misc_Bag_10", link=function() if P.ShowJunk then P.ShowJunk() end end}
         end
         linkRow(self, items)
         return
@@ -1535,17 +1683,22 @@ end
 
 -- A line under a row: no dash before it, and a size of its own. The tracker sizes the
 -- line as it adds it, so the height is measured again here and the block told of it.
-local function addLine(block, key, text)
+local function addLine(block, key, text, single)
     -- Seen in the game: the dash stayed. The style has gone by two names over the years,
     -- and by the number two under both; and the dash is hidden by hand besides.
     local hide = (ObjectiveTrackerDashStyle and ObjectiveTrackerDashStyle.Hide) or OBJECTIVE_DASH_STYLE_HIDE or 2
     local line = block:AddObjective(key, text, nil, true, hide)
     if type(line) == "table" and type(line.Dash) == "table" and line.Dash.Hide then pcall(line.Dash.Hide, line.Dash) end
     local font = ownFonts().sub
-    if font and type(line) == "table" and type(line.Text) == "table" and line.Text.SetFontObject then
+    if type(line) == "table" and type(line.Text) == "table" and line.Text.SetFontObject and (font or single or line.Text.cut) then
         pcall(function()
             local old = line:GetHeight()
-            line.Text:SetFontObject(font)
+            if font then line.Text:SetFontObject(font) end
+            -- A line struck through stays one line, cut short with dots if it must: wrapped,
+            -- the stroke fell between the two (seen in the game, 15.11.2026). The lines are
+            -- lent from one row to another, so every other one is let wrap again.
+            if line.Text.SetWordWrap then line.Text:SetWordWrap(not single) end
+            line.Text.cut = single or nil
             line.Text:SetHeight(0)
             local new = line.Text:GetHeight()
             if old and new and new > 0 and new ~= old then
@@ -1561,7 +1714,7 @@ end
 -- out, without any 'handed in'. Done - struck out, on to the next.") The game's font has
 -- no struck letters, so a thin line is laid over the words.
 local function addStruck(block, key, text)
-    local line = addLine(block, key, text)
+    local line = addLine(block, key, text, true)
     block.struck = block.struck or {}
     block.struck[key] = true
     if type(line) == "table" and type(line.Text) == "table" and line.CreateTexture then
@@ -1582,6 +1735,51 @@ local function addStruck(block, key, text)
         end)
     end
     return line
+end
+
+-- The goals of a quest in the log, each a line with a dash under the quest, as the game's
+-- own tracker writes them (the owner, 15.11.2026: "the quest yellow, and under it the
+-- sub-quests, with dashes, as done below"). Done ones struck out and dim; the one the
+-- arrow leads to bright; the rest grey. Only for two goals or more: one goal is said in
+-- the line above. Returns whether the lines were written.
+local function goalsOf(id)
+    local list = id and C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(id)
+    if type(list) ~= "table" then return end
+    local goals = {}
+    for _, objective in ipairs(list) do
+        local text = objective.text
+        if type(text) == "string" and not (issecretvalue and issecretvalue(text)) and text ~= "" then
+            goals[#goals+1] = {text=text, done=objective.finished and true or false}
+        end
+    end
+    return #goals >= 2 and goals or nil
+end
+
+-- The goal the arrow leads to, by its text: the arrow keeps its goal until it is done,
+-- while the nearest one may change as the player walks.
+local function ledGoal(id)
+    local target = atlas.Target and atlas.Target()
+    local goal = db and db.goal
+    local title = (target and target.kind == "objective" and target.questID == id and target.title)
+        or (goal and goal.kind == "objective" and goal.id == id and goal.label) or nil
+    if not (title and atlas.QuestWork) then return end
+    local ok, left = pcall(atlas.QuestWork, id, selected)
+    for _, spot in ipairs(ok and left or {}) do
+        if spot.name == title then return spot.text end
+    end
+end
+
+local function goalLines(block, id, fallback)
+    local goals = goalsOf(id)
+    if not goals then return end
+    local current = ledGoal(id) or fallback
+    for i, goal in ipairs(goals) do
+        -- Done: struck out, without the count ("5/5" said nothing the stroke does not).
+        if goal.done then addStruck(block, "goal" .. i, "|cff8e8c87- " .. (goal.text:gsub(":%s*%d+%s*/%s*%d+%s*$", "")) .. "|r")
+        elseif goal.text == current then addLine(block, "goal" .. i, "|cffffffff- " .. goal.text .. "|r")
+        else addLine(block, "goal" .. i, "|cffbcb7ab- " .. goal.text .. "|r") end
+    end
+    return true
 end
 
 
@@ -1786,6 +1984,8 @@ local function layout(self)
                 sign = entry.task == L"готово" and SIGN.ready or entry.task == L"взято" and SIGN.log or SIGN.take
             elseif entry.plain then
                 sign = entry.todo and SIGN.take or entry.book and SIGN.book or nil
+            elseif entry.flight then
+                sign = entry.sign
             elseif entry.status and (entry.plate or entry.ready or entry.muted) then
                 local kind = entry.plate or (entry.ready and "green") or "grey"
                 sign = kind == "gold" and SIGN.take or kind == "blue" and SIGN.ready or kind == "red" and SIGN.boss or SIGN.done
@@ -2050,7 +2250,7 @@ local function layout(self)
                     -- done: in the dungeon, or now?" Out here, and it says so.
                     -- (Work in another dungeon keeps "do": the line of the place says its door.)
                     act = chain .. BLUE .. ((entry.work and entry.work.dungeon) and (L"сделать|r") or (L"сделать снаружи|r")) .. named
-                        .. (entry.work and entry.work.text and (": " .. entry.work.text) or "")
+                        .. (entry.work and entry.work.text and not goalsOf(entry.step or entry.id) and (": " .. entry.work.text) or "")
                 elseif taken then
                     act = entry.handInside and (chain .. GREEN .. L"сдать внутри|r" .. named .. (type(entry.handInside) == "string" and (": " .. entry.handInside) or ""))
                         or (goal and (chain .. GREEN .. L"в журнале|r" .. named .. DIM .. L", делается внутри|r") or (GREEN .. L"в журнале|r" .. DIM .. L", делается внутри|r"))
@@ -2112,6 +2312,7 @@ local function layout(self)
                         if from then core = core:sub(1, from - 1) .. core:sub(to + 1) end
                     end
                     addLine(block, "act", GOLD .. L"сейчас:|r " .. core .. (toSomeone and (" — " .. who) or ""))
+                    if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     if entry.place and not locked then
                         local zone = entry.place.mapID and atlas.ZoneName(entry.place.mapID)
                         local far = P.Reach(entry.place)
@@ -2182,6 +2383,7 @@ local function layout(self)
                     else
                         addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. plain(core) .. plain(tail) .. "|r")
                     end
+                    if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     local note
                     if entry.atDoor and not taken then note = L"у входа — возьми по дороге в подземелье"
                     elseif entry.askGroup and not taken then note = nil
@@ -3082,6 +3284,12 @@ local function attach()
                 return
             end
             if entry.status and entry.door then openRoute({entrance=true}) return end
+            if entry.flight then
+                local point = entry.flight
+                local spot = {mapID=point.place.mapID, x=point.place.x, y=point.place.y, npcID=point.npc, name=point.keeper}
+                if P.Mark then P.Mark(spot, L"Распорядитель полётов: " .. point.name, "start") end
+                return
+            end
             if entry.status or entry.plain then return end
             if entry.now then openRoute(entry.row) return end
             if entry.laterToggle then
@@ -3167,6 +3375,7 @@ local function attach()
             if e.book then tip(block.HeaderButton, L"Журнал подземелья", L"Все задания с подробностями и цепочками по шагам и все боссы. То же делает значок книжки в заголовке и команда /dq book.") return end
             if e.plain then return end
             if e.now then tip(block.HeaderButton, L"Сейчас", L"Щелчок ставит стрелку и показывает карточку этого шага.") return end
+            if e.flight then tip(block.HeaderButton, e.status, L"Точка полёта, которой у тебя ещё нет: открой её у распорядителя, потом сюда можно будет прилететь. Щелчок ставит стрелку к нему.") return end
             if e.status then tip(block.HeaderButton, e.status, e.door and (L"Брать больше нечего. Щелчок ставит стрелку ко входу.") or (L"Зелёная строка: брать больше нечего. Золотая: ниже написано, что и где осталось.")) return end
             if e.section then tip(block.HeaderButton, e.section, e.about) return end
             if e.via then tip(block.HeaderButton, e.title, L"Сначала сюда, затем: " .. (e.onward or (L"цель")) .. L". Щелчок открывает карту.") return end
@@ -3523,6 +3732,7 @@ function P.Refresh()
         clearAtlasLeftovers()
         restylePins()
         settleMark()
+        nextObjective(selected)
         local onward = P.Replan and P.Replan()
         if onward then say(L"Дальше пешком. Стрелка ведёт к цели: " .. onward) end
         P.WatchBoss(inDungeon and guide or nil)
@@ -3584,6 +3794,19 @@ function P.Refresh()
             local after = way.legs and way.legs[2]
             table.insert(detailRows, {via=true, brief=true, place=heading, title=heading.title, onward=goal.label, keeper=way.keeper, up=way.up,
                 fly=way.fly, unsure=way.unsure, pass=way.pass, ride=after and (after.ride or after.text)})
+        end
+        -- An undiscovered flight point by the way or by the goal: a gold plate under the
+        -- way (the mock of 15.11.2026). A click sets the arrow to its master.
+        if goal and heading and not inDungeon and not compact and P.FlightOnWay then
+            local ok, point, where = pcall(P.FlightOnWay, goal)
+            if ok and point then
+                local far = P.DistanceText(point.place)
+                local zone = atlas.ZoneName(point.place.mapID)
+                table.insert(detailRows, {status=(where == "goal" and (L"Точка полёта у цели: ") or (L"Точка полёта по пути: ")) .. point.name,
+                    plate="gold", flight=point,
+                    sign=UnitFactionGroup("player") == "Alliance" and "Interface\\Icons\\Ability_Mount_Gryphon_01" or "Interface\\Icons\\Ability_Mount_Wyvern_01",
+                    lines={(zone or "") .. (far and ((zone and " • " or "") .. far) or ""), L"открой у распорядителя полётов"}})
+            end
         end
         -- The quest to do next stands on top in a fight, and where no run of bosses is
         -- known to lead the page; with a run, the boss leads and the quest is in the tasks.
@@ -4047,22 +4270,17 @@ function P.Refresh()
                     part("chains", L"Цепочки", L"Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список.", parts.chains)
                     part("group", L"Раздаст группа", L"Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список.", parts.group)
                     part("self", L"Взять самому", L"Задания, которые надо взять самому: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа. Щелчок по заголовку сворачивает список.", parts.self)
-                    part("later", L"Позже", L"Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список.", parts.later)
                     part("have", L"Уже взято", L"Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри. Щелчок по заголовку сворачивает список.", have)
+                    -- The owner: "the quest for later, put it at the very bottom: why is it in
+                    -- the middle of the list now?"
+                    part("later", L"Позже", L"Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список.", parts.later)
                     -- The status of the page when there is something to do out here.
-                    local lead = errands[1]
-                    if lead and lead.stage == 2 then
-                        -- To be asked of the group: the plate says which, and its button asks.
-                        local names, asks = {}, 0
-                        for _, row in ipairs(errands) do
-                            if row.stage == 2 then asks = asks + 1; names[#names+1] = "«" .. P.Title(row.step or row.id) .. "»" end
-                        end
-                        table.insert(detailRows, 1, {status=L"Попроси группу поделиться: " .. asks, plate="blue",
-                            lines={table.concat(names, ", ")},
-                            go=function() if P.ShareWithGroup then P.ShareWithGroup() end end,
-                            goText=L"Поделиться заданиями",
-                            goNote=L"Поделиться с группой своими заданиями этого подземелья и попросить в чате группы эти. Аддон у других поделится ими сам."})
-                        lead = nil
+                    -- The owner: "I do not see the point of this hint, Ask the group to share: it can
+                    -- go." What the group can share has its part in the list and the button "Группа"
+                    -- in the header; the plate leads to the first errand one has to run for.
+                    local lead
+                    for _, row in ipairs(errands) do
+                        if row.stage ~= 2 then lead = row break end
                     end
                     if lead and lead.stage ~= 3 then
                         local who = lead.place and atlas.PlaceName(lead.place)

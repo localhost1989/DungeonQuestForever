@@ -129,12 +129,28 @@ end
 
 -- A* from a to b; yields when the frame's time is spent (when it runs in a coroutine).
 local clock = debugprofilestop or function() return os and os.clock and os.clock() * 1000 or 0 end
-local function search(g, a, b)
+local function search(g, a, b, starts)
     local gx, gy = g.x, g.y
     local tx, ty = gx[b], gy[b]
     local cost, came, closed = {[a]=0}, {}, {}
     local heap, size = {a}, 1
     local score = {[a]=sqrt((gx[a] - tx) ^ 2 + (gy[a] - ty) ^ 2)}
+    -- Several places to start from, each at the cost of walking to it straight: the way
+    -- then begins at the node that makes it shortest, not at the nearest one (seen in the
+    -- game: the nearest lay behind on the road, and the arrow sent the owner back west).
+    if starts then
+        cost, score, heap, size = {}, {}, {}, 0
+        for _, s in ipairs(starts) do
+            local i, d = s[1], s[2]
+            if not cost[i] or d < cost[i] then
+                cost[i] = d
+                score[i] = d + sqrt((gx[i] - tx) ^ 2 + (gy[i] - ty) ^ 2) * 1.1
+                size = size + 1
+                heap[size] = i
+            end
+        end
+        table.sort(heap, function(p, q) return score[p] < score[q] end)
+    end
     local function push(i)
         size = size + 1
         heap[size] = i
@@ -219,7 +235,12 @@ local function startSearch(key, continent, sx, sy, gx, gy)
             end
         end
         if not a then return end
-        local nodes = search(g, a, b)
+        -- Every node near the player in that part, at the cost of the straight walk to it.
+        local from = {}
+        for _, s in ipairs(starts) do
+            if g.part[s[1]] == g.part[b] then from[#from+1] = {s[1], s[2]} end
+        end
+        local nodes = search(g, a, b, from)
         if not nodes then return end
         -- From where the player stood when it was asked for: one may start off the paths.
         -- The owner: "the arrow spins in all directions." The node nearest to the spot
@@ -322,11 +343,12 @@ function P.Steer(target)
         return
     end
     if best > OFF_WAY and not job and (lastTry[key] or -huge) + 2 <= now then
-        -- Off the way: it is found again from here, and until it is, the old one still
-        -- leads (it did turn straight for the while, and the arrow swung back and forth).
         lastTry[key] = now
         startSearch(key, tc, px, py, tx, ty)
     end
+    -- Off the way and a new one being found: the arrow holds where it pointed (the old way
+    -- sent the owner back to it for half a minute, while he ran a shorter road).
+    if best > OFF_WAY and job then return end
     way.at = bestK
     -- The arrow points at the spot thirty yards on along the way from the nearest point of
     -- it, not at the next bend: on a winding road the bends come every few yards, and the
@@ -353,6 +375,8 @@ end
 
 -- The way found for a goal, for the tests and /dq path.
 function P.WalkWay() return way, job end
+-- A way is being looked for right now (the arrow holds its last bearing meanwhile).
+function P.WalkBusy() return job ~= nil end
 function P.WalkReset() way, job, lastTry, close = nil, nil, {}, nil end
 
 -- The search runs a few milliseconds a frame.

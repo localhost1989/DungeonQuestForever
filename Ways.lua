@@ -1499,6 +1499,55 @@ local function flightName(node)
     return (town and town ~= zone) and (town .. ", " .. zone) or zone, false
 end
 
+-- The flight points of the player's faction on one continent, for the world map, the
+-- undiscovered ones too (the owner: "I want to see them even under the fog of war").
+-- Each: npc, place, name (the town alone), full (the game's whole name), keeper (the
+-- master), open: true, false, or nil where nothing is known yet.
+function P.FlightPoints(continent)
+    local list = {}
+    if not continent then return list end
+    local seen = seenOn(continent)
+    local game = not seen and gameSays(continent) or nil
+    for _, node in ipairs(net(UnitFactionGroup("player"))) do
+        if node.kind == "master" and node.c == continent then
+            local full = flightName(node)
+            local open
+            if seen then open = seen.known[node.npc] ~= nil
+            elseif game and game.open then open = game.open[node.npc] == true end
+            list[#list+1] = {npc=node.npc, place=node.place, full=full, name=full:match("^(.-),") or full,
+                keeper=node.place.name, open=open, X=node.X, Y=node.Y}
+        end
+    end
+    return list
+end
+
+-- An undiscovered flight point the walk passes by, or one beside the goal: worth the few
+-- steps to open it (the mock of 15.11.2026: "Flight point on the way: Kargath"). The
+-- goal on the continent the player stands on; a point counts when going by it costs at
+-- most a fifth of the straight walk (and four hundred yards), or it stands within three
+-- hundred yards of the player or of the goal. Returns the point and "way" or "goal".
+function P.FlightOnWay(goal)
+    if not (goal and goal.mapID) then return end
+    local okHere, sc, sX, sY = pcall(atlas.PlayerYards)
+    if not (okHere and sc and sX and sY) then return end
+    local okGoal, gc, gX, gY = pcall(atlas.Yards, goal)
+    local onGoal = okGoal and gc == sc and gX and gY
+    local direct = onGoal and sqrt((gX - sX)^2 + (gY - sY)^2) or nil
+    local best, bestCost, where
+    for _, point in ipairs(P.FlightPoints(sc)) do
+        if point.open == false and point.X and point.Y then
+            local mine = sqrt((point.X - sX)^2 + (point.Y - sY)^2)
+            local theirs = onGoal and sqrt((point.X - gX)^2 + (point.Y - gY)^2) or nil
+            local detour = direct and (mine + theirs - direct) or nil
+            local kind = (theirs and theirs <= 300) and "goal"
+                or (mine <= 300 or (detour and detour <= math.min(400, direct * .2 + 100))) and "way" or nil
+            local cost = detour or mine
+            if kind and (not bestCost or cost < bestCost) then best, bestCost, where = point, cost, kind end
+        end
+    end
+    return best, where
+end
+
 -- The quickest way by the map: every leg weighed in yards of running. nil when the game
 -- gives no place to measure from. Returns the quickest way of all, the quickest on foot
 -- alone, and the straight line.
@@ -1768,6 +1817,7 @@ function P.LearnFlights()
     if not P.char then return end
     local nodes, api = taxiNodes()
     if #nodes == 0 then return end
+    if atlas.ForgetNearbyFlights then atlas.ForgetNearbyFlights() end
     local ok, c, pX, pY = pcall(atlas.PlayerYards)
     if not (ok and c and pX and pY) then return end
     local list = {}

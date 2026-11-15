@@ -8,6 +8,10 @@ local _, P = ...
 local EN = {
     ["Другой континент"] = "Another continent",
     ["Вход: "] = "Entrance: ",
+    ["Не открыта"] = "Not discovered",
+    ["Распорядитель полётов: "] = "Flight master: ",
+    ["Щелчок: стрелка к распорядителю"] = "Click: arrow to the flight master",
+    ["Твоё тело"] = "Your body",
     ["Ты на месте: "] = "You have arrived: ",
     ["%d м"] = "%d yd",
     [" • наверху вышки"] = " • at the top of the tower",
@@ -857,6 +861,7 @@ local EN = {
     [", перелётом быстрее"] = ", faster by flight",
     [" через проход"] = " via the pass",
     ["за морем"] = "overseas",
+    ["Цель выполнена. Стрелка ведёт дальше: "] = "Goal done. The arrow leads on to: ",
     ["В журнале %d  •  Сдано %d  •  Всего %d"] = "In log %d  •  Turned in %d  •  Total %d",
     ["\nЗадания для входа готовы"] = "\nEntrance quests ready",
     ["у столбца нет точки привязки"] = "the column has no anchor point",
@@ -927,6 +932,9 @@ local EN = {
     ["Щелчок — настройки.\nПравая кнопка — журнал.\nТащи, чтобы переставить вокруг миникарты."] = "Click: settings.\nRight-click: journal.\nDrag to move it around the minimap.",
     ["Вот оно: "] = "Here it is: ",
     [" — для «"] = " — for «",
+    ["Портал"] = "Portal",
+    ["Телепорт"] = "Teleport",
+    ["Выход"] = "Exit",
     ["Щелчок ставит стрелку на эту точку."] = "Click sets the arrow to this point.",
     ["Книга: все задания и боссы подземелья, добыча боссов."] = "Book: all quests and bosses of the dungeon, boss loot.",
     ["Поделиться"] = "Share",
@@ -1062,6 +1070,7 @@ local EN = {
     ["Все задания с подробностями и цепочками по шагам и все боссы. То же делает значок книжки в заголовке и команда /dq book."] = "All quests with details and step-by-step chains, and all bosses. The book icon in the header and the /dq book command do the same.",
     ["Сейчас"] = "Now",
     ["Щелчок ставит стрелку и показывает карточку этого шага."] = "Click sets the arrow and shows the card for this step.",
+    ["Точка полёта, которой у тебя ещё нет: открой её у распорядителя, потом сюда можно будет прилететь. Щелчок ставит стрелку к нему."] = "A flight point you don't have yet: talk to its flight master to discover it, then you can fly here. Click to set the arrow to him.",
     ["Брать больше нечего. Щелчок ставит стрелку ко входу."] = "Nothing more to pick up. Click sets the arrow to the entrance.",
     ["Зелёная строка: брать больше нечего. Золотая: ниже написано, что и где осталось."] = "Green line: nothing more to pick up. Gold: below is what is left and where.",
     ["Сначала сюда, затем: "] = "Here first, then: ",
@@ -1097,6 +1106,9 @@ local EN = {
     ["Дорога к цели"] = "Route to goal",
     ["Кратчайший путь к выбранной цели начинается с телепорта."] = "The shortest route to the chosen goal starts with a teleport.",
     ["Сначала сюда, потом к цели. Щелчок по строке ниже открывает карту этого места."] = "Here first, then to the goal. Click a line below to open the map of this place.",
+    ["Точка полёта у цели: "] = "Flight point by the goal: ",
+    ["Точка полёта по пути: "] = "Flight point on the way: ",
+    ["открой у распорядителя полётов"] = "discover it at the flight master",
     ["Первый живой босс по порядку подземелья. Другого можно выбрать кнопкой «Босс» в заголовке."] = "The first living boss in dungeon order. Choose another with the \"Boss\" button in the header.",
     ["Локация"] = "Location",
     ["Зал, в котором ты стоишь. Положение внутри подземелья игра не сообщает, только название зала."] = "The room you are standing in. The game does not report position inside a dungeon, only the room name.",
@@ -1127,12 +1139,9 @@ local EN = {
     ["Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список."] = "A group member can share these quests: no need to run. Under each: where to go if nobody shares. Click the heading to fold the list.",
     ["Взять самому"] = "Take yourself",
     ["Задания, которые надо взять самому: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа. Щелчок по заголовку сворачивает список."] = "Quests to take yourself: from whom, where and how far. The far ones on top, those by the entrance at the bottom. Click the heading to fold the list.",
-    ["Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список."] = "Quests you cannot take out here yet: from which level, what comes first, or what is taken inside the dungeon. Click the heading to fold the list.",
     ["Уже взято"] = "Taken",
     ["Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри. Щелчок по заголовку сворачивает список."] = "Quests in your log: what to do with them now: finish outside, hand in, or do inside. Click the heading to fold the list.",
-    ["Попроси группу поделиться: "] = "Ask the group to share: ",
-    ["Поделиться заданиями"] = "Share quests",
-    ["Поделиться с группой своими заданиями этого подземелья и попросить в чате группы эти. Аддон у других поделится ими сам."] = "Share your quests of this dungeon with the group and ask for these in the group chat. Others with the addon share them by themselves.",
+    ["Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список."] = "Quests you cannot take out here yet: from which level, what comes first, or what is taken inside the dungeon. Click the heading to fold the list.",
     ["Сдай "] = "Hand in ",
     ["задание"] = "quest",
     ["задания"] = "quests",
@@ -1958,12 +1967,177 @@ local function placeSigns(canvas, shown)
 end
 C.Signs = function() return signs end
 
+-- The flight points of the player's faction not discovered yet, on the world map and on
+-- the minimap: the game shows only the ones the character has, and none under the fog
+-- of war (the owner, 15.11.2026: "I want to see them even under the fog, points I can
+-- pick"; then: "only the ones I have not taken, and on the zoomed map too"). Silver;
+-- hovered, what the point is and who keeps it; clicked, the arrow goes to its master.
+local flights, nearby = {}, {}
+local SILVER = {.82, .86, .93}
+local function flightArt(texture)
+    local faction = UnitFactionGroup and UnitFactionGroup("player")
+    local atlas = faction == "Alliance" and "TaxiNode_Alliance" or faction == "Horde" and "TaxiNode_Horde" or "TaxiNode_Neutral"
+    local has = C_Texture and C_Texture.GetAtlasInfo
+    if texture.SetAtlas and has and has(atlas) then texture:SetAtlas(atlas)
+    elseif texture.SetAtlas and has and has("FlightMaster") then texture:SetAtlas("FlightMaster")
+    else texture:SetTexture("Interface\\TaxiFrame\\UI-Taxi-Icon-White") end
+    -- Silver: the picture of the point without its colour.
+    if texture.SetDesaturated then texture:SetDesaturated(true) end
+    texture:SetVertexColor(SILVER[1], SILVER[2], SILVER[3])
+end
+
+local function flightTip(self)
+    local point = self.point
+    if not (point and GameTooltip) then return end
+    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+    GameTooltip:SetText(point.full or point.name, 1, 1, 1)
+    GameTooltip:AddLine(L"Не открыта", 1, .35, .3)
+    if point.keeper then GameTooltip:AddLine(L"Распорядитель полётов: " .. point.keeper, 1, .82, .35, true) end
+    GameTooltip:AddLine(L"Щелчок: стрелка к распорядителю", .6, .6, .6, true)
+    GameTooltip:Show()
+end
+
+local function flightClick(self)
+    local point = self.point
+    if not (point and point.place) then return end
+    local place = point.place
+    local spot = {mapID=place.mapID, x=place.x, y=place.y, npcID=point.npc, name=point.keeper}
+    local label = L"Распорядитель полётов: " .. point.name
+    if P.Mark then P.Mark(spot, label, "start") else C.AddMarker(spot, label, "start") end
+end
+
+local function flightPin(size, labelled)
+    local pin = CreateFrame("Button", nil, UIParent)
+    pin:SetSize(size, size)
+    pin.icon = pin:CreateTexture(nil, "ARTWORK")
+    pin.icon:SetAllPoints()
+    flightArt(pin.icon)
+    if pin.SetHighlightTexture then pin:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD") end
+    if labelled then
+        pin.plate = pin:CreateTexture(nil, "BACKGROUND")
+        pin.plate:SetColorTexture(0, 0, 0, .6)
+        pin.label = pin:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        pin.label:SetPoint("TOP", pin, "BOTTOM", 0, -1)
+        pin.label:SetTextColor(SILVER[1], SILVER[2], SILVER[3])
+        pin.plate:SetPoint("TOPLEFT", pin.label, "TOPLEFT", -3, 1)
+        pin.plate:SetPoint("BOTTOMRIGHT", pin.label, "BOTTOMRIGHT", 3, -1)
+    end
+    pin:SetScript("OnEnter", flightTip)
+    pin:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+    pin:SetScript("OnClick", flightClick)
+    return pin
+end
+
+-- The closed points of a continent; nothing where it is not known which are closed.
+local function closedOn(continent)
+    if not (continent and P.FlightPoints) then return {} end
+    local ok, list = pcall(P.FlightPoints, continent)
+    if not (ok and type(list) == "table") then return {} end
+    local closed = {}
+    for _, point in ipairs(list) do if point.open == false then closed[#closed+1] = point end end
+    return closed
+end
+
+local function placeFlights(canvas, shown)
+    for _, pin in ipairs(flights) do pin:Hide() end
+    if not (canvas and shown) then return end
+    local info = C_Map.GetMapInfo(shown)
+    -- Not on the map of the whole world: the points of two continents in one heap.
+    if not (info and info.mapType and info.mapType >= CONTINENT) then return end
+    local scale = 1 / (canvas:GetScale() or 1)
+    local n = 0
+    for _, point in ipairs(closedOn(C.ContinentOf(shown))) do
+        local x, y = onto(point.place.mapID, point.place.x/100, point.place.y/100, shown)
+        if x then
+            n = n + 1
+            local pin = flights[n]
+            if not pin then pin = flightPin(20, true); flights[n] = pin end
+            pin.point = point
+            pin.label:SetText(point.name)
+            pin:SetParent(canvas)
+            pin:SetFrameStrata("HIGH")
+            pin:SetScale(scale)
+            pin:ClearAllPoints()
+            pin:SetPoint("CENTER", canvas, "TOPLEFT", x*canvas:GetWidth()/scale, -y*canvas:GetHeight()/scale)
+            pin:Show()
+        end
+    end
+end
+C.FlightPins = function() return flights end
+
+-- On the minimap: the closed points within its circle; one farther off, up to a mile and
+-- a half, waits at its rim on the side where it lies, a little paler. The yards the
+-- minimap spans, side to side, at each zoom, as the classic client draws it.
+local OUTDOOR = {[0]=466 + 2/3, 400, 333 + 1/3, 266 + 2/3, 200, 133 + 1/3}
+local INDOOR = {[0]=300, 240, 180, 120, 80, 50}
+local RIM = 1500
+local minimapLook, minimapList, minimapAt = nil, nil, -99
+local function placeNearby()
+    for _, pin in ipairs(nearby) do pin:Hide() end
+    if not (Minimap and Minimap.GetZoom) then return end
+    if IsInInstance and IsInInstance() then return end
+    local okP, c, pX, pY = pcall(C.PlayerYards)
+    if not (okP and c and pX and pY) then return end
+    local now = GetTime and GetTime() or 0
+    if not minimapList or minimapList.c ~= c or now - minimapAt > 5 then
+        minimapList, minimapAt = closedOn(c), now
+        minimapList.c = c
+    end
+    if #minimapList == 0 then return end
+    local zoom = Minimap:GetZoom() or 0
+    local span = ((IsIndoors and IsIndoors()) and INDOOR or OUTDOOR)[zoom] or OUTDOOR[0]
+    local width = Minimap:GetWidth() or 140
+    local radius = width / 2
+    local turn = GetCVar and GetCVar("rotateMinimap") == "1" and plain(GetPlayerFacing and GetPlayerFacing()) or 0
+    local cosT, sinT = math.cos(-turn), math.sin(-turn)
+    local n = 0
+    for _, point in ipairs(minimapList) do
+        local east, north = point.X - pX, -(point.Y - pY)
+        local yards = sqrt(east*east + north*north)
+        if yards <= RIM then
+            local x, y = east*cosT - north*sinT, east*sinT + north*cosT
+            x, y = x / span * width, y / span * width
+            local far = sqrt(x*x + y*y)
+            local edge = far > radius - 6
+            if edge then x, y = x * (radius - 6) / far, y * (radius - 6) / far end
+            n = n + 1
+            local pin = nearby[n]
+            if not pin then
+                pin = flightPin(16)
+                pin:SetParent(Minimap)
+                pin:SetFrameLevel((Minimap:GetFrameLevel() or 1) + 5)
+                nearby[n] = pin
+            end
+            pin.point = point
+            pin:SetAlpha(edge and .7 or 1)
+            pin:ClearAllPoints()
+            pin:SetPoint("CENTER", Minimap, "CENTER", x, y)
+            pin:Show()
+        end
+    end
+end
+C.NearbyFlightPins = function() return nearby end
+C.PlaceNearbyFlights = placeNearby
+-- (A new flight point learnt: counted again at once, not in five seconds.)
+function C.ForgetNearbyFlights() minimapList = nil end
+if CreateFrame and UIParent then
+    minimapLook = CreateFrame("Frame", nil, UIParent)
+    local since = 0
+    minimapLook:SetScript("OnUpdate", function(_, elapsed)
+        since = since + (elapsed or 0)
+        if since < .1 then return end
+        since = 0
+        pcall(placeNearby)
+    end)
+end
+
 local function placePin()
     if not mapPin then return end
     local target = C.Target()
     local canvas = WorldMapFrame and WorldMapFrame.ScrollContainer and WorldMapFrame.ScrollContainer.Child
     local shown = canvas and WorldMapFrame:IsShown() and WorldMapFrame.GetMapID and WorldMapFrame:GetMapID()
     placeSigns(canvas, shown)
+    placeFlights(canvas, shown)
     local x, y
     if target and shown then x, y = onto(target.mapID, target.x/100, target.y/100, shown) end
     if not x then mapPin:Hide() return end
@@ -1971,6 +2145,8 @@ local function placePin()
     local scale = 1 / (canvas:GetScale() or 1)
     mapPin:SetParent(canvas)
     mapPin:SetFrameStrata("HIGH")
+    -- (Above the flight points: the goal is the one thing to find.)
+    if mapPin.SetFrameLevel and canvas.GetFrameLevel then mapPin:SetFrameLevel((canvas:GetFrameLevel() or 0) + 40) end
     mapPin:SetScale(scale)
     mapPin:ClearAllPoints()
     mapPin:SetPoint("BOTTOM", canvas, "TOPLEFT", x*canvas:GetWidth()/scale, -y*canvas:GetHeight()/scale - 2)
@@ -2000,6 +2176,25 @@ local function turn(self, elapsed)
     self.dx, self.dy = nil, nil
     local target = C.Target()
     if not target then self:Hide() return end
+    -- The owner, a ghost: "the arrow glitches, no telling where to run." Dead, the run is
+    -- to the body: the arrow leads there, straight, and goes back to the goal on rising.
+    local ghost = UnitIsGhost and UnitIsGhost("player")
+    if ghost and C_DeathInfo and C_DeathInfo.GetCorpseMapPosition then
+        local map = C_Map.GetBestMapForUnit and plain(C_Map.GetBestMapForUnit("player"))
+        local ok, spot = pcall(C_DeathInfo.GetCorpseMapPosition, map)
+        if ok and spot and spot.GetXY then
+            local cx, cy = spot:GetXY()
+            cx, cy = plain(cx), plain(cy)
+            if cx and cy and (cx ~= 0 or cy ~= 0) then
+                local kept = self.corpseTarget
+                if not (kept and kept.mapID == map and kept.x == cx * 100 and kept.y == cy * 100) then
+                    kept = {mapID=map, x=cx * 100, y=cy * 100, title=L"Твоё тело", corpse=true}
+                    self.corpseTarget = kept
+                end
+                target = kept
+            end
+        end
+    end
     self.title:SetText(target.title or "")
     local dx, dy, distance = C.NavigationVector(target)
     if not distance then
@@ -2009,7 +2204,7 @@ local function turn(self, elapsed)
     end
     -- A plain point is done with on arrival. A point of a quest stays until the quest
     -- log says the step is over; a door stays until the player is through it.
-    if distance <= 10 and not target.questID and target.kind ~= "entrance" then
+    if distance <= 10 and not target.questID and target.kind ~= "entrance" and not target.corpse then
         say(L"Ты на месте: " .. (target.title or "?"))
         C.RemoveMarker(target)
         return
@@ -2017,9 +2212,31 @@ local function turn(self, elapsed)
     -- Along a walkable way where one is known (Walk.lua): the arrow to its next bend, the
     -- distance along it. Without one, straight to the goal, as the crow flies.
     local okWay, wx, wy, along = false, nil, nil, nil
-    if P.Steer then okWay, wx, wy, along = pcall(P.Steer, target) end
+    if P.Steer and not target.corpse then okWay, wx, wy, along = pcall(P.Steer, target) end
     if okWay and wx and along then dx, dy, distance = wx, wy, along end
-    self.onWay = okWay and wx ~= nil or nil
+    local mode = (okWay and wx) and "way" or "straight"
+    -- While a way is looked for again (off it, or after a fall), the arrow pointed straight
+    -- at the goal for a moment and then back along the way: it swung. It holds where it
+    -- pointed until the new way is found.
+    -- (15.11.2026, the log after a run in the Badlands: between one way and the next the
+    -- arrow pointed straight for a second, 1286 yards west across the mountains, and back.
+    -- Three seconds after the last step on a way it holds too, searching or not.)
+    local now = GetTime and GetTime() or 0
+    local lately = self.wayAt and now - self.wayAt < 3 and distance > 100
+    local holding = not (okWay and wx) and self.onWay and ((P.WalkBusy and P.WalkBusy()) or lately) and self.lastDX and self.bearingFor == target
+    if holding then dx, dy, mode = self.lastDX, self.lastDY, "hold" else self.onWay = okWay and wx ~= nil or nil end
+    if not holding then self.lastDX, self.lastDY = dx, dy end
+    if okWay and wx then self.wayAt = now end
+    -- What the arrow did, for a look after a /reload (C.char.arrowLog, the last thirty):
+    -- a line when the way of leading changes, and one every five seconds.
+    if C.char and (mode ~= self.lastMode or now - (self.lastLog or 0) >= 5) then
+        self.lastMode, self.lastLog = mode, now
+        C.char.arrowLog = type(C.char.arrowLog) == "table" and C.char.arrowLog or {}
+        local okP, _, px, py = pcall(C.PlayerYards)
+        table.insert(C.char.arrowLog, ("%s %s %s | %d yd | to %.0f,%.0f | at %s,%s"):format(date and date("%H:%M:%S") or "?", mode,
+            tostring(target.title or "?"), floor(distance + .5), dx or 0, dy or 0, okP and px and floor(px) or "-", okP and py and floor(py) or "-"))
+        while #C.char.arrowLog > 30 do table.remove(C.char.arrowLog, 1) end
+    end
     -- The game tells an addon no heights. Where the place is known to be up a tower, say so:
     -- the arrow can only bring the player to its foot.
     self.distance:SetText((L"%d м"):format(floor(distance + .5)) .. (target.hint and (" • " .. target.hint) or target.up and (L" • наверху вышки") or ""))
