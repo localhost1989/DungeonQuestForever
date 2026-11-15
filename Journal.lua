@@ -3526,6 +3526,26 @@ local function initialize()
             if not db.welcomed and not InCombatLockdown() then pcall(P.ShowWelcome) end
         end)
     end
+    -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
+    -- addon know there is an update and what is new"): a few lines in the chat, seconds
+    -- after coming in. Not to a character new to the addon: the welcome page is for him.
+    local NEWS = "3.47.1"
+    if not db.welcomed then
+        db.newsSeen = NEWS
+    elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
+        C_Timer.After(8, function()
+            if db.newsSeen == NEWS then return end
+            db.newsSeen = NEWS
+            say(L"обновление " .. NEWS .. L", что нового:")
+            for _, line in ipairs({
+                L"• неоткрытые точки перелёта видны серебром на карте мира и на миникарте, даже под туманом войны; щелчок по точке ведёт к распорядителю полётов",
+                L"• цели задания стоят под ним строками с дефисами; выполнил одну — стрелка сама ведёт к следующей",
+                L"• стрелка больше не мечется, пока ищет новый путь",
+            }) do
+                if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
+            end
+        end)
+    end
     -- What this client gives an addon of its pings and of the figures of a thing: looked
     -- up once after login and kept with the settings, to be read from disk. The owner
     -- asked for the game's pings and for things weighed by their figures; neither can be

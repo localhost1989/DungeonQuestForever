@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.47.1
+- After an update the addon says once in the chat what is new.
+
 ## 3.47.0
 - A taken quest with two goals or more lists them under it with dashes, as the game's tracker does: the done ones struck out (on one line, without the count), the one the arrow leads to bright.
 - A quest with several goals: when the goal the arrow leads to is done, the arrow goes on by itself to the nearest goal left, and the chat says which.
