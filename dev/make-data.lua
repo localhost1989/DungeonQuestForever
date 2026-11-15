@@ -82,6 +82,9 @@ if mode == "dump" then
     local okExtra, loaded = pcall(dofile, here .. "data-extra.lua")
     if okExtra and type(loaded) == "table" then extra = loaded end
     for _, id in ipairs(extra.quests or {}) do add(id) end
+    -- Forever's new dungeons, which the database has no area for yet: their quests found by
+    -- their monsters and names (15.11.2026), given to the dungeons by Core.lua's EXTRA.
+    for _, id in ipairs({95748, 95776, 95789, 95791, 96774, 97130, 94968, 94969, 94973, 94980, 94982, 94983, 92065, 96603, 97173, 98477}) do add(id) end
     local i = 1
     while queue[i] do
         local id = queue[i]; i = i + 1

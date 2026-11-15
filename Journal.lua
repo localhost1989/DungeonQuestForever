@@ -260,7 +260,9 @@ end
 
 local function included(d, count)
     if db.fullCatalog then return true end
-    return count.total > 0 and not db.hidden[d.key] and not (db.hideDone and isClosed(count))
+    -- (Forever's new dungeons are listed though the database has no quests of them yet: the
+    -- way in and the level are worth having.)
+    return (count.total > 0 or d.forever) and not db.hidden[d.key] and not (db.hideDone and isClosed(count))
 end
 
 -- The list goes by what the character can do with a dungeon now: the ones of its level
@@ -1769,6 +1771,16 @@ local function ledGoal(id)
     end
 end
 
+-- How to find it, where the arrow alone is not enough (P.QuestHints, BossRoute.lua): a
+-- line in light blue under the quest while it is to be done out here.
+local function hintLine(block, entry)
+    local hint = P.QuestHints and P.QuestHints[entry.step or entry.id]
+    if not hint or not (entry.working or entry.stepActive or entry.state == "active") then return end
+    -- (Not blue and not under every card: the owner, "all blue, it looks wretched". In the
+    -- unfolded card only, labelled like "куда:", and in the tip of the quest.)
+    addLine(block, "hint", "|cffffd34d" .. L"как найти:" .. "|r |cffbcb7ab" .. hint .. "|r")
+end
+
 local function goalLines(block, id, fallback)
     local goals = goalsOf(id)
     if not goals then return end
@@ -2249,8 +2261,12 @@ local function layout(self)
                     -- The owner: "I have taken quests, and I do not understand where they are
                     -- done: in the dungeon, or now?" Out here, and it says so.
                     -- (Work in another dungeon keeps "do": the line of the place says its door.)
-                    act = chain .. BLUE .. ((entry.work and entry.work.dungeon) and (L"сделать|r") or (L"сделать снаружи|r")) .. named
-                        .. (entry.work and entry.work.text and not goalsOf(entry.step or entry.id) and (": " .. entry.work.text) or "")
+                    -- (The owner, 15.11.2026: "take away the stupid 'do out here' over every quest:
+                    -- 'Do before going in' is written above it already." The part says the deed;
+                    -- the line says what and where. Work in another dungeon keeps "do".)
+                    local what = entry.work and entry.work.text and not goalsOf(entry.step or entry.id) and entry.work.text or nil
+                    local verb = (entry.work and entry.work.dungeon) and (BLUE .. L"сделать|r") or ""
+                    act = chain .. verb .. named .. (what and (((verb ~= "" or named ~= "") and ": " or "") .. what) or "")
                 elseif taken then
                     act = entry.handInside and (chain .. GREEN .. L"сдать внутри|r" .. named .. (type(entry.handInside) == "string" and (": " .. entry.handInside) or ""))
                         or (goal and (chain .. GREEN .. L"в журнале|r" .. named .. DIM .. L", делается внутри|r") or (GREEN .. L"в журнале|r" .. DIM .. L", делается внутри|r"))
@@ -2311,8 +2327,11 @@ local function layout(self)
                         local from, to = core:find(named, 1, true)
                         if from then core = core:sub(1, from - 1) .. core:sub(to + 1) end
                     end
-                    addLine(block, "act", GOLD .. L"сейчас:|r " .. core .. (toSomeone and (" — " .. who) or ""))
+                    if core:gsub("|c%x%x%x%x%x%x%x%x", ""):gsub("|r", ""):match("%S") or toSomeone then
+                        addLine(block, "act", GOLD .. L"сейчас:|r " .. core .. (toSomeone and (" — " .. who) or ""))
+                    end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
+                    hintLine(block, entry)
                     if entry.place and not locked then
                         local zone = entry.place.mapID and atlas.ZoneName(entry.place.mapID)
                         local far = P.Reach(entry.place)
@@ -2381,7 +2400,8 @@ local function layout(self)
                     if entry.askGroup and not taken and toSomeone then
                         addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
                     else
-                        addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. plain(core) .. plain(tail) .. "|r")
+                        local line = (plain(core) .. plain(tail)):gsub("^%s*•%s*", "")
+                        addLine(block, "act", "|cffe6e0d2" .. ((total and at) and (L"цепочка " .. at .. "/" .. total .. " • ") or "") .. line .. "|r")
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     local note
@@ -3408,7 +3428,9 @@ local function attach()
                 tip(block.HeaderButton, e.secret.kind, #e.secret > 1 and (L"Нажми на строку, чтобы увидеть следующий шаг.") or e.action)
             else
                 local chain, at, total = chainOf(e.step ~= e.id and e.id or e.leads or e.id)
+                local hint = P.QuestHints and P.QuestHints[e.step or e.id]
                 tip(block.HeaderButton, P.Title(e.id), (e.detail or e.note or "")
+                    .. (hint and ("\n\n|cffffd34d" .. L"Как найти:" .. "|r " .. hint) or "")
                     .. (e.share and e.state == "missing" and (L"\nЗаданием может поделиться участник группы.") or "")
                     .. (chain and (L"\n\nЦепочка заданий (шаг " .. at .. L" из " .. total .. "):\n" .. table.concat(chain, "\n")) or "")
                     .. ((e.prep and tracker.isBoard and nativeLook()) and (L"\nЩелчок — раскрыть или свернуть. Правая кнопка — журнал этого задания.")
@@ -3529,7 +3551,7 @@ local function initialize()
     -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
     -- addon know there is an update and what is new"): a few lines in the chat, seconds
     -- after coming in. Not to a character new to the addon: the welcome page is for him.
-    local NEWS = "3.47.1"
+    local NEWS = "3.48.0"
     if not db.welcomed then
         db.newsSeen = NEWS
     elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
@@ -3538,9 +3560,9 @@ local function initialize()
             db.newsSeen = NEWS
             say(L"обновление " .. NEWS .. L", что нового:")
             for _, line in ipairs({
-                L"• неоткрытые точки перелёта видны серебром на карте мира и на миникарте, даже под туманом войны; щелчок по точке ведёт к распорядителю полётов",
-                L"• цели задания стоят под ним строками с дефисами; выполнил одну — стрелка сама ведёт к следующей",
-                L"• стрелка больше не мечется, пока ищет новый путь",
+                L"• пять новых подземелий Forever: Затопленный город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны",
+                L"• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»",
+                L"• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру",
             }) do
                 if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
             end
@@ -4176,7 +4198,9 @@ function P.Refresh()
                 if askNow then
                     local names = {}
                     for _, row in ipairs(askFor) do names[#names+1] = "«" .. P.Title(row.step or row.id) .. "»" end
-                    if shareWas[selected.key] == false then
+                    local farLeft = false
+                    for _, row in ipairs(errands) do if row.stage == 1 then farLeft = true end end
+                    if shareWas[selected.key] == false and farLeft then
                         local text = atlas.DungeonName(selected) .. (L": цепочки сделаны. Попроси группу поделиться: ") .. table.concat(names, ", ")
                         say(text)
                         if RaidNotice_AddMessage and RaidWarningFrame then pcall(RaidNotice_AddMessage, RaidWarningFrame, text, {r=.5, g=.83, b=1}) end
@@ -4215,12 +4239,19 @@ function P.Refresh()
                 -- The owner, the quests shared in Orgrimmar and two of them to be done by the
                 -- dungeon itself: "there is no state 'all ready, go in' and the shortest
                 -- way." What is left only by the dungeon (stage 3) is done on the way in: ready.
-                local nearOnly = not errands[1] or errands[1].stage == 3
-                local byTheWay = {}
+                -- (The owner at Uldaman, 15.11.2026, with two chests in the tunnels before the
+                -- portal and one quest the group could share: "this is the moment to tell the
+                -- player he can go now and do the rest by the dungeon." A quest to ask of the
+                -- group does not keep him outside: it is asked for on the same plate.)
+                local nearOnly = true
+                local byTheWay, asking = {}, {}
                 for _, row in ipairs(errands) do
+                    if row.stage == 1 then nearOnly = false end
                     if row.stage == 3 and #byTheWay < 3 then
                         local verb = row.handin and (L"сдать") or row.working and (L"доделать") or (L"взять")
                         byTheWay[#byTheWay+1] = verb .. " «" .. P.Title(row.step or row.id) .. "»"
+                    elseif row.stage == 2 and #asking < 3 then
+                        asking[#asking+1] = "«" .. P.Title(row.step or row.id) .. "»"
                     end
                 end
                 if any and nearOnly and #doing == 0 then
@@ -4232,8 +4263,10 @@ function P.Refresh()
                     -- with the game's own ready sign, and the button under it.
                     local option = P.DoorOption and P.DoorOption(selected)
                     local taken = inLog > 0 and (L"в журнале: " .. inLog .. (inLog == 1 and (L" — делается внутри") or (L" — делаются внутри"))) or (L"снаружи брать нечего")
-                    local head = inLog > 0 and (L"Все задания взяты — можно идти в подземелье") or (L"Брать нечего — можно идти в подземелье")
+                    local head = #asking > 0 and (L"Можно идти в подземелье")
+                        or inLog > 0 and (L"Все задания взяты — можно идти в подземелье") or (L"Брать нечего — можно идти в подземелье")
                     if #byTheWay > 0 then taken = L"по дороге: " .. table.concat(byTheWay, ", ") end
+                    local ask = #asking > 0 and (L"попроси группу: " .. table.concat(asking, ", ")) or nil
                     -- The owner, back from Gnomeregan with its quests handed in: "it says all is
                     -- taken and I can go, but I have been through it already; one quest is left,
                     -- and maybe I will not do it." After a run the page says so, quietly: what
@@ -4250,9 +4283,11 @@ function P.Refresh()
                         local reach = P.Reach(option.point)
                         -- At the door the order is what to do with it; on the way, to walk to it.
                         local order = (metres and metres < 20 and option.near) or ((option.act or (L"Иди ко входу")) .. (reach and (" • " .. reach) or ""))
-                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, door=true, order=order, note=taken, hint=option.point.hint})
+                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, door=true, order=order, note=taken, hint=option.point.hint,
+                            lines=(ask and not beenInside) and {order, taken, ask} or nil})
                     else
-                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, note=taken})
+                        table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, note=taken,
+                            lines=(ask and not beenInside) and {taken, ask} or nil})
                     end
                 end
                 if #prep > 0 then
@@ -4287,10 +4322,31 @@ function P.Refresh()
                         if db.folds and db.folds["prep_" .. key] then return end
                         for _, row in ipairs(rows) do table.insert(detailRows, row) end
                     end
+                    -- The owner, 15.11.2026: "split the taken quests to be done before the dungeon
+                    -- from the ones done inside." What is to be finished or handed in out here comes
+                    -- first: it is what to do now.
+                    -- And then: "split off the ones done by the entrance, on the elites before
+                    -- the instance: do at the entrance." What is in the cave before the portal,
+                    -- or within six hundred yards of the way in, is a part of its own, last
+                    -- before the dungeon: it is done on the way in, best with the group.
+                    local outside, atEntrance, inside = {}, {}, {}
+                    local function byTheDoor(row)
+                        if row.work and row.work.cave then return true end
+                        return row.fromDungeon and row.fromDungeon >= 0 and row.fromDungeon <= 600
+                    end
+                    for _, row in ipairs(have) do
+                        -- (As the card says it: "сдать", "сделать снаружи", "доделать" are out here;
+                        -- "в журнале" and "сдать внутри" are inside.)
+                        if row.handin or row.working or (row.stepActive and row.state ~= "active") then
+                            table.insert(byTheDoor(row) and atEntrance or outside, row)
+                        else inside[#inside+1] = row end
+                    end
+                    part("outside", L"Сделать до входа", L"Взятые задания, которые делаются снаружи: доделать или сдать до входа в подземелье. Щелчок по заданию раскрывает его и ставит стрелку. Щелчок по заголовку сворачивает список.", outside)
                     part("chains", L"Цепочки", L"Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список.", parts.chains)
                     part("group", L"Раздаст группа", L"Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список.", parts.group)
                     part("self", L"Взять самому", L"Задания, которые надо взять самому: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа. Щелчок по заголовку сворачивает список.", parts.self)
-                    part("have", L"Уже взято", L"Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри. Щелчок по заголовку сворачивает список.", have)
+                    part("entrance", L"Сделать у входа", L"Взятые задания, которые делаются у самого подземелья: в пещере перед порталом или рядом со входом. Их делают по дороге внутрь, лучше группой. Щелчок по заданию раскрывает его и ставит стрелку.", atEntrance)
+                    part("have", L"Взято, делается внутри", L"Задания в журнале, которые выполняются внутри подземелья: снаружи с ними делать нечего. Щелчок по заголовку сворачивает список.", inside)
                     -- The owner: "the quest for later, put it at the very bottom: why is it in
                     -- the middle of the list now?"
                     part("later", L"Позже", L"Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список.", parts.later)
@@ -4359,7 +4415,9 @@ function P.Refresh()
                 -- handed in), not at every login: then a sound and a line in the middle.
                 local nowReady = clear and not beenInside
                 if readyWas[selected.key] == false and nowReady then
-                    local text = atlas.DungeonName(selected) .. (L": все задания взяты — можно идти в подземелье. Кнопка пути — на панели.")
+                    local text = atlas.DungeonName(selected) .. ((#byTheWay > 0 or #asking > 0) and (L": можно идти в подземелье.") or (L": все задания взяты — можно идти в подземелье. Кнопка пути — на панели."))
+                        .. (#byTheWay > 0 and (L" По дороге: " .. table.concat(byTheWay, ", ") .. ".") or "")
+                        .. (#asking > 0 and (L" Попроси группу: " .. table.concat(asking, ", ") .. ".") or "")
                     say(text)
                     if RaidNotice_AddMessage and RaidWarningFrame then
                         pcall(RaidNotice_AddMessage, RaidWarningFrame, text, {r=.45, g=1, b=.55})

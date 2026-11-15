@@ -16,6 +16,8 @@ dungeon right in the quest tracker.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
   ones are left to you), and junk quests can be cleared from the log with one button.
 
+All the classic dungeons and the new ones of Forever (Hall of Thanes, Ruins of Lordaeron, Excavation Site, City of Dalaran, The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace).
+
 English and Russian. On a Russian client the addon speaks Russian, on any other, English.
 
 ## Install

@@ -1312,7 +1312,26 @@ local NOTES = {
     [10439] = {"Рамштайн Ненасытный: выходит после трёх зиккуратов, топчет. После его смерти идёт волна нежити.", "Ramstein the Gorger: comes after the three ziggurats, Trample. After he dies a wave of undead attacks."},
     [10440] = {"Барон Ривендер: поднимает скелетов, Смертельный союз и смертельный удар. Скелетов бейте по площади.", "Baron Rivendare: Raise Dead skeletons, Death Pact and Mortal Strike. AoE the skeletons."},
 }
+-- How to find what a quest wants where the arrow alone is not enough: in caves of several
+-- levels, behind a turn, inside a ruin (the owner, 15.11.2026, by the Uldaman portal: "I
+-- run about looking for the Garrett chest and cannot find it; the hard quests need hints").
+-- By quest id: {ru, en}. Checked against the Warcraft Wiki pages of the objects.
+local HINTS = {
+    -- Uldaman, the tunnels before the portal
+    [2342] = {"Сундук семейства Гарретт — в туннелях прямо перед порталом в Ульдаман (Южный общий зал), не внутри подземелья. Дойди до портала, встань к нему лицом и иди вдоль стены налево.",
+        "The Garrett Family Chest is in the tunnels right in front of the Uldaman portal (South Common Hall), not inside the dungeon. Go to the portal, face it and follow the wall to the left."},
+    [1360] = {"Сундук Крома Крепкорука — в туннелях перед порталом в Ульдаман, не внутри подземелья: войдёшь в портал — его там уже нет.",
+        "Krom Stoutarm's Chest is in the tunnels in front of the Uldaman portal, not inside the dungeon: once through the portal it is gone."},
+    [709] = {"Табличка лежит в Древнем сундуке, в пещерах перед порталом (Запечатанный зал). От входа в раскопки иди налево, потом в первый поворот налево в пещеры, вверх по небольшому склону, на развилке направо — сундук посреди зала.",
+        "The tablet is in the Ancient Chest in the caves before the portal (Sealed Hall). From the entrance go left into the dig site, then the first left into the caverns, up the small slope, and right at the fork: the chest is in the middle of the room."},
+    [722] = {"Амулет у Магрегана Чернотени — дворф Чёрного Железа 38 уровня прямо перед порталом в Ульдаман. Бьёт вихрем: не стойте вокруг него толпой.",
+        "The amulet is on Magregan Deepshadow, a level 38 Dark Iron dwarf just outside the Uldaman portal. He uses Whirlwind: don't stand around him in a crowd."},
+}
 -- END LOOT
 local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
 P.BossNotes = {}
 for npc, pair in pairs(NOTES) do P.BossNotes[npc] = russian and pair[1] or pair[2] end
+-- Quests whose goal lies in the cave before a dungeon portal, by the dungeon (not text).
+P.QuestCave = {[2342]="ULDA", [1360]="ULDA", [709]="ULDA", [722]="ULDA"}
+P.QuestHints = {}
+for id, pair in pairs(HINTS) do P.QuestHints[id] = russian and pair[1] or pair[2] end

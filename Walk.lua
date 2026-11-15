@@ -294,6 +294,9 @@ function P.Steer(target)
     if P.char and P.char.noPaths then return end
     if not (target and target.mapID and atlas.Yards and atlas.PlayerYards) then return end
     if IsInInstance and IsInInstance() then return end
+    -- A goal in a cave: the paths are over the mountain, not in it (the owner, 15.11.2026,
+    -- out of the Uldaman tunnels: "it leads me back now", a kilometre round the mountain).
+    if target.cave then return end
     local okT, tc, tx, ty = pcall(atlas.Yards, target)
     local okP, pc, px, py = pcall(atlas.PlayerYards)
     if not (okT and okP and tc and pc and tc == pc and tx and px) then return end

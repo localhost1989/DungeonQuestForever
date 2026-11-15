@@ -1692,6 +1692,24 @@ function P.Plan(place)
         end
         return kept.after
     end
+    -- A goal in a cave near a dungeon (the Garrett chest in the Uldaman tunnels): outside,
+    -- the way leads to the mouth of the cave; in it, straight to the place.
+    if place.cave then
+        if IsIndoors and IsIndoors() then return end
+        local d = atlas.DungeonByKey and atlas.DungeonByKey[place.cave]
+        local mouth = d and atlas.Entrance and atlas.Entrance(d)
+        if not (mouth and mouth.mapID) then return end
+        local spot = {mapID=mouth.mapID, x=mouth.x, y=mouth.y}
+        local onward = P.Plan(spot)
+        if onward then return onward end
+        local _, _, far = atlas.NavigationVector(spot)
+        if far and far > 30 then
+            local title = L"Вход в пещеру: " .. atlas.DungeonName(d)
+            spot.hint = L"дальше внутри пещеры"
+            return {point=spot, title=title, legs={{point=spot, title=title, text=title}}, text=title, onFoot=true, cave=true, others={}}
+        end
+        return
+    end
     local here = C_Map and C_Map.GetBestMapForUnit and C_Map.GetBestMapForUnit("player")
     local found, feet, straight = route(place, here)
     -- No map to measure by, or no way found on it: the old count by what is known.
@@ -2047,7 +2065,7 @@ P.Crossing = P.Plan
 function P.Mark(place, label, kind, id)
     local plan = P.Plan(place)
     if P.char then
-        P.char.goal = plan and {mapID=place.mapID, x=place.x, y=place.y, npcID=place.npcID, name=place.name, label=label, kind=kind, id=id,
+        P.char.goal = (plan or place.cave) and {mapID=place.mapID, x=place.x, y=place.y, npcID=place.npcID, name=place.name, label=label, kind=kind, id=id, cave=place.cave,
             at=GetServerTime and GetServerTime() or 0} or nil
     end
     if plan and plan.point then atlas.AddMarker(plan.point, plan.title, "entrance")
@@ -2060,6 +2078,19 @@ end
 function P.Replan()
     local goal = P.char and P.char.goal
     local target = atlas.Target and atlas.Target()
+    -- A goal in a cave set before the cave was known (kept over a /reload): set again, so
+    -- that the way leads to the mouth (the owner, 15.11.2026: "the spot is the same as before").
+    local cave = P.QuestCave and target and target.kind == "objective" and target.questID and P.QuestCave[target.questID]
+    if cave and not target.cave then
+        local place = {mapID=target.mapID, x=target.x, y=target.y, npcID=target.npcID, name=target.who, cave=cave}
+        P.Mark(place, target.title, "objective", target.questID)
+        return
+    end
+    if goal and goal.kind == "objective" and goal.id and not goal.cave and P.QuestCave and P.QuestCave[goal.id] then
+        local place = {mapID=goal.mapID, x=goal.x, y=goal.y, npcID=goal.npcID, name=goal.name, cave=P.QuestCave[goal.id]}
+        P.Mark(place, goal.label, "objective", goal.id)
+        return
+    end
     -- In the air the flight master is behind: the arrow goes on to what comes after the
     -- flight, the next leg or the place itself. The goal is kept, to be counted again
     -- where the wings set down.
@@ -2137,7 +2168,8 @@ function P.Replan()
         if plan and plan.point then atlas.AddMarker(plan.point, plan.title, "entrance")
         else atlas.AddMarker(goal, goal.label, goal.kind, goal.id) end
     end
-    if not plan then
+    -- (A goal in a cave is kept: leave the cave and the way to its mouth is set again.)
+    if not plan and not goal.cave then
         P.char.goal = nil
         return moved and goal.label or nil
     end

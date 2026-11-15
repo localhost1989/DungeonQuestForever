@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.48.0
+- Five new dungeons of Forever in the list and the book: The Drowned City (35–40), Krol'dok Stronghold (40–45), Alcaz Prison (48–53), Blackmaw Hold (55–60), Shaper's Terrace (58–60). The arrow leads to the way in, with a word on how to find it; inside, the addon knows where you are. Their quests from QuestieDB 1.1.1: six for the Drowned City, six for Krol'dok Stronghold, four for Blackmaw Hold; none known yet for Alcaz Prison and Shaper's Terrace.
+- The book's list of dungeons says on hover that a right click marks a dungeon done (it leaves the list while done ones are hidden), and another brings it back.
+- "You can go into the dungeon" comes as soon as all that is left is by the dungeon (to finish on the way in) or can be shared by the group: the green plate says what to do on the way and whom to ask, and the moment it turns so there is the ready sound and a line in the middle of the screen. A quest the group can share no longer keeps you outside.
+- Under a quest to finish out here the line says what and where, without "do out here": the part above says it.
+- Taken quests are split in parts: "Do before going in" (finish or hand in out here, first in the list), "Do at the entrance" (in the cave before the portal or within 600 yards of the way in: done on the way in, best with the group) and "Taken, done inside".
+- How to find it: quests whose goal is hard to find with the arrow alone get a hint, in the unfolded card ("how to find:") and in the tooltip of the quest. First for the quests in the tunnels before the Uldaman portal: Reclaimed Treasures (both sides), Solution to Doom, Amulet of Secrets.
+- Goals in the cave before a dungeon portal (those same Uldaman quests): outside, the arrow leads to the mouth of the cave; inside, straight to the goal. It no longer sends you a kilometre round the mountain to the spot above the cave.
+
 ## 3.47.2
 - The one line about the addon after the first boss goes to a raid too, not only to a group (still only when someone there has no addon, and once in two hours at most). The setting is now called "Tell the group and the raid about the addon".
 

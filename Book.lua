@@ -351,8 +351,9 @@ local function build()
         for _, d in ipairs(P.Catalog()) do
             local c = progressOf(d)
             local marked = db.hidden[d.key] and true or false
-            local passed = marked or c.finished >= c.total
-            if c.total > 0 and not (db.bookHideDone and passed) then
+            local passed = marked or (c.total > 0 and c.finished >= c.total)
+            -- (Forever's new dungeons are listed without quests: the way in is worth having.)
+            if (c.total > 0 or d.forever) and not (db.bookHideDone and passed) then
                 items[#items+1] = {kind="dungeon", d=d, count=c, marked=marked, passed=passed, height=40}
             end
         end
@@ -779,6 +780,20 @@ local function create()
         self.rows[i] = row
         if row.EnableMouse then row:EnableMouse(true) end
         row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+        -- (The owner, 15.11.2026: "so that a dungeon passed can be hidden, as the bosses can,
+        -- if I am not going to do its one quest left." The right click did it; now the row
+        -- says so when pointed at.)
+        row:SetScript("OnEnter", function(self)
+            local it = self.item
+            if not (it and it.kind == "dungeon" and GameTooltip) then return end
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            GameTooltip:SetText(atlas.DungeonName(it.d), 1, .82, .35)
+            GameTooltip:AddLine(L"Щелчок — задания этого подземелья.", 1, 1, 1, true)
+            GameTooltip:AddLine(it.marked and (L"ПКМ — вернуть в работу.")
+                or (L"ПКМ — отметить пройденным, если больше туда не пойдёшь: оно уйдёт из списка. Кнопка «Показать пройденные» вернёт его."), 1, 1, 1, true)
+            GameTooltip:Show()
+        end)
+        row:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
         row.plate = row:CreateTexture(nil, "BACKGROUND")
         if row.plate.SetColorTexture then row.plate:SetColorTexture(.16, .12, .09, .95) end
         row.plate:SetAllPoints(row)

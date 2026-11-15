@@ -7,6 +7,16 @@ local _, P = ...
 -- LOCALE BEGIN
 local EN = {
     ["Другой континент"] = "Another continent",
+    ["Затопленный город"] = "The Drowned City",
+    ["вход под водой, к западу от Гром'гола"] = "the way in is under water, west of Grom'gol",
+    ["Крепость Крол'док"] = "Krol'dok Stronghold",
+    ["пещера у камня встреч"] = "a cave by the meeting stone",
+    ["Тюрьма Альказа"] = "Alcaz Prison",
+    ["в подвале старой башни на острове"] = "in the basement of the old tower on the island",
+    ["Цитадель Чернопасти"] = "Blackmaw Hold",
+    ["туннель фурболгов, портал в глубине"] = "a furbolg tunnel, the portal deep inside",
+    ["Терраса ваятеля"] = "Shaper's Terrace",
+    ["вверх по лестнице от Укрытия Маршала"] = "up the stairs from Marshal's Refuge",
     ["Вход: "] = "Entrance: ",
     ["Не открыта"] = "Not discovered",
     ["Распорядитель полётов: "] = "Flight master: ",
@@ -811,6 +821,8 @@ local EN = {
     ["проход: "] = "pass: ",
     ["Перелёт: "] = "Flight: ",
     ["перелёт: "] = "flight: ",
+    ["Вход в пещеру: "] = "Cave entrance: ",
+    ["дальше внутри пещеры"] = "then inside the cave",
     ["|cffedc36fDungeon Quest Forever|r • запомнил твои точки перелётов: "] = "|cffedc36fDungeon Quest Forever|r • saved your flight points: ",
     [" из "] = " of ",
     [". Теперь дорога считается с ними."] = ". Routes now take them into account.",
@@ -949,6 +961,7 @@ local EN = {
     ["В списке только подземелья, где ещё есть что делать. Сданные и скрытые тобой не показываются."] = "Only dungeons with something left to do are listed. Turned in and ones you hid are not shown.",
     ["Показать все"] = "Show all",
     ["Все подземелья, со сданными и скрытыми. ПКМ по подземелью скрывает его из списка или возвращает."] = "All dungeons, including turned in and hidden. Right-click a dungeon to hide it from the list or bring it back.",
+    ["как найти:"] = "how to find:",
     ["»: ты в зале босса "] = "»: you are in the room of boss ",
     ["». К боссу "] = "». To boss ",
     ["Боссы • убито "] = "Bosses • dead ",
@@ -1004,7 +1017,6 @@ local EN = {
     ["пока недоступно"] = "not available yet",
     ["сдать|r"] = "turn in|r",
     ["сделать|r"] = "do|r",
-    ["сделать снаружи|r"] = "do out here|r",
     ["сдать внутри|r"] = "turn in inside|r",
     ["в журнале|r"] = "in log|r",
     [", делается внутри|r"] = ", done inside|r",
@@ -1087,6 +1099,7 @@ local EN = {
     ["Советы"] = "Tips",
     ["Секреты, ключи и редкие боссы этого подземелья. Нажми, чтобы раскрыть или свернуть."] = "Secrets, keys and rare bosses of this dungeon. Click to expand or collapse.",
     ["Нажми на строку, чтобы увидеть следующий шаг."] = "Click the line to see the next step.",
+    ["Как найти:"] = "How to find:",
     ["\nЗаданием может поделиться участник группы."] = "\nA party member can share this quest.",
     ["\n\nЦепочка заданий (шаг "] = "\n\nQuest chain (step ",
     ["\nЩелчок — раскрыть или свернуть. Правая кнопка — журнал этого задания."] = "\nClick — expand or collapse. Right-click — this quest in the journal.",
@@ -1103,9 +1116,9 @@ local EN = {
     [" (убит)"] = " (dead)",
     ["обновление "] = "updated to ",
     [", что нового:"] = ", what's new:",
-    ["• неоткрытые точки перелёта видны серебром на карте мира и на миникарте, даже под туманом войны; щелчок по точке ведёт к распорядителю полётов"] = "• flight points you have not discovered are shown in silver on the world map and the minimap, even under the fog of war; click one to go to its flight master",
-    ["• цели задания стоят под ним строками с дефисами; выполнил одну — стрелка сама ведёт к следующей"] = "• the goals of a quest stand under it with dashes; when one is done, the arrow leads on to the next by itself",
-    ["• стрелка больше не мечется, пока ищет новый путь"] = "• the arrow no longer swings about while it looks for a new way",
+    ["• пять новых подземелий Forever: Затопленный город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны"] = "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far",
+    ["• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»"] = "• taken quests are split: 'Do before going in', 'Do at the entrance', 'Taken, done inside'; when only the entrance is left, 'you can go into the dungeon'",
+    ["• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру"] = "• hard places have 'how to find', and the arrow leads to goals in the cave before a portal through the mouth of the cave",
     [" | место первой: "] = " | first location: ",
     ["Дальше пешком. Стрелка ведёт к цели: "] = "On foot from here. The arrow leads to the goal: ",
     ["Дорога к цели"] = "Route to goal",
@@ -1133,19 +1146,25 @@ local EN = {
     [" — делается внутри"] = ", done inside",
     [" — делаются внутри"] = ", done inside",
     ["снаружи брать нечего"] = "nothing to pick up outside",
+    ["Можно идти в подземелье"] = "You can go into the dungeon",
     ["Все задания взяты — можно идти в подземелье"] = "All quests taken: you can go into the dungeon",
     ["Брать нечего — можно идти в подземелье"] = "Nothing to take: you can go into the dungeon",
     ["по дороге: "] = "on the way: ",
+    ["попроси группу: "] = "ask the group: ",
     ["Ты уже был внутри"] = "You have been inside already",
     ["там осталось: "] = "left there: ",
+    ["Сделать до входа"] = "Do before going in",
+    ["Взятые задания, которые делаются снаружи: доделать или сдать до входа в подземелье. Щелчок по заданию раскрывает его и ставит стрелку. Щелчок по заголовку сворачивает список."] = "Taken quests done out here: finish or hand them in before you go in. Click a quest to unfold it and set the arrow. Click the heading to fold the list.",
     ["Цепочки"] = "Chains",
     ["Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список."] = "Quest chains: which step to take now, from whom and where. Click sets the arrow. Click the heading to fold the list.",
     ["Раздаст группа"] = "The group shares",
     ["Этими заданиями может поделиться участник группы — бежать не нужно. Под каждым — куда идти, если не поделятся. Щелчок по заголовку сворачивает список."] = "A group member can share these quests: no need to run. Under each: where to go if nobody shares. Click the heading to fold the list.",
     ["Взять самому"] = "Take yourself",
     ["Задания, которые надо взять самому: у кого, где и далеко ли. Сверху — дальние от подземелья, внизу — у самого входа. Щелчок по заголовку сворачивает список."] = "Quests to take yourself: from whom, where and how far. The far ones on top, those by the entrance at the bottom. Click the heading to fold the list.",
-    ["Уже взято"] = "Taken",
-    ["Задания в журнале: что с ними сделать сейчас — доделать снаружи, сдать или выполнить внутри. Щелчок по заголовку сворачивает список."] = "Quests in your log: what to do with them now: finish outside, hand in, or do inside. Click the heading to fold the list.",
+    ["Сделать у входа"] = "Do at the entrance",
+    ["Взятые задания, которые делаются у самого подземелья: в пещере перед порталом или рядом со входом. Их делают по дороге внутрь, лучше группой. Щелчок по заданию раскрывает его и ставит стрелку."] = "Taken quests done right by the dungeon: in the cave before the portal or near the way in. Do them on the way in, best with your group. Click a quest to unfold it and set the arrow.",
+    ["Взято, делается внутри"] = "Taken, done inside",
+    ["Задания в журнале, которые выполняются внутри подземелья: снаружи с ними делать нечего. Щелчок по заголовку сворачивает список."] = "Quests in your log that are done inside the dungeon: nothing to do with them out here. Click the heading to fold the list.",
     ["Задания, которые здесь пока не взять: с какого уровня, что нужно сначала или что берётся внутри подземелья. Щелчок по заголовку сворачивает список."] = "Quests you cannot take out here yet: from which level, what comes first, or what is taken inside the dungeon. Click the heading to fold the list.",
     ["Сдай "] = "Hand in ",
     ["задание"] = "quest",
@@ -1162,7 +1181,10 @@ local EN = {
     ["Путь к первому"] = "Way to the first",
     ["Стрелка поведёт к первому делу самым быстрым путём: сначала дальние от подземелья, у входа — последними."] = "The arrow leads to the first errand by the fastest way: the far ones from the dungeon first, those at the entrance last.",
     ["Не для тебя:"] = "Not for you:",
+    [": можно идти в подземелье."] = ": you can go into the dungeon.",
     [": все задания взяты — можно идти в подземелье. Кнопка пути — на панели."] = ": all quests taken, you can go into the dungeon. The way button is on the panel.",
+    [" По дороге: "] = " On the way: ",
+    [" Попроси группу: "] = " Ask the group: ",
     ["Открыть журнал: все задания и боссы"] = "Open journal: all quests and bosses",
     [" — задания для входа готовы. У группы: "] = " — entrance quests ready. Party: ",
     [" • Внутри: "] = " • Inside: ",
@@ -1331,6 +1353,9 @@ local EN = {
     ["наведи мышь на вещь: её описание; оценка — сила закл. целиком, инт на треть"] = "hover over an item for its description; score — spell power in full, int at a third",
     ["наведи мышь на вещь: её описание"] = "hover over an item for its description",
     ["Dungeon Quest Forever — книга заданий"] = "Dungeon Quest Forever — quest journal",
+    ["Щелчок — задания этого подземелья."] = "Click: the quests of this dungeon.",
+    ["ПКМ — вернуть в работу."] = "Right-click: back into the list.",
+    ["ПКМ — отметить пройденным, если больше туда не пойдёшь: оно уйдёт из списка. Кнопка «Показать пройденные» вернёт его."] = "Right-click: mark it done if you won't go there again; it leaves the list. The button 'Show done' brings it back.",
     ["Показать путь"] = "Show path",
     ["не для мага"] = "not for a mage",
     ["не для жреца"] = "not for a priest",
@@ -1438,6 +1463,23 @@ local keys = {
     [16544]="DALARAN", [16611]="LORDAERON", [16732]="EXCAVATION", [16919]="THANES",
 }
 local factions = {[2437]="Horde", [717]="Alliance"}
+-- Forever's dungeons the quest database does not know yet (they opened on 4.11.2026; the
+-- owner, 15.11.2026: "check every instance of Forever, what is missing"). The way in is
+-- the one the guides agree on (Warcraft Tavern, Conquest Capped, WoW Forever Guides,
+-- 15.11.2026), the levels Blizzard's. No quests and no bosses until the database has them;
+-- inside, the dungeon is known by its name, as its instance number is not known.
+local EXTRA = {
+    {key="DROWNED", en="The Drowned City", ru="Затопленный город", map=1434, x=21.4, y=27.9, min=35, max=40, hint=L"вход под водой, к западу от Гром'гола",
+        quests={95748, 95776, 95789, 95791, 96774, 97130}},
+    {key="KROLDOK", en="Krol'dok Stronghold", ru="Крепость Крол'док", area=17780, map=2548, x=37.5, y=37.5, min=40, max=45, hint=L"пещера у камня встреч",
+        quests={94968, 94969, 94973, 94980, 94982, 94983}},
+    {key="ALCAZ", en="Alcaz Prison", ru="Тюрьма Альказа", map=1445, x=75.3, y=14.1, min=48, max=53, hint=L"в подвале старой башни на острове"},
+    -- (The tunnel opens in Azshara; the portal itself lies so deep that it is on the map of
+    -- Winterspring, 66.6, 84.4: Warcraft Tavern.)
+    {key="BLACKMAW", en="Blackmaw Hold", ru="Цитадель Чернопасти", area=1216, map=1447, x=38.7, y=33.4, min=55, max=60, hint=L"туннель фурболгов, портал в глубине",
+        quests={92065, 96603, 97173, 98477}},
+    {key="SHAPERS", en="Shaper's Terrace", ru="Терраса ваятеля", area=16985, map=1449, x=48.1, y=6.1, min=58, max=60, hint=L"вверх по лестнице от Укрытия Маршала"},
+}
 local tipKeys = {
     SM={"SM_GY", "SM_LIB", "SM_ARM", "SM_CATH"}, BRS={"LBRS", "UBRS"},
     DMAUL={"DM_E", "DM_N", "DM_W"}, STRAT={"STRAT_LIVE", "STRAT_UD"},
@@ -1561,6 +1603,19 @@ function C.Init(db)
             C.DungeonByKey[key] = d
         end
     end
+    local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
+    for _, e in ipairs(EXTRA) do
+        if not C.DungeonByKey[e.key] then
+            local d = {key=e.key, name=russian and e.ru or e.en, nameEn=e.en, areaId=e.area, faction="Both", quests={},
+                minLevel=e.min, maxLevel=e.max, forever=true, entrance={mapID=e.map, x=e.x, y=e.y, hint=e.hint}}
+            -- Its quests, found by their monsters and names in the database (15.11.2026).
+            for _, id in ipairs(e.quests or {}) do
+                if QuestDB.Get(id, "name") then d.quests[#d.quests+1] = id end
+            end
+            C.Dungeons[#C.Dungeons+1] = d
+            C.DungeonByKey[e.key] = d
+        end
+    end
     -- A quest belongs to the dungeon its sort names. The level span of a dungeon is the
     -- span of its quests: the database has no other word on it.
     for _, id in ipairs(QuestDB.GetAllIds()) do
@@ -1595,10 +1650,19 @@ function C.Entrance(d)
 end
 
 function C.CurrentDungeon()
-    local _, kind, _, _, _, _, _, instance = GetInstanceInfo()
+    local here, kind, _, _, _, _, _, instance = GetInstanceInfo()
     if kind ~= "party" and kind ~= "raid" then return end
     for _, d in ipairs(C.Dungeons) do
         if d.instanceID == instance then return d end
+    end
+    -- One of the new ones, whose number is not known: by its name, then by its number.
+    here = plain(here)
+    if type(here) ~= "string" or here == "" then return end
+    for _, d in ipairs(C.Dungeons) do
+        if d.forever and not d.instanceID and (here == d.name or here == d.nameEn or here == C.DungeonName(d)) then
+            d.instanceID = instance
+            return d
+        end
     end
 end
 
@@ -1814,6 +1878,10 @@ function C.QuestWork(id, d)
         for _, object in ipairs(ItemDB and ItemDB.Get(item[1], "objectDrops") or {}) do sources[#sources+1] = {db=ObjectDB, id=object} end
         weigh(ItemDB and ItemDB.Get(item[1], "name"), sources)
     end
+    -- Goals in a cave (P.QuestCave, BossRoute.lua): the way leads to its mouth first, and
+    -- inside the arrow points straight: the walkable paths lie over the mountain above.
+    local cave = P.QuestCave and P.QuestCave[id]
+    if cave then for _, spot in ipairs(spots) do spot.cave = cave end end
     -- The goal nearest to the player first: "A Host of Evil" asks for battleguards (known
     -- only on the cliff above, 1.4 km round) and thornweavers and cultists 200 yards off.
     if myC and #spots > 1 then
@@ -2777,7 +2845,7 @@ function C.AddMarker(point, title, kind, questID)
     local list = C.Markers()
     for i = #list, 1, -1 do list[i] = nil end
     local marker = {mapID=point.mapID, x=point.x, y=point.y, title=title, kind=kind, npcID=point.npcID, questID=questID, up=point.up,
-        who=point.who or point.keeper or point.name, hint=point.hint, todo=point.todo, door=point.door, at=GetServerTime and GetServerTime() or 0}
+        who=point.who or point.keeper or point.name, hint=point.hint, todo=point.todo, door=point.door, cave=point.cave, at=GetServerTime and GetServerTime() or 0}
     list[1] = marker
     C.OnMarkersChanged()
     return marker
