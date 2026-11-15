@@ -1774,8 +1774,10 @@ end
 -- How to find it, where the arrow alone is not enough (P.QuestHints, BossRoute.lua): a
 -- line in light blue under the quest while it is to be done out here.
 local function hintLine(block, entry)
-    local hint = P.QuestHints and P.QuestHints[entry.step or entry.id]
+    local id = entry.step or entry.id
+    local hint = P.QuestHints and P.QuestHints[id]
     if not hint or not (entry.working or entry.stepActive or entry.state == "active") then return end
+    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) then return end
     -- (Not blue and not under every card: the owner, "all blue, it looks wretched". In the
     -- unfolded card only, labelled like "куда:", and in the tip of the quest.)
     addLine(block, "hint", "|cffffd34d" .. L"как найти:" .. "|r |cffbcb7ab" .. hint .. "|r")
@@ -2144,7 +2146,8 @@ local function layout(self)
                     or (L"нажми иконку телепорта на месте стрелки; крестик на ней — идти без телепорта"))
             end
             if entry.pass then
-                addLine(block, "keeper", L"пешком через проход между зонами: по прямой там не пройти")
+                local lift = entry.place and entry.place.hint
+                addLine(block, "keeper", (lift and lift ~= L"проход между зонами") and lift or (L"пешком через проход между зонами: по прямой там не пройти"))
             elseif entry.fly then
                 addLine(block, "keeper", L"распорядитель полётов: " .. (entry.keeper or "?"))
                 if entry.unsure then addLine(block, "unsure", DIM .. L"если эта точка у тебя открыта; открой карту полётов, и я запомню твои точки|r") end
@@ -2259,6 +2262,22 @@ local function layout(self)
                     chainAt, chainTotal = a, t
                 end
                 local count = (native and chainAt and chainTotal and chainTotal > 1) and ("  |cffffffff" .. chainAt .. "/" .. chainTotal .. "|r") or ""
+                -- The distance at the right is placed before the name is written: the name is
+                -- laid out in the room left to it, and a second line of it pushes the lines
+                -- under it down. (Placed after, a long name went onto a second line over the
+                -- line under it: "Идол древней империи Гурубаши" with "за морем", 15.11.2026.)
+                local openEarly = native and unfolded ~= nil and unfolded == (chainGoal or entry.id)
+                if native and not openEarly and block.Distance and entry.place and not locked then
+                    local whoEarly = atlas.PlaceName(entry.place)
+                    local someone = whoEarly and (entry.handin or (entry.stepActive and entry.act == "turnin")
+                        or (not entry.working and not taken and not entry.begins and not entry.stepActive))
+                    local outHere = entry.working and not (entry.work and entry.work.dungeon) and entry.place.mapID
+                    local farEarly = (someone or outHere) and P.Reach(entry.place)
+                    if farEarly then
+                        local main, rest = farEarly:match("^([%d%.]+ %S+)[,%s]*(.*)$")
+                        block:Distance(main or farEarly, (rest ~= "" and rest) or nil)
+                    end
+                end
                 block:SetHeader("  " .. tone .. (P.Title(goal or entry.id) or title) .. "|r" .. count)
                 local act, said
                 if locked then
@@ -2281,8 +2300,24 @@ local function layout(self)
                         or (goal and (chain .. GREEN .. L"в журнале|r" .. named .. DIM .. L", делается внутри|r") or (GREEN .. L"в журнале|r" .. DIM .. L", делается внутри|r"))
                     said = true
                 elseif entry.stepActive then
-                    -- A step of the chain that is in the log: to hand in, or to finish.
+                    -- A step of the chain that is in the log: to hand in, or to finish - and
+                    -- what is left of it, from the quest log (the owner, 15.11.2026: "сейчас:
+                    -- доделать" and nothing more on "In Search of the Lost City").
+                    local left
+                    if entry.act ~= "turnin" and not (entry.work and entry.work.text) then
+                        local list = C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(entry.step)
+                        if type(list) == "table" and #list > 0 then
+                            local open = {}
+                            for _, o in ipairs(list) do
+                                if not o.finished and type(o.text) == "string" and o.text ~= "" and not (issecretvalue and issecretvalue(o.text)) then open[#open+1] = o.text end
+                            end
+                            left = #open > 0 and table.concat(open, ", ") or nil
+                        elseif P.Objectives then
+                            left = P.Objectives(entry.step)
+                        end
+                    end
                     act = chain .. (entry.act == "turnin" and (GREEN .. L"сдать|r") or (BLUE .. L"доделать|r")) .. named
+                        .. (left and (": " .. left) or "")
                 elseif entry.begins then
                     -- From whom, with what, or by what it begins in there.
                     local source = P.InsideSource and P.InsideSource(entry)
@@ -2413,7 +2448,15 @@ local function layout(self)
                         addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
                     else
                         local line = (plain(core) .. plain(tail)):gsub("^%s*•%s*", "")
-                        addLine(block, "act", "|cffe6e0d2" .. line .. "|r")
+                        -- To hand in: the deed in green at the front (the owner, 15.11.2026, with the
+                        -- tablet in his bag: "I don't understand what to do next").
+                        local give = L"сдать"
+                        local after = line:sub(#give + 1, #give + 1)
+                        if line:sub(1, #give) == give and (after == "" or after == " " or after == ":") then
+                            addLine(block, "act", "|cff71c886" .. L"Сдай" .. "|r|cffe6e0d2" .. line:sub(#give + 1) .. "|r")
+                        else
+                            addLine(block, "act", "|cffe6e0d2" .. line .. "|r")
+                        end
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
                     local note
@@ -3454,6 +3497,7 @@ local function attach()
             else
                 local chain, at, total = chainOf(e.step ~= e.id and e.id or e.leads or e.id)
                 local hint = P.QuestHints and P.QuestHints[e.step or e.id]
+                if hint and C_QuestLog.IsComplete and C_QuestLog.IsComplete(e.step or e.id) then hint = nil end
                 tip(block.HeaderButton, P.Title(e.id), (e.detail or e.note or "")
                     .. (hint and ("\n\n|cffffd34d" .. L"Как найти:" .. "|r " .. hint) or "")
                     .. (e.share and e.state == "missing" and (L"\nЗаданием может поделиться участник группы.") or "")

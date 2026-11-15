@@ -860,7 +860,7 @@
 "Свернуть убитых боссов в одну строку.": "Collapse dead bosses into one line.",
 "Связка надзирателя и нижний этаж": "Overseer's keyring and the lower floor",
 "Святилище Гелихаста и подводный босс": "Gelihast's shrine and the underwater boss",
-"Сдай": "Turn in",
+"Сдай": "Hand in",
 "Сдай ": "Hand in ",
 "Сдано": "Turned in",
 "Сдано заданий: %d из %d": "Quests turned in: %d of %d",
@@ -1439,5 +1439,7 @@
 "зал «Глубинные архивы»": "the hall of the Deep Archives",
 "в Глубинных архивах направо, в затопленный тоннель": "in the Deep Archives, right into the flooded tunnel",
 "плыви до подводной комнаты": "swim to the underwater room",
-"объект «%s»": "object '%s'"
+"объект «%s»": "object '%s'",
+"спустись на подъёмнике": "take the lift down",
+"поднимись на подъёмнике": "take the lift up"
 }

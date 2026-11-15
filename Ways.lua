@@ -1370,6 +1370,9 @@ local function zoneOf(mapID)
     return mapID
 end
 
+-- The lifts between a city and its zone: Thunder Bluff is on a mesa (down to Mulgore), the
+-- Undercity under the ground (up to Tirisfal).
+local LIFTS = {[1456]={zone=1412, dir="down"}, [1458]={zone=1420, dir="up"}}
 local nets, joined, gameNodes = {}, {}, {}
 local function net(faction)
     if nets[faction] then return nets[faction] end
@@ -1410,9 +1413,20 @@ local function net(faction)
         kept[#kept+1] = {za=zoneA, zb=zoneB, X=aX, Y=aY}
         add(a); add(b)
         a.pair, b.pair = b, a
+        -- A city on a mesa or under the ground is left by its lift (the owner on the lift of
+        -- Thunder Bluff, 15.11.2026: "it hangs on 'pass between zones'; I stand still and it
+        -- walks"): said as the lift it is.
+        local lift = LIFTS[entry.a] and LIFTS[entry.a].zone == entry.b and {city=entry.a, dir=LIFTS[entry.a].dir}
+            or LIFTS[entry.b] and LIFTS[entry.b].zone == entry.a and {city=entry.b, dir=LIFTS[entry.b].dir}
         for _, side in ipairs({a, b}) do
             local far = side.pair
-            side.point = {mapID=side.place.mapID, x=side.place.x, y=side.place.y, hint=L"проход между зонами"}
+            local hint = L"проход между зонами"
+            if lift then
+                local fromCity = side.place.mapID == lift.city
+                local down = (lift.dir == "down") == fromCity
+                hint = down and L"спустись на подъёмнике" or L"поднимись на подъёмнике"
+            end
+            side.point = {mapID=side.place.mapID, x=side.place.x, y=side.place.y, hint=hint}
             side.title = L"Проход: " .. atlas.ZoneName(far.zone)
         end
         group[zoneA], group[zoneB] = group[zoneA] or zoneA, group[zoneB] or zoneB

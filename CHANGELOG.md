@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.48.7
+- The ways out of Thunder Bluff and the Undercity are called the lifts they are: "take the lift down" / "take the lift up" under the arrow and on the way card, instead of "pass between zones".
+- A step of a chain under way says what is left of it, from the quest log (it said only "finish").
+- Fixed again, for good this time: a long quest name beside the distance at the right went onto a second line over the line under it. The distance is now placed before the name is laid out.
+- A quest to hand in out here says it in green at the front: "Hand in «The Gurubashi Legends of Old»: Kin'vilai • Stranglethorn Vale".
+- "How to find" goes away once the goal is done.
+
 ## 3.48.6
 - Fixed: a long quest name that went onto a second line beside the distance at the right was drawn over by the line under it.
 
