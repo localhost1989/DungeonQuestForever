@@ -1414,7 +1414,8 @@
 "Щелчок — задания этого подземелья.": "Click: the quests of this dungeon.",
 "ПКМ — вернуть в работу.": "Right-click: back into the list.",
 "ПКМ — отметить пройденным, если больше туда не пойдёшь: оно уйдёт из списка. Кнопка «Показать пройденные» вернёт его.": "Right-click: mark it done if you won't go there again; it leaves the list. The button 'Show done' brings it back.",
-"• пять новых подземелий Forever: Затопленный город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны": "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far",
 "• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»": "• taken quests are split: 'Do before going in', 'Do at the entrance', 'Taken, done inside'; when only the entrance is left, 'you can go into the dungeon'",
-"• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру": "• hard places have 'how to find', and the arrow leads to goals in the cave before a portal through the mouth of the cave"
+"• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру": "• hard places have 'how to find', and the arrow leads to goals in the cave before a portal through the mouth of the cave",
+"Затонувший город": "The Drowned City",
+"• пять новых подземелий Forever: Затонувший город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны": "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far"
 }

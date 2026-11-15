@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.1
+- Fixed: inside The Drowned City the addon did not know where you were on a Russian client (its name there is "Затонувший город"). A dungeon the addon does not recognise is noted in its saved settings, so the next ones can be added.
+
 ## 3.48.0
 - Five new dungeons of Forever in the list and the book: The Drowned City (35–40), Krol'dok Stronghold (40–45), Alcaz Prison (48–53), Blackmaw Hold (55–60), Shaper's Terrace (58–60). The arrow leads to the way in, with a word on how to find it; inside, the addon knows where you are. Their quests from QuestieDB 1.1.1: six for the Drowned City, six for Krol'dok Stronghold, four for Blackmaw Hold; none known yet for Alcaz Prison and Shaper's Terrace.
 - The book's list of dungeons says on hover that a right click marks a dungeon done (it leaves the list while done ones are hidden), and another brings it back.

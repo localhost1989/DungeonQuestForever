@@ -7,6 +7,7 @@ local _, P = ...
 -- LOCALE BEGIN
 local EN = {
     ["Другой континент"] = "Another continent",
+    ["Затонувший город"] = "The Drowned City",
     ["Затопленный город"] = "The Drowned City",
     ["вход под водой, к западу от Гром'гола"] = "the way in is under water, west of Grom'gol",
     ["Крепость Крол'док"] = "Krol'dok Stronghold",
@@ -1116,7 +1117,7 @@ local EN = {
     [" (убит)"] = " (dead)",
     ["обновление "] = "updated to ",
     [", что нового:"] = ", what's new:",
-    ["• пять новых подземелий Forever: Затопленный город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны"] = "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far",
+    ["• пять новых подземелий Forever: Затонувший город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны"] = "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far",
     ["• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»"] = "• taken quests are split: 'Do before going in', 'Do at the entrance', 'Taken, done inside'; when only the entrance is left, 'you can go into the dungeon'",
     ["• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру"] = "• hard places have 'how to find', and the arrow leads to goals in the cave before a portal through the mouth of the cave",
     [" | место первой: "] = " | first location: ",
@@ -1469,7 +1470,7 @@ local factions = {[2437]="Horde", [717]="Alliance"}
 -- 15.11.2026), the levels Blizzard's. No quests and no bosses until the database has them;
 -- inside, the dungeon is known by its name, as its instance number is not known.
 local EXTRA = {
-    {key="DROWNED", en="The Drowned City", ru="Затопленный город", map=1434, x=21.4, y=27.9, min=35, max=40, hint=L"вход под водой, к западу от Гром'гола",
+    {key="DROWNED", en="The Drowned City", ru="Затонувший город", also={"Затопленный город"}, map=1434, x=21.4, y=27.9, min=35, max=40, hint=L"вход под водой, к западу от Гром'гола",
         quests={95748, 95776, 95789, 95791, 96774, 97130}},
     {key="KROLDOK", en="Krol'dok Stronghold", ru="Крепость Крол'док", area=17780, map=2548, x=37.5, y=37.5, min=40, max=45, hint=L"пещера у камня встреч",
         quests={94968, 94969, 94973, 94980, 94982, 94983}},
@@ -1606,7 +1607,7 @@ function C.Init(db)
     local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
     for _, e in ipairs(EXTRA) do
         if not C.DungeonByKey[e.key] then
-            local d = {key=e.key, name=russian and e.ru or e.en, nameEn=e.en, areaId=e.area, faction="Both", quests={},
+            local d = {key=e.key, name=russian and e.ru or e.en, nameEn=e.en, also=e.also, areaId=e.area, faction="Both", quests={},
                 minLevel=e.min, maxLevel=e.max, forever=true, entrance={mapID=e.map, x=e.x, y=e.y, hint=e.hint}}
             -- Its quests, found by their monsters and names in the database (15.11.2026).
             for _, id in ipairs(e.quests or {}) do
@@ -1656,13 +1657,22 @@ function C.CurrentDungeon()
         if d.instanceID == instance then return d end
     end
     -- One of the new ones, whose number is not known: by its name, then by its number.
+    -- (The Russian client calls it "Затонувший город"; the guides' translation was not it:
+    -- the owner was inside and the addon did not know. A place not known is written down,
+    -- C.char.unknownPlaces, to be read from the saved file.)
     here = plain(here)
     if type(here) ~= "string" or here == "" then return end
     for _, d in ipairs(C.Dungeons) do
-        if d.forever and not d.instanceID and (here == d.name or here == d.nameEn or here == C.DungeonName(d)) then
-            d.instanceID = instance
+        local known = here == d.name or here == d.nameEn or here == C.DungeonName(d)
+        for _, other in ipairs(d.also or {}) do known = known or here == other end
+        if d.forever and known then
+            d.instanceID = d.instanceID or instance
             return d
         end
+    end
+    if C.char then
+        C.char.unknownPlaces = type(C.char.unknownPlaces) == "table" and C.char.unknownPlaces or {}
+        C.char.unknownPlaces[here] = instance
     end
 end
 
