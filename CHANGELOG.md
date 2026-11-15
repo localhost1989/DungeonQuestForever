@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.48.2
+- The tips of the new dungeons (the Drowned City's underwater room and rare encounters, Alcaz Prison's keyring, Krol'dok Stronghold's keys and Bossman Toof) are written step by step: a click on the tip shows the next step.
+
 ## 3.48.1
 - Fixed: inside The Drowned City the addon did not know where you were on a Russian client (its name there is "Затонувший город"). A dungeon the addon does not recognise is noted in its saved settings, so the next ones can be added.
 

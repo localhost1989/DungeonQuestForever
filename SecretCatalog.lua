@@ -299,7 +299,9 @@ add("DROWNED", {
         "https://mobalytics.gg/wow-forever/profile/fierce-sun-30v6cf/dungeons/drowned-city-complete-dungeon-guide",
         "https://www.wowhead.com/forever/guide/the-drowned-city-dungeon-overview-location-rewards",
     },
-    L"В Глубинных архивах поверни направо к затопленным тоннелям. Проплыви до комнаты Primeval Elemental. Ещё один ориентир на подходе — лестница у комнаты Var’taka.",
+    L"Дойди до Глубинных архивов и сверни направо: там вход в затопленные тоннели.",
+    L"Ныряй и плыви по тоннелю до конца. Видишь лестницу у комнаты Вар'таки (Var'Taka) — плывёшь правильно.",
+    L"В конце тоннеля — подводная комната с элементалем (Primeval Elemental): там бой.",
 })
 
 add("ALCAZ", {
@@ -308,7 +310,9 @@ add("ALCAZ", {
     sources = {
         "https://conquestcapped.com/guides/wow-forever/wow-forever-alcaz-prison-guide/",
     },
-    L"На верхнем этаже найди боковую караульную комнату с Overseer Wrex. С него падает Overseer’s Keyring — связка открывает закрытую дверь на нижний этаж.",
+    L"На верхнем этаже найди боковую караульную: там надзиратель Рекс (Overseer Wrex).",
+    L"Убей его — выпадет связка ключей надзирателя (Overseer’s Keyring).",
+    L"Связка открывает запертую дверь вниз, на нижний этаж.",
 })
 
 add("KROLDOK", {
@@ -318,8 +322,8 @@ add("KROLDOK", {
         "https://www.zockify.com/forever/dungeons/kroldok-stronghold/",
         "https://conquestcapped.com/guides/wow-forever/wow-forever-kroldok-stronghold-guide/",
     },
-    L"Overlord Mugg роняет Krol’dok Ogre Key. Один отчёт группы связывает его с коротким путём под горой, другой гайд оставляет назначение открытым.",
-    L"Krol’dok Compound Key получается отдельно через Krol’dok Moulding и Key Ingredients. Точную дверь для него подтвердить не удалось.",
+    L"С владыки Магга (Overlord Mugg) падает ключ огров (Krol’dok Ogre Key). По одному отчёту он открывает короткий путь под горой — точно не проверено.",
+    L"Второй ключ (Krol’dok Compound Key) делается по заданию «Крол'докская форма» из ингредиентов. Какую дверь он открывает — пока неизвестно.",
 })
 
 add("BLACKMAW", {
@@ -700,8 +704,8 @@ add("DROWNED", {
     sources = {
         "https://www.wowhead.com/forever/guide/the-drowned-city-dungeon-overview-location-rewards",
     },
-    L"В Глубинных архивах по дороге к покоям элементаля проверь проход — там бывает Gill с динамитом.",
-    L"Ещё одна редкая встреча — Umbra в окружении пяти мурлоков. Их кровотечения складываются, поэтому не цепляйте соседние группы.",
+    L"В проходе Глубинных архивов, по дороге к элементалю, иногда стоит Гилл (Gill). Он кидает динамит — не стойте кучей.",
+    L"Ещё одна редкая встреча — Умбра (Umbra) с пятью мурлоками. Их кровотечения складываются: бейте одну группу, соседние не задевайте.",
 })
 
 add("BLACKMAW", {
@@ -719,7 +723,9 @@ add("KROLDOK", {
     sources = {
         "https://conquestcapped.com/guides/wow-forever/wow-forever-kroldok-stronghold-guide/",
     },
-    L"После длинного деревянного моста осмотри площадку с шаманами перед подъёмом к Муггу. Здесь стоит Bossman Toof. У него есть собственная добыча — в том числе Toofbreaker и Big-Belly Belt.",
+    L"Пройди длинный деревянный мост.",
+    L"Перед подъёмом к Маггу есть площадка с шаманами — там стоит Босс Туф (Bossman Toof).",
+    L"С него своя добыча, в том числе Toofbreaker и Big-Belly Belt.",
 })
 
 add("RFD", {
