@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.50.0
+- A boss in the list shows your best item when it drops from him (up to two, from the best-gear lists for your class, talent tree and level), with its icon and name.
+- Under the next boss, a short tip on how to fight him: 132 bosses have one.
+- Alcaz Prison and Shaper's Terrace have their quests: 22 and 6, for the Horde and the Alliance, with the chains that lead to them (from Wowhead's WoW Forever database). Their names are in English for now.
+- The header of a boss no longer counts "best in slot" items: the item itself is shown.
+
 ## 3.49.0
 - Best gear: a Gear button on the panel (also /dq gear and the minimap menu) opens a window like the character frame. Every slot shows the best item for your class and talent tree at your level and the next steps (up to 60): the dungeon and boss that drop it, or the quest, vendor or craft that gives it; "equipped", "+N over equipped" or the level it needs. Hover for the item and where it comes from; the figure in the middle wears the set. The lists are those of Timesaver.gg (13 November 2026).
 - A small gold sight at the end of a goal that is one creature (one to kill, or one thing only he drops): a click targets him, like /target. It is set out of combat and stays put in one.

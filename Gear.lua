@@ -516,6 +516,39 @@ function draw()
     dress(ids)
 end
 
+-- The things of the gear lists a boss drops, for the list of bosses (the owner, 16.11.2026, as
+-- ChatGPT drew it: "your best item: [picture] Whitemane's Chapeau" under the boss). The lists
+-- of the branch chosen in the window (else the one with the most points) at the step of the
+-- character's level; what is worn already is not named.
+function P.GearFromBoss(npc)
+    local class = playerClass()
+    if not (npc and class and P.GearPicks and P.GearPicks[class] and P.GearItems) then return {} end
+    local list = specs(class)
+    if #list == 0 then return {} end
+    local spec = (P.char and tonumber(P.char.gearSpec)) or mainSpec(list)
+    if not list[spec] then spec = mainSpec(list) end
+    local found, seen = {}, {}
+    for _, id in ipairs(P.GearPicksFor(class, spec, levels()[1])) do
+        local item = id > 0 and not seen[id] and P.GearItems[id]
+        if item and not wornNow(id) then
+            seen[id] = true
+            for i = 6, #item do
+                local kind, _, from = item[i]:match("^(%a)|(%a)|(%d+)|")
+                if kind == "d" and tonumber(from) == npc then found[#found+1] = id break end
+            end
+        end
+    end
+    return found
+end
+-- A thing as the lines of the panel say it: its picture and its name in the colour of its quality.
+function P.GearItemText(id)
+    local item = P.GearItems and P.GearItems[id]
+    if not item then return "" end
+    local q = QUALITY[item[1]] or QUALITY[1]
+    local hex = ("%02x%02x%02x"):format(math.floor(q[1] * 255), math.floor(q[2] * 255), math.floor(q[3] * 255))
+    return "|T" .. itemIcon(id) .. ":14:14|t |cff" .. hex .. itemName(id) .. "|r"
+end
+
 function P.OpenGear()
     if not (P.GearPicks and P.GearPicks[playerClass() or ""]) then return end
     if not frame then create() end

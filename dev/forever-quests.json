@@ -1,0 +1,1574 @@
+{
+ "ALCAZ": [
+  {
+   "id": 95194,
+   "name": "Our Man in Theramore",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 332,
+    "name": "Master Mathias Shaw",
+    "zone": "Stormwind City",
+    "zoneId": 1519,
+    "x": 75.8,
+    "y": 59.8,
+    "note": "Wowhead also lists 78.4,70.6 / 78.6,70.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260146,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 66.2,
+    "y": 45.2,
+    "note": "Theramore inn version"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Seek out the SI:7 agent stationed on Theramore Isle",
+     "credit_npc_id": 260146
+    }
+   ],
+   "prerequisites": [],
+   "next": [
+    95196
+   ],
+   "starts_from_item_inside": false,
+   "role": "breadcrumb chain start (outside dungeon)",
+   "sharable": true
+  },
+  {
+   "id": 95196,
+   "name": "Watch Yer Back",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260146,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 66.2,
+    "y": 45.2,
+    "note": "Theramore inn version"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Speak with Sully",
+     "credit_npc_id": 260146
+    }
+   ],
+   "prerequisites": [
+    95194
+   ],
+   "next": [
+    95198
+   ],
+   "starts_from_item_inside": false,
+   "role": "chain (outside dungeon)",
+   "sharable": true
+  },
+  {
+   "id": 95198,
+   "name": "The Return of the King?",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Relieve Jaina's guard and eavesdrop",
+     "credit_npc_id": 260146
+    }
+   ],
+   "prerequisites": [
+    95196
+   ],
+   "next": [
+    95262
+   ],
+   "starts_from_item_inside": false,
+   "role": "chain (outside dungeon, Theramore mage tower)",
+   "provided_item": {
+    "item_id": 269000,
+    "name": "SI:7 Disguise Kit"
+   },
+   "sharable": false
+  },
+  {
+   "id": 95262,
+   "name": "The Secret Prison",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "turnin": null,
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Explore Alcaz Prison",
+     "credit_npc_id": 255702,
+     "note": "Wowhead mapper ties this credit to Blazeroar (255702) inside"
+    },
+    {
+     "type": "event",
+     "text": "Learn what became of Varian Wrynn",
+     "credit_npc_id": 264861,
+     "note": "per Warcraft Tavern: read the note in Zarla's room"
+    }
+   ],
+   "prerequisites": [
+    95198
+   ],
+   "next": [
+    95263
+   ],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": false,
+   "turnin_note": "turn-in not in Wowhead DB; Somber News follows"
+  },
+  {
+   "id": 96335,
+   "name": "The Man in the Iron Chains",
+   "name_ru": null,
+   "faction": "both",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": null,
+    "name": "Mason Connery",
+    "zone": "Alcaz Prison",
+    "zoneId": 16620,
+    "x": null,
+    "y": null,
+    "note": "prisoner at the end of the dungeon (Zarla room); Wowhead has two Mason Connery NPCs 264770 and 264845, not linked to the quest"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": null,
+    "name": "Mason Connery",
+    "zone": "Alcaz Prison",
+    "zoneId": 16620,
+    "x": null,
+    "y": null,
+    "note": "same prisoner; per Wowhead toy guide 35349"
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 274029,
+     "item_name": "Ornate Shackle Key",
+     "count": 1,
+     "dropped_by": [
+      {
+       "npc_id": 256236,
+       "name": "The Questioner"
+      }
+     ],
+     "note": "objective text: Recover the Alcaz Shackle Key from The Questioner"
+    }
+   ],
+   "prerequisites": [],
+   "next": [
+    96337
+   ],
+   "starts_from_item_inside": false,
+   "role": "dungeon; started inside",
+   "sharable": false,
+   "giver_note": "Wowhead has no start NPC; Warcraft Tavern: Mason Connery inside the dungeon (Zarla's room). Mason Connery NPC ids on Wowhead: 264770 and 264845 (which one gives/takes the quest not confirmed)",
+   "prereq_note": "Wowhead groups it in the Alliance series after 95262, but side=None and the toy guide says anyone gets it from Mason after clearing the dungeon. Do not kill The Questioner (near the start) until Mason gives the quest"
+  },
+  {
+   "id": 95263,
+   "name": "Somber News",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": null,
+   "turnin": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Return to Sully McCleary in Dustwallow Marsh",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [
+    95262,
+    96335
+   ],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "return from dungeon",
+   "sharable": false,
+   "giver_note": "no start in Wowhead DB (offered inside the dungeon after completing The Secret Prison)",
+   "next_note": "Shaw Needs To Know (95264) is given by the same Sully 260271 and is probably next, but Wowhead does not list it in the series"
+  },
+  {
+   "id": 95264,
+   "name": "Shaw Needs To Know",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 332,
+    "name": "Master Mathias Shaw",
+    "zone": "Stormwind City",
+    "zoneId": 1519,
+    "x": 75.8,
+    "y": 59.8,
+    "note": "Wowhead also lists 78.4,70.6 / 78.6,70.6"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Bring the news to Mathias Shaw in Stormwind",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "post-dungeon follow-up",
+   "sharable": false,
+   "prereq_note": "not shown on Wowhead; likely after Somber News 95263",
+   "rewards": [
+    279833,
+    279831,
+    279474
+   ]
+  },
+  {
+   "id": 96381,
+   "name": "A Bit of Wet Work",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260271,
+    "name": "Sully McCleary",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 63.4,
+    "y": 42.4,
+    "note": "behind Theramore graveyard; Wowhead also lists 63.4,42.6"
+   },
+   "objectives": [
+    {
+     "type": "kill",
+     "npc_id": 255995,
+     "npc_name": "Strashaz Soldier",
+     "count": 15
+    },
+    {
+     "type": "kill",
+     "npc_id": 255373,
+     "npc_name": "Strashaz Enchantress",
+     "count": 8
+    },
+    {
+     "type": "item",
+     "item_id": 273883,
+     "item_name": "Ca'zass's Head",
+     "count": 1,
+     "dropped_by": [
+      {
+       "npc_id": 255997,
+       "name": "Tidemistress Ca'zass"
+      }
+     ]
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "prereq_note": "Wowhead guide marks it 'Pre' = requires the Our Man in Theramore chain; exact prerequisite id not on the quest page",
+   "rewards": [
+    279825,
+    279826,
+    279829
+   ]
+  },
+  {
+   "id": 96772,
+   "name": "The Dragon's Journal",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 46,
+   "giver": {
+    "type": "npc",
+    "id": 20735,
+    "name": "Archmage Lan'dalock",
+    "zone": "Alterac Mountains",
+    "zoneId": 36,
+    "x": 15.4,
+    "y": 73.8,
+    "note": "Dalaran; Wowhead also lists 15.6,73.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 20735,
+    "name": "Archmage Lan'dalock",
+    "zone": "Alterac Mountains",
+    "zoneId": 36,
+    "x": 15.4,
+    "y": 73.8,
+    "note": "Dalaran; Wowhead also lists 15.6,73.6"
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 276890,
+     "item_name": "Zarla's Journal",
+     "count": 1,
+     "dropped_by": [
+      {
+       "npc_id": 255702,
+       "name": "Blazeroar"
+      },
+      {
+       "npc_id": 255707,
+       "name": "Zarla Ober (same encounter)"
+      }
+     ]
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "prereq_note": "none per Warcraft Tavern"
+  },
+  {
+   "id": 96337,
+   "name": "More Valuable Than Gold",
+   "name_ru": null,
+   "faction": "both",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": null,
+    "name": "Mason Connery",
+    "zone": "Alcaz Prison",
+    "zoneId": 16620,
+    "x": null,
+    "y": null,
+    "note": "after The Man in the Iron Chains; id not linked on Wowhead (264770 / 264845)"
+   },
+   "turnin": {
+    "type": "object",
+    "id": 611086,
+    "name": "Connery's Trunk",
+    "zone": "Westfall",
+    "zoneId": 40,
+    "x": 43.4,
+    "y": 67.9
+   },
+   "objectives": [
+    {
+     "type": "object",
+     "object_id": 653847,
+     "name": "Loose Floorboard (Find Mason Connery's Treasure)",
+     "count": 1,
+     "zone": "Westfall",
+     "x": 43.4,
+     "y": 67.9
+    }
+   ],
+   "prerequisites": [
+    96335
+   ],
+   "next": [
+    96376,
+    96377,
+    96379
+   ],
+   "starts_from_item_inside": false,
+   "role": "started inside dungeon, finished in Westfall",
+   "provided_item": {
+    "item_id": 274077,
+    "name": "Mason's Note"
+   },
+   "rewards": [
+    274041
+   ],
+   "sharable": false,
+   "giver_note": "Wowhead has no start; Warcraft Tavern: Mason Connery inside the dungeon after The Man in the Iron Chains"
+  },
+  {
+   "id": 96376,
+   "name": "State Secrets",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 3230,
+    "name": "Nazgrel",
+    "zone": "Orgrimmar",
+    "zoneId": 1637,
+    "x": 32.4,
+    "y": 36.0
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 3230,
+    "name": "Nazgrel",
+    "zone": "Orgrimmar",
+    "zoneId": 1637,
+    "x": 32.4,
+    "y": 36.0
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 274041,
+     "item_name": "Document Box",
+     "count": 1,
+     "dropped_by": null,
+     "note": "reward of More Valuable Than Gold 96337"
+    }
+   ],
+   "prerequisites": [
+    96337
+   ],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "follow-up, outside dungeon",
+   "rewards": [
+    279450
+   ],
+   "prereq_note": "needs the Document Box; Wowhead lists no explicit prerequisite"
+  },
+  {
+   "id": 96377,
+   "name": "State Secrets",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 6946,
+    "name": "Renzik \"The Shiv\"",
+    "zone": "Stormwind City",
+    "zoneId": 1519,
+    "x": 75.8,
+    "y": 60.2
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 6946,
+    "name": "Renzik \"The Shiv\"",
+    "zone": "Stormwind City",
+    "zoneId": 1519,
+    "x": 75.8,
+    "y": 60.2
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 274041,
+     "item_name": "Document Box",
+     "count": 1,
+     "dropped_by": null,
+     "note": "reward of More Valuable Than Gold 96337"
+    }
+   ],
+   "prerequisites": [
+    96337
+   ],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "follow-up, outside dungeon",
+   "rewards": [
+    279450
+   ],
+   "prereq_note": "needs the Document Box; alternative turn-in"
+  },
+  {
+   "id": 96379,
+   "name": "State Secrets",
+   "name_ru": null,
+   "faction": "both",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 214954,
+    "name": "Rix Xizzix",
+    "zone": "Stranglethorn Vale",
+    "zoneId": 33,
+    "x": 28.4,
+    "y": 75.8
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 214954,
+    "name": "Rix Xizzix",
+    "zone": "Stranglethorn Vale",
+    "zoneId": 33,
+    "x": 28.4,
+    "y": 75.8
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 274041,
+     "item_name": "Document Box",
+     "count": 1,
+     "dropped_by": null,
+     "note": "reward of More Valuable Than Gold 96337"
+    }
+   ],
+   "prerequisites": [
+    96337
+   ],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "follow-up, outside dungeon (Booty Bay, Steamwheedle rep)",
+   "rewards": [],
+   "prereq_note": "needs the Document Box; alternative turn-in"
+  },
+  {
+   "id": 95283,
+   "name": "The Missing Kor'kron",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 3144,
+    "name": "Eitrigg",
+    "zone": "Orgrimmar",
+    "zoneId": 1637,
+    "x": 34.2,
+    "y": 39.0,
+    "note": "Wowhead also lists 34.4,38.4 / 34.6,38.6"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 4791,
+    "name": "Nazeer Bloodpike",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 35.2,
+    "y": 30.6,
+    "note": "Brackenwall Village"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Speak with Nazeer Bloodpike in Brackenwall Village",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [],
+   "next": [
+    95284
+   ],
+   "starts_from_item_inside": false,
+   "role": "breadcrumb chain start",
+   "sharable": true
+  },
+  {
+   "id": 95284,
+   "name": "The Elite of the Elite",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 4791,
+    "name": "Nazeer Bloodpike",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 35.2,
+    "y": 30.6,
+    "note": "Brackenwall Village"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Find the missing Kor'kron Elites (reach Sergeant Ulka on Alcaz Island)",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [
+    95283
+   ],
+   "next": [
+    95285
+   ],
+   "starts_from_item_inside": false,
+   "role": "chain (outside dungeon)",
+   "sharable": true,
+   "quest_type": "Elite"
+  },
+  {
+   "id": 95285,
+   "name": "Right Place, Wrong Time",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Speak with Sergeant Ulka",
+     "credit_npc_id": 260383
+    }
+   ],
+   "prerequisites": [
+    95284
+   ],
+   "next": [
+    95309
+   ],
+   "starts_from_item_inside": false,
+   "role": "chain (outside dungeon)",
+   "sharable": true
+  },
+  {
+   "id": 95309,
+   "name": "No Orc Left Behind",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "turnin": null,
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Enter the Alcaz Prison and find Commander Folkar",
+     "credit_npc_id": 257016,
+     "note": "Wowhead mapper ties this credit to Katerina the Cleaner (257016)"
+    }
+   ],
+   "prerequisites": [
+    95285
+   ],
+   "next": [
+    95454
+   ],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "turnin_note": "turn-in not in Wowhead DB; per Warcraft Tavern Commander Folkar (260386) is found inside after Katerina",
+   "next_note": "Wowhead guide: leads to The Honor of the Kor'kron"
+  },
+  {
+   "id": 95454,
+   "name": "The Honor of the Kor'kron",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260386,
+    "name": "Commander Folkar",
+    "zone": "Alcaz Prison",
+    "zoneId": 16620,
+    "x": null,
+    "y": null,
+    "note": "per Warcraft Tavern (after Katerina); Wowhead has no start NPC linked"
+   },
+   "turnin": null,
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Find Varian Wrynn",
+     "credit_npc_id": 255702,
+     "note": "credit tied to Blazeroar 255702"
+    },
+    {
+     "type": "event",
+     "text": "Read the note on the ground",
+     "credit_npc_id": 264861
+    }
+   ],
+   "prerequisites": [
+    95309
+   ],
+   "next": [
+    96369
+   ],
+   "starts_from_item_inside": false,
+   "role": "dungeon; started inside",
+   "sharable": true,
+   "giver_note": "not in Wowhead DB; Warcraft Tavern: Commander Folkar (npc 260386) inside the dungeon after Katerina"
+  },
+  {
+   "id": 96369,
+   "name": "Bad News for Folkar",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": null,
+   "turnin": {
+    "type": "npc",
+    "id": 260386,
+    "name": "Commander Folkar",
+    "zone": "Alcaz Prison",
+    "zoneId": 16620,
+    "x": null,
+    "y": null,
+    "note": "from the objective text; Wowhead has no end NPC linked"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Report back to Commander Folkar",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [
+    95454
+   ],
+   "next": [
+    95483
+   ],
+   "starts_from_item_inside": false,
+   "role": "dungeon; started inside",
+   "sharable": true,
+   "giver_note": "not in Wowhead DB; Warcraft Tavern: picked up from a Perfumed Note after Blazeroar",
+   "turnin_note": "presumably Commander Folkar 260386 (objective text), not in Wowhead DB"
+  },
+  {
+   "id": 95483,
+   "name": "Thrall Needs to Know",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": null,
+   "turnin": {
+    "type": "npc",
+    "id": 4949,
+    "name": "Thrall",
+    "zone": "Orgrimmar",
+    "zoneId": 1637,
+    "x": 32.0,
+    "y": 37.8
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Bring word of Varian Wrynn's fate to Thrall in Orgrimmar",
+     "credit_npc_id": null
+    }
+   ],
+   "prerequisites": [
+    96369
+   ],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "return from dungeon",
+   "sharable": true,
+   "giver_note": "not in Wowhead DB (offered inside, likely by Commander Folkar)",
+   "rewards": [
+    279831,
+    279833,
+    279474
+   ]
+  },
+  {
+   "id": 96332,
+   "name": "A Little Payback",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "objectives": [
+    {
+     "type": "kill",
+     "npc_id": 255995,
+     "npc_name": "Strashaz Soldier",
+     "count": 15
+    },
+    {
+     "type": "kill",
+     "npc_id": 255373,
+     "npc_name": "Strashaz Enchantress",
+     "count": 8
+    },
+    {
+     "type": "item",
+     "item_id": 273883,
+     "item_name": "Ca'zass's Head",
+     "count": 1,
+     "dropped_by": [
+      {
+       "npc_id": 255997,
+       "name": "Tidemistress Ca'zass"
+      }
+     ]
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "prereq_note": "Wowhead guide marks 'Pre' = requires The Missing Kor'kron chain; exact prerequisite id not on the quest page",
+   "rewards": [
+    279824,
+    279826,
+    279829
+   ]
+  },
+  {
+   "id": 96334,
+   "name": "Blood Red Bandanas",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 53,
+   "required_level": 48,
+   "giver": {
+    "type": "npc",
+    "id": 260383,
+    "name": "Sergeant Ulka",
+    "zone": "Dustwallow Marsh",
+    "zoneId": 15,
+    "x": 70.3,
+    "y": 19.1,
+    "note": "Alcaz Island, outside the dungeon"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 3144,
+    "name": "Eitrigg",
+    "zone": "Orgrimmar",
+    "zoneId": 1637,
+    "x": 34.2,
+    "y": 39.0,
+    "note": "Wowhead also lists 34.4,38.4 / 34.6,38.6"
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 274028,
+     "item_name": "Blood Red Bandana",
+     "count": 8,
+     "dropped_by": [
+      {
+       "npc_id": 255377,
+       "name": "Alcaz Jailer"
+      },
+      {
+       "npc_id": 271784,
+       "name": "Alcaz Jailer"
+      },
+      {
+       "npc_id": 255276,
+       "name": "Defias Mercenary"
+      },
+      {
+       "npc_id": 271780,
+       "name": "Defias Mercenary"
+      },
+      {
+       "npc_id": 255309,
+       "name": "Defias Bounty Hunter"
+      },
+      {
+       "npc_id": 255262,
+       "name": "Alcaz Chaplain"
+      },
+      {
+       "npc_id": 255271,
+       "name": "Defias Truthfinder"
+      },
+      {
+       "npc_id": 255364,
+       "name": "Renegade Conjurer"
+      },
+      {
+       "npc_id": 255391,
+       "name": "Overseer Wrex"
+      },
+      {
+       "npc_id": 257016,
+       "name": "Katerina the Cleaner"
+      },
+      {
+       "npc_id": 256236,
+       "name": "The Questioner"
+      }
+     ],
+     "note": "Wowhead drop list (all in zone 16620), ordered by drop rate: Jailer ~12%, Mercenary ~17%, Bounty Hunter ~15%, Chaplain ~14%, Truthfinder ~11%, Conjurer ~14%"
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "prereq_note": "Wowhead guide marks 'Pre' (The Missing Kor'kron chain)",
+   "rewards": [
+    279448,
+    279473
+   ]
+  }
+ ],
+ "SHAPERS": [
+  {
+   "id": 95928,
+   "name": "Crystalline Elements",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": {
+    "type": "npc",
+    "id": 263445,
+    "name": "Mayena Earthseeker",
+    "zone": "Mulgore",
+    "zoneId": 215,
+    "x": 34.8,
+    "y": 22.0,
+    "note": "Sunwatcher Plateau"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 263445,
+    "name": "Mayena Earthseeker",
+    "zone": "Mulgore",
+    "zoneId": 215,
+    "x": 34.8,
+    "y": 22.0
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 271912,
+     "item_name": "Moist Crystal",
+     "count": 1,
+     "dropped_by": null,
+     "note": "no drop/object source on Wowhead yet"
+    },
+    {
+     "type": "item",
+     "item_id": 271898,
+     "item_name": "Charged Crystal",
+     "count": 1,
+     "dropped_by": null,
+     "note": "no source on Wowhead yet"
+    },
+    {
+     "type": "item",
+     "item_id": 271902,
+     "item_name": "Noxious Crystal",
+     "count": 1,
+     "dropped_by": null,
+     "note": "no source on Wowhead yet"
+    },
+    {
+     "type": "item",
+     "item_id": 271894,
+     "item_name": "Fiery Crystal",
+     "count": 1,
+     "dropped_by": null,
+     "note": "no source on Wowhead yet"
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "rewards": [
+    279904,
+    279906
+   ]
+  },
+  {
+   "id": 95926,
+   "name": "The Dark Crystal",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": {
+    "type": "npc",
+    "id": 2055,
+    "name": "Master Apothecary Faranell",
+    "zone": "Undercity",
+    "zoneId": 1497,
+    "x": 48.4,
+    "y": 68.0,
+    "note": "The Apothecarium"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 2055,
+    "name": "Master Apothecary Faranell",
+    "zone": "Undercity",
+    "zoneId": 1497,
+    "x": 48.4,
+    "y": 68.0
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 271771,
+     "item_name": "Drained Crystal Fragment",
+     "count": 1,
+     "dropped_by": null,
+     "note": "gathered near the Achromatic Crystal (npc 263277) in the tar pits"
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "rewards": [
+    279908,
+    279910,
+    279912
+   ]
+  },
+  {
+   "id": 97049,
+   "name": "Essence of Seeping Slimes",
+   "name_ru": null,
+   "faction": "Horde",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": {
+    "type": "npc",
+    "id": 10136,
+    "name": "Chemist Fuely",
+    "zone": "Undercity",
+    "zoneId": 1497,
+    "x": 47.4,
+    "y": 72.4,
+    "note": "The Apothecarium"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 10136,
+    "name": "Chemist Fuely",
+    "zone": "Undercity",
+    "zoneId": 1497,
+    "x": 47.4,
+    "y": 72.4
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 276235,
+     "item_name": "Seeping Slime Essence",
+     "count": 8,
+     "dropped_by": [
+      {
+       "npc_id": 262684,
+       "name": "Seeping Slime"
+      }
+     ]
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "rewards": [
+    279932,
+    279902
+   ]
+  },
+  {
+   "id": 95925,
+   "name": "Mapping the Way Forward",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": {
+    "type": "npc",
+    "id": 8256,
+    "name": "Curator Thorius",
+    "zone": "Ironforge",
+    "zoneId": 1537,
+    "x": 72.6,
+    "y": 14.8,
+    "note": "Hall of Explorers; he patrols - Wowhead lists 27 points from 64.4,4.0 to 77.0,22.8; 72.6,14.8 is the point Warcraft Tavern uses"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 8256,
+    "name": "Curator Thorius",
+    "zone": "Ironforge",
+    "zoneId": 1537,
+    "x": 72.6,
+    "y": 14.8,
+    "note": "Hall of Explorers; he patrols - Wowhead lists 27 points from 64.4,4.0 to 77.0,22.8; 72.6,14.8 is the point Warcraft Tavern uses"
+   },
+   "objectives": [
+    {
+     "type": "event",
+     "text": "Pillar of Assimilation",
+     "credit_npc_id": 263458
+    },
+    {
+     "type": "event",
+     "text": "The Achromatic Crystal",
+     "credit_npc_id": 263277
+    },
+    {
+     "type": "event",
+     "text": "The Western Gates",
+     "credit_npc_id": 263461
+    },
+    {
+     "type": "event",
+     "text": "The Regrowth Vestibule",
+     "credit_npc_id": 263460
+    },
+    {
+     "type": "event",
+     "text": "The Unearthed Stone Watcher",
+     "credit_npc_id": 263462
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": false,
+   "provided_item": {
+    "item_id": 271770,
+    "name": "Explorers' League Cartographer's Kit"
+   },
+   "rewards": [
+    279908,
+    279910,
+    279912
+   ]
+  },
+  {
+   "id": 95924,
+   "name": "Panic at the Digsite",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": {
+    "type": "npc",
+    "id": 8256,
+    "name": "Curator Thorius",
+    "zone": "Ironforge",
+    "zoneId": 1537,
+    "x": 72.6,
+    "y": 14.8,
+    "note": "Hall of Explorers; he patrols - Wowhead lists 27 points from 64.4,4.0 to 77.0,22.8; 72.6,14.8 is the point Warcraft Tavern uses"
+   },
+   "turnin": {
+    "type": "npc",
+    "id": 8256,
+    "name": "Curator Thorius",
+    "zone": "Ironforge",
+    "zoneId": 1537,
+    "x": 72.6,
+    "y": 14.8,
+    "note": "Hall of Explorers; he patrols - Wowhead lists 27 points from 64.4,4.0 to 77.0,22.8; 72.6,14.8 is the point Warcraft Tavern uses"
+   },
+   "objectives": [
+    {
+     "type": "kill",
+     "npc_id": 253215,
+     "npc_name": "Ravasaur Matriarch",
+     "count": 6
+    },
+    {
+     "type": "kill",
+     "npc_id": 261786,
+     "npc_name": "Ironhide Ravasaur",
+     "count": 9
+    },
+    {
+     "type": "kill",
+     "npc_id": 261813,
+     "npc_name": "Venomridge",
+     "count": 1
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "dungeon",
+   "sharable": true,
+   "rewards": [
+    279903,
+    279905
+   ]
+  },
+  {
+   "id": 95790,
+   "name": "Digestible Research",
+   "name_ru": null,
+   "faction": "Alliance",
+   "quest_level": 60,
+   "required_level": 55,
+   "giver": null,
+   "turnin": {
+    "type": "npc",
+    "id": 8256,
+    "name": "Curator Thorius",
+    "zone": "Ironforge",
+    "zoneId": 1537,
+    "x": 72.6,
+    "y": 14.8,
+    "note": "Hall of Explorers; he patrols - Wowhead lists 27 points from 64.4,4.0 to 77.0,22.8; 72.6,14.8 is the point Warcraft Tavern uses"
+   },
+   "objectives": [
+    {
+     "type": "item",
+     "item_id": 271972,
+     "item_name": "Partially Digested Journal Page",
+     "count": 15,
+     "dropped_by": [
+      {
+       "npc_id": 253214,
+       "name": "Ravasaur Hunter"
+      },
+      {
+       "npc_id": 262688,
+       "name": "Ravasaur Hunter"
+      },
+      {
+       "npc_id": 253215,
+       "name": "Ravasaur Matriarch"
+      },
+      {
+       "npc_id": 261786,
+       "name": "Ironhide Ravasaur"
+      },
+      {
+       "npc_id": 262696,
+       "name": "Ravasaur Juvenile"
+      },
+      {
+       "npc_id": 262685,
+       "name": "Ravasaur Trapper"
+      },
+      {
+       "npc_id": 262697,
+       "name": "Ravasaur Trapper"
+      }
+     ]
+    }
+   ],
+   "prerequisites": [],
+   "next": [],
+   "starts_from_item_inside": false,
+   "role": "started inside dungeon",
+   "sharable": false,
+   "rewards": [
+    279931,
+    279901
+   ],
+   "giver_note": "no start in Wowhead DB; Warcraft Tavern: picked up inside the dungeon at an abandoned camp in the pond below the entrance ledge (start object/item name not given)"
+  }
+ ],
+ "bosses": {
+  "ALCAZ": [
+   {
+    "npc_id": 255997,
+    "name": "Tidemistress Ca'zass"
+   },
+   {
+    "npc_id": 255391,
+    "name": "Overseer Wrex"
+   },
+   {
+    "npc_id": 256236,
+    "name": "The Questioner"
+   },
+   {
+    "npc_id": 257016,
+    "name": "Katerina the Cleaner"
+   },
+   {
+    "npc_id": 255707,
+    "name": "Zarla Ober",
+    "note": "phase 1"
+   },
+   {
+    "npc_id": 255702,
+    "name": "Blazeroar",
+    "note": "Zarla's dragon form, phase 2"
+   }
+  ],
+  "ALCAZ_other_npcs": [
+   {
+    "npc_id": 260386,
+    "name": "Commander Folkar",
+    "note": "Horde quest NPC inside"
+   },
+   {
+    "npc_id": 264770,
+    "name": "Mason Connery"
+   },
+   {
+    "npc_id": 264845,
+    "name": "Mason Connery"
+   }
+  ],
+  "SHAPERS": [
+   {
+    "npc_id": 261974,
+    "name": "Cinder"
+   },
+   {
+    "npc_id": 253201,
+    "name": "Titanosaur"
+   },
+   {
+    "npc_id": 262297,
+    "name": "Snowtalon"
+   },
+   {
+    "npc_id": 261811,
+    "name": "Tor'Rel"
+   },
+   {
+    "npc_id": 253218,
+    "name": "Izha'Rel",
+    "note": "fought together with Tor'Rel"
+   },
+   {
+    "npc_id": 272561,
+    "name": "Vitrix"
+   },
+   {
+    "npc_id": 262127,
+    "name": "Direhorn Matriarch"
+   },
+   {
+    "npc_id": 261812,
+    "name": "Thunderhoof"
+   },
+   {
+    "npc_id": 261813,
+    "name": "Venomridge"
+   },
+   {
+    "npc_id": 262081,
+    "name": "Bolt"
+   },
+   {
+    "npc_id": 261809,
+    "name": "Nanaya",
+    "note": "final boss"
+   }
+  ]
+ },
+ "notes": "Data from Wowhead Forever (patch 1.60.1), read 2026-11-16. Quest level, required level, side, start/end NPCs and coordinates come from each quest page's Quick Facts and map data. Coordinates are zone-map percentages (x,y) in the named zone.\nALCAZ PRISON = zone 16620 (entrance in the basement of the keep on north Alcaz Island, Dustwallow Marsh, zone 15). Wowhead files 15 quests under the dungeon category; I added the 6 breadcrumb/chain quests that lead there (95194, 95196, 95198, 95283, 95284, 95285) and Shaw Needs To Know 95264, giving 22 entries.\n- Quests started inside the dungeon: 96335 and 96337 from the prisoner Mason Connery (end of the dungeon), 95454 from Commander Folkar (260386, after Katerina), 96369 from a Perfumed Note after Blazeroar; 95263 and 95483 are return quests. Wowhead has no start NPC/object for these, so giver.id is null. Mason Connery has two NPC ids on Wowhead (264770, 264845) and neither is linked to a quest.\n- Event objectives: Wowhead ties 'Explore Alcaz Prison' / 'Find Varian Wrynn' to Blazeroar 255702, and 'Find Commander Folkar' to Katerina the Cleaner 257016. 'Learn what became of Varian' / 'Read the note on the ground' use credit id 264861 (a note in Zarla's room).\n- Sully McCleary has two ids: 260146 (Theramore inn, 66.2,45.2) and 260271 (behind the graveyard, 63.4,42.4). Most Alliance quests use 260271.\n- Sergeant Ulka: Wowhead quest map gives Dustwallow 70.3,19.1. The Wowhead guide's '/way 33.4 38' refers to a different map, so the 70.3,19.1 value matches Warcraft Tavern.\n- The Questioner (256236) is near the start of the dungeon; the toy guide says not to kill him until Mason Connery has given 96335.\n- State Secrets has 3 versions, all needing the Document Box (274041, the reward of 96337): 96376 Horde (Nazgrel, Orgrimmar), 96377 Alliance (Renzik, Stormwind), 96379 any faction (Rix Xizzix, Booty Bay). Each gives a Fractured Insignia (279450); six of them make the Alcaz Operative Disguise toy.\n- 95264 Shaw Needs To Know: starts at Sully 260271 and ends at Shaw. Wowhead lists no prerequisite; it probably follows Somber News 95263, but that is unconfirmed.\n- A Bit of Wet Work / A Little Payback / Blood Red Bandanas: the Wowhead guide marks them 'Pre' (they need the faction chain), but the quest pages do not give the exact prerequisite id.\nSHAPER'S TERRACE = zone 16667, but Wowhead's zone page is empty. Its NPCs are mapped to Kalimdor (location -6) and its quests sit in category 16985 ('Forever Zones'), so the dungeon 'Quests' tab shows nothing. I found all 6 quests by name, after Warcraft Tavern's guide listed them. Entrance per Warcraft Tavern: Un'Goro Crater 48.1,6.1, on the hill above Marshal's Refuge.\n- 95790 Digestible Research starts inside, at an abandoned camp in the pond below the entrance ledge (Warcraft Tavern). Wowhead has no start object/item, so giver is null and starts_from_item_inside is unknown (false by default).\n- The Crystalline Elements crystals (271912, 271898, 271902, 271894) and the Drained Crystal Fragment (271771) have no drop or object source on Wowhead yet. The Dark Crystal fragment is gathered next to the Achromatic Crystal (credit npc 263277) in the tar pits.\n- Dungeon mechanic, not a quest: 4 Archival Panels each take 15 Power Crystals of one colour (red summons Cinder, blue Snowtalon, green Vitrix, yellow Bolt). After all four, the Titan Panel on the Pillar of Assimilation summons Nanaya.\n- Left out on purpose: 87492 Uncanny Crystal and 87494 Microcrystal Contamination (Torwa Pathfinder, open-world Un'Goro, item from regular Un'Goro mobs) and 94399 Ravasaur Provisions. They are new Forever Un'Goro quests but are not tied to the dungeon. Retail quest 24694 'The Shaper's Terrace' does not exist in Forever.\nRUSSIAN NAMES: on Wowhead ru (www.wowhead.com/forever/ru/quest=ID) the new quest titles and texts are still in English (shown in [brackets]), so name_ru is null for every quest. Item names are translated (e.g. 271771 = 'Опустошенный осколок кристалла').\nNot found: Shaper's Terrace boss order (bosses can be done in any order); exact drop sources for the 5 crystals; Mason Connery's exact NPC id; start objects for 96369 and 95790.",
+ "sources": [
+  "https://www.wowhead.com/forever/zone=16620/alcaz-prison",
+  "https://www.wowhead.com/forever/zone=16667",
+  "https://www.wowhead.com/forever/guide/alcaz-prison-dungeon-overview-location-rewards",
+  "https://www.wowhead.com/forever/guide=35349",
+  "https://www.wowhead.com/forever/quests=2.16667",
+  "https://www.wowhead.com/forever/zone=490",
+  "https://www.wowhead.com/forever/quest=95194",
+  "https://www.wowhead.com/forever/quest=95196",
+  "https://www.wowhead.com/forever/quest=95198",
+  "https://www.wowhead.com/forever/quest=95262",
+  "https://www.wowhead.com/forever/quest=95263",
+  "https://www.wowhead.com/forever/quest=95264",
+  "https://www.wowhead.com/forever/quest=95283",
+  "https://www.wowhead.com/forever/quest=95284",
+  "https://www.wowhead.com/forever/quest=95285",
+  "https://www.wowhead.com/forever/quest=95309",
+  "https://www.wowhead.com/forever/quest=95454",
+  "https://www.wowhead.com/forever/quest=95483",
+  "https://www.wowhead.com/forever/quest=96332",
+  "https://www.wowhead.com/forever/quest=96334",
+  "https://www.wowhead.com/forever/quest=96335",
+  "https://www.wowhead.com/forever/quest=96337",
+  "https://www.wowhead.com/forever/quest=96369",
+  "https://www.wowhead.com/forever/quest=96376",
+  "https://www.wowhead.com/forever/quest=96377",
+  "https://www.wowhead.com/forever/quest=96379",
+  "https://www.wowhead.com/forever/quest=96381",
+  "https://www.wowhead.com/forever/quest=96772",
+  "https://www.wowhead.com/forever/quest=95928",
+  "https://www.wowhead.com/forever/quest=95926",
+  "https://www.wowhead.com/forever/quest=97049",
+  "https://www.wowhead.com/forever/quest=95925",
+  "https://www.wowhead.com/forever/quest=95924",
+  "https://www.wowhead.com/forever/quest=95790",
+  "https://www.wowhead.com/forever/ru/quest=95926",
+  "https://www.wowhead.com/forever/ru/quest=95262",
+  "https://www.wowhead.com/forever/item=274028",
+  "https://www.wowhead.com/forever/item=271972",
+  "https://www.wowhead.com/forever/item=276235",
+  "https://www.wowhead.com/forever/item=274029",
+  "https://www.wowhead.com/forever/item=276890",
+  "https://www.wowhead.com/forever/item=280459",
+  "https://www.wowhead.com/forever/npc=261809",
+  "https://www.wowhead.com/forever/npc=262081",
+  "https://www.wowhead.com/forever/npc=8256",
+  "https://www.warcrafttavern.com/forever/guides/shapers-terrace/",
+  "https://www.warcrafttavern.com/forever/guides/alcaz-island-prison/"
+ ]
+}

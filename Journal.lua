@@ -2163,8 +2163,23 @@ local function bossRows(d, rows, inside)
                 loot, mine, best, better = P.LootFor(stop.npc)
                 for _, thing in ipairs(loot) do weighed = weighed or thing.worth.known end
             end
-            list[#list+1] = {stop=true, listed=true, npc=stop.npc, name=stop.name, dead=stop.dead and true or false,
+            local entry = {stop=true, listed=true, npc=stop.npc, name=stop.name, dead=stop.dead and true or false,
                 next=inside and stop.next or nil, optional=stop.optional, mine=(not weighed) and mine or 0, best=best, better=better, lines={}}
+            -- The owner (16.11.2026), as ChatGPT drew it: under a boss who drops a thing of the
+            -- window of the best gear, "your best item" with its picture and name; under the
+            -- boss the group goes to next, what to do so as not to die.
+            if not entry.dead then
+                local own = P.GearFromBoss and stop.npc and P.GearFromBoss(stop.npc) or {}
+                if #own > 0 then
+                    local named = {}
+                    for i, id in ipairs(own) do if i <= 2 then named[#named+1] = P.GearItemText(id) end end
+                    entry.lines[#entry.lines+1] = "|cff9d9d9d• " .. L"твоя лучшая вещь:" .. "|r " .. table.concat(named, ", ")
+                    entry.bis = #own
+                end
+                local tip = entry.next and P.BossTips and stop.npc and P.BossTips[stop.npc]
+                if tip then entry.lines[#entry.lines+1] = "|cff71c886" .. L"совет:" .. " " .. tip .. "|r" end
+            end
+            list[#list+1] = entry
         end
     end
     if total == 0 then return {} end
@@ -2374,11 +2389,10 @@ local function layout(self)
                     local open = P.LootOpenFor and P.LootOpenFor() == entry.npc
                     if block.Gild then block:Gild(open and "open" or nil) end
                     if open and P.AnchorLoot then P.AnchorLoot(block) end
+                    -- (The counts "best in slot: 1" are gone: the owner did not understand them. The
+                    -- best item stands under the boss by name; his click opens all his loot.)
                     block:SetHeader("  " .. entry.name .. (near and (L"|cff71c886 • рядом, метка над ним|r") or entry.next and (L"|cffffd34d • следующий|r")
-                        or entry.optional and (DIM .. L" • по желанию|r") or "")
-                        .. ((entry.best or 0) > 0 and (L"|cffffd34d • лучшее в слот: " .. entry.best .. "|r")
-                            or (entry.better or 0) > 0 and (L"|cff40e040 • лучше надетого: " .. entry.better .. "|r")
-                            or (entry.mine or 0) > 0 and (L"|cff40e040 • тебе: " .. entry.mine .. "|r") or ""))
+                        or entry.optional and (DIM .. L" • по желанию|r") or ""))
                 end
             end
             for i, line in ipairs(entry.lines) do
@@ -3927,7 +3941,7 @@ local function initialize()
     -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
     -- addon know there is an update and what is new"): a few lines in the chat, seconds
     -- after coming in. Not to a character new to the addon: the welcome page is for him.
-    local NEWS = "3.49.0"
+    local NEWS = "3.50.0"
     if not db.welcomed then
         db.newsSeen = NEWS
     elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
@@ -3936,9 +3950,9 @@ local function initialize()
             db.newsSeen = NEWS
             say(L"обновление " .. NEWS .. L", что нового:")
             for _, line in ipairs({
-                L"• кнопка «Вещи»: лучшие вещи для твоего класса и ветки на твоём уровне и дальше — с какого босса или за какое задание",
-                L"• золотой прицел у цели, где нужен один моб: щелчок берёт его в цель",
-                L"• убитые боссы помнятся, пока вы в той же копии подземелья; в Монастыре видны боссы только твоего крыла",
+                L"• у босса видна твоя лучшая вещь, если она с него падает",
+                L"• под следующим боссом — короткий совет, как его бить",
+                L"• задания Тюрьмы Алказ и Террасы Творцов",
             }) do
                 if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
             end

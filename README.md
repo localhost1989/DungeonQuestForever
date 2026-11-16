@@ -64,6 +64,9 @@ GPL-3.0-or-later, see `LICENSE`.
   talent tree and level) are taken from the WoW Forever leveling gear lists of
   [Timesaver.gg](https://timesaver.gg/tools/wow-forever/leveling-gear) (checked 13 November
   2026) by `dev/make-gear.py`; the Russian names come from QuestieDB.
+- The quests of Alcaz Prison and Shaper's Terrace, and the bosses' tips, were compiled from
+  the WoW Forever database of [Wowhead](https://www.wowhead.com/wow-forever/) (checked
+  16 November 2026) by `dev/make-forever-quests.py` and `dev/make-boss-tips.py`.
 - The pointer hand artwork was generated for this addon.
 - If *Dungeon Quest Atlas* is installed, its dungeon maps are used for the small floor
   plan; nothing of that addon is included here.
