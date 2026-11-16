@@ -946,6 +946,7 @@ local EN = {
     ["Откроет окно с адресом, куда написать, и строками для отчёта."] = "Opens a window with the address to write to and the lines for the report.",
     ["Журнал: задания, боссы, добыча"] = "Journal: quests, bosses, loot",
     ["Список подземелий"] = "List of dungeons",
+    ["Лучшие вещи для класса"] = "Best gear for your class",
     ["Настройки"] = "Settings",
     ["Панель в колонке заданий"] = "Panel in the quest tracker",
     ["Вид как у заданий игры"] = "Look like the game's quests",
@@ -968,6 +969,8 @@ local EN = {
     ["Книга: все задания и боссы подземелья, добыча боссов."] = "Book: all quests and bosses of the dungeon, boss loot.",
     ["Поделиться"] = "Share",
     ["Поделиться с группой всеми заданиями этого подземелья, что у тебя в журнале, и попросить в чате группы недостающие. Аддон у других поделится ими сам."] = "Share every quest of this dungeon in your log with the group, and ask in the group chat for the ones you lack. Others with the addon share them by themselves.",
+    ["Вещи"] = "Gear",
+    ["Лучшие вещи для твоего класса и ветки талантов на твоём уровне и дальше: где каждая падает или за какое задание даётся."] = "The best gear for your class and talent tree at your level and beyond: which boss drops each piece or which quest gives it.",
     ["Мусор: "] = "Junk: ",
     ["Серые неначатые задания без цепочек. Щелчок покажет список и спросит, убрать ли их."] = "Grey unstarted quests with no chain. Click shows the list and asks whether to abandon them.",
     ["Скрыть убитых"] = "Hide dead",
@@ -978,6 +981,8 @@ local EN = {
     ["В списке только подземелья, где ещё есть что делать. Сданные и скрытые тобой не показываются."] = "Only dungeons with something left to do are listed. Turned in and ones you hid are not shown.",
     ["Показать все"] = "Show all",
     ["Все подземелья, со сданными и скрытыми. ПКМ по подземелью скрывает его из списка или возвращает."] = "All dungeons, including turned in and hidden. Right-click a dungeon to hide it from the list or bring it back.",
+    ["Взять в цель: %s"] = "Target: %s",
+    ["Работает, когда он рядом."] = "Works when it is nearby.",
     ["сдано"] = "handed in",
     ["готово — сдай"] = "done: hand it in",
     ["в журнале"] = "in your log",
@@ -1150,9 +1155,9 @@ local EN = {
     [" (убит)"] = " (dead)",
     ["обновление "] = "updated to ",
     [", что нового:"] = ", what's new:",
-    ["• пять новых подземелий Forever: Затонувший город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны"] = "• five new dungeons of Forever: The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace, with the way in and the quests known so far",
-    ["• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»"] = "• taken quests are split: 'Do before going in', 'Do at the entrance', 'Taken, done inside'; when only the entrance is left, 'you can go into the dungeon'",
-    ["• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру"] = "• hard places have 'how to find', and the arrow leads to goals in the cave before a portal through the mouth of the cave",
+    ["• кнопка «Вещи»: лучшие вещи для твоего класса и ветки на твоём уровне и дальше — с какого босса или за какое задание"] = "• a Gear button: the best items for your class and talent tree at your level and beyond, with the boss or quest each comes from",
+    ["• золотой прицел у цели, где нужен один моб: щелчок берёт его в цель"] = "• a gold sight by a goal that is one creature: click it to target him",
+    ["• убитые боссы помнятся, пока вы в той же копии подземелья; в Монастыре видны боссы только твоего крыла"] = "• boss kills are kept while you are in the same copy of the dungeon; in Scarlet Monastery you see only your wing's bosses",
     [" | место первой: "] = " | first location: ",
     ["Дальше пешком. Стрелка ведёт к цели: "] = "On foot from here. The arrow leads to the goal: ",
     ["Дорога к цели"] = "Route to goal",
@@ -1402,6 +1407,67 @@ local EN = {
     ["не для твоего класса"] = "not for your class",
     ["лучше надетого +%d"] = "better than equipped +%d",
     ["надето"] = "equipped",
+    ["Голова"] = "Head",
+    ["Шея"] = "Neck",
+    ["Плечи"] = "Shoulder",
+    ["Спина"] = "Back",
+    ["Грудь"] = "Chest",
+    ["Запястья"] = "Wrist",
+    ["Кисти рук"] = "Hands",
+    ["Пояс"] = "Waist",
+    ["Ноги"] = "Legs",
+    ["Ступни"] = "Feet",
+    ["Кольцо"] = "Finger",
+    ["Аксессуар"] = "Trinket",
+    ["Правая рука"] = "Main Hand",
+    ["Левая рука"] = "Off Hand",
+    ["Дальний бой"] = "Ranged",
+    ["Жезл"] = "Wand",
+    ["Реликвия"] = "Relic",
+    ["Тайная магия"] = "Arcane",
+    ["Огонь"] = "Fire",
+    ["Лёд"] = "Frost",
+    ["Послушание"] = "Discipline",
+    ["Свет"] = "Holy",
+    ["Тьма"] = "Shadow",
+    ["Колдовство"] = "Affliction",
+    ["Демонология"] = "Demonology",
+    ["Разрушение"] = "Destruction",
+    ["Баланс"] = "Balance",
+    ["Сила зверя"] = "Feral Combat",
+    ["Исцеление"] = "Restoration",
+    ["Чувство зверя"] = "Beast Mastery",
+    ["Стрельба"] = "Marksmanship",
+    ["Выживание"] = "Survival",
+    ["Защита"] = "Protection",
+    ["Возмездие"] = "Retribution",
+    ["Ликвидация"] = "Assassination",
+    ["Бой"] = "Combat",
+    ["Скрытность"] = "Subtlety",
+    ["Стихии"] = "Elemental",
+    ["Совершенствование"] = "Enhancement",
+    ["Оружие"] = "Arms",
+    ["Неистовство"] = "Fury",
+    ["Кузнечное дело"] = "Blacksmithing",
+    ["Наложение чар"] = "Enchanting",
+    ["Кожевничество"] = "Leatherworking",
+    ["Портняжное дело"] = "Tailoring",
+    ["Подземелье «%s», босс: %s"] = "Dungeon: %s, boss: %s",
+    ["Задание «%s»"] = "Quest: %s",
+    ["ремесло • "] = "crafted • ",
+    ["Делается ремеслом: "] = "Crafted with ",
+    ["торговец • "] = "vendor • ",
+    ["Продаёт %s, %s"] = "Sold by %s, %s",
+    ["Падает с «%s», %s"] = "Drops from %s, %s",
+    ["Shift+щелчок — ссылка в чат, Ctrl+щелчок — примерить."] = "Shift-click to link in chat, Ctrl-click to try it on.",
+    ["Для этой ветки на этом уровне нет вещи заметно лучше обычной."] = "Nothing clearly better for this tree at this level.",
+    ["Лучшие вещи"] = "Best Gear",
+    ["Уровень:"] = "Level:",
+    ["Ветка:"] = "Spec:",
+    ["Ты в этих вещах"] = "You in this gear",
+    ["Потяни мышью, чтобы повернуть."] = "Drag to turn.",
+    ["нужен %d уровень"] = "requires level %d",
+    [" к надетому"] = " over equipped",
 }
 -- LOCALE END
 local russianClient = (GetLocale and GetLocale() or "enUS") == "ruRU"
@@ -1500,16 +1566,16 @@ local factions = {[2437]="Horde", [717]="Alliance"}
 -- 15.11.2026), the levels Blizzard's. No quests and no bosses until the database has them;
 -- inside, the dungeon is known by its name, as its instance number is not known.
 local EXTRA = {
-    {key="DROWNED", en="The Drowned City", ru="Затонувший город", also={"Затопленный город"}, map=1434, x=21.4, y=27.9, min=35, max=40, hint=L"вход под водой, к западу от Гром'гола",
+    {key="DROWNED", en="The Drowned City", ru=L"Затонувший город", also={L"Затопленный город"}, map=1434, x=21.4, y=27.9, min=35, max=40, hint=L"вход под водой, к западу от Гром'гола",
         quests={95748, 95776, 95789, 95791, 96774, 97130}},
-    {key="KROLDOK", en="Krol'dok Stronghold", ru="Крепость Крол'док", area=17780, map=2548, x=37.5, y=37.5, min=40, max=45, hint=L"пещера у камня встреч",
+    {key="KROLDOK", en="Krol'dok Stronghold", ru=L"Крепость Крол'док", area=17780, map=2548, x=37.5, y=37.5, min=40, max=45, hint=L"пещера у камня встреч",
         quests={94968, 94969, 94973, 94980, 94982, 94983}},
-    {key="ALCAZ", en="Alcaz Prison", ru="Тюрьма Альказа", map=1445, x=75.3, y=14.1, min=48, max=53, hint=L"в подвале старой башни на острове"},
+    {key="ALCAZ", en="Alcaz Prison", ru=L"Тюрьма Альказа", map=1445, x=75.3, y=14.1, min=48, max=53, hint=L"в подвале старой башни на острове"},
     -- (The tunnel opens in Azshara; the portal itself lies so deep that it is on the map of
     -- Winterspring, 66.6, 84.4: Warcraft Tavern.)
-    {key="BLACKMAW", en="Blackmaw Hold", ru="Цитадель Чернопасти", area=1216, map=1447, x=38.7, y=33.4, min=55, max=60, hint=L"туннель фурболгов, портал в глубине",
+    {key="BLACKMAW", en="Blackmaw Hold", ru=L"Цитадель Чернопасти", area=1216, map=1447, x=38.7, y=33.4, min=55, max=60, hint=L"туннель фурболгов, портал в глубине",
         quests={92065, 96603, 97173, 98477}},
-    {key="SHAPERS", en="Shaper's Terrace", ru="Терраса ваятеля", area=16985, map=1449, x=48.1, y=6.1, min=58, max=60, hint=L"вверх по лестнице от Укрытия Маршала"},
+    {key="SHAPERS", en="Shaper's Terrace", ru=L"Терраса ваятеля", area=16985, map=1449, x=48.1, y=6.1, min=58, max=60, hint=L"вверх по лестнице от Укрытия Маршала"},
 }
 local tipKeys = {
     SM={"SM_GY", "SM_LIB", "SM_ARM", "SM_CATH"}, BRS={"LBRS", "UBRS"},
@@ -1879,7 +1945,7 @@ function C.QuestWork(id, d)
         if not name then return false end
         for _, objective in ipairs(live) do
             local text = plain(objective.text)
-            if type(text) == "string" and text:find(name, 1, true) then return objective.finished and true or false, text end
+            if type(text) == "string" and text:find(name, 1, true) then return objective.finished and true or false, text, tonumber(objective.numRequired) end
         end
         return false
     end
@@ -1889,8 +1955,16 @@ function C.QuestWork(id, d)
     local okMe, myC, myX, myY = pcall(C.PlayerYards)
     if not okMe then myC = nil end
     local function weigh(name, sources)
-        local met, text = status(name)
+        local met, text, needed = status(name)
         if met then return end
+        -- One creature to kill, or one thing that only one creature drops: his name, for the
+        -- small sight that takes him as the target (the owner, 16.11.2026, looking for
+        -- Ambassador Malcin by the Razorfen).
+        local target
+        if needed == 1 and #sources == 1 and sources[1].db == NpcDB then
+            local who = NpcDB.Get(sources[1].id, "name")
+            if type(who) == "string" and who ~= "" then target = who end
+        end
         local here, other, outdoor, range
         local function consider(source, area, spot)
             if not (spot and type(spot[1]) == "number" and type(spot[2]) == "number" and spot[1] >= 0) then return end
@@ -1938,6 +2012,7 @@ function C.QuestWork(id, d)
                 name=L"Вход: " .. C.DungeonName(other), text=text or name}
         elseif outdoor then
             outdoor.text = text or name
+            outdoor.target = target
             spots[#spots+1] = outdoor
         end
     end

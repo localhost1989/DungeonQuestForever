@@ -6,7 +6,7 @@
 import io, json, os, re, sys
 
 SRC = "../ForeverDungeonPrep"
-FILES = ["Core", "Plan", "SecretCatalog", "PartyTips", "BossRoute", "Ways", "Secrets", "Journal", "Book"]
+FILES = ["Core", "Plan", "SecretCatalog", "PartyTips", "BossRoute", "Ways", "Secrets", "Journal", "Book", "Gear"]
 CYR = re.compile("[А-Яа-яЁё]")
 
 def tokens(text):

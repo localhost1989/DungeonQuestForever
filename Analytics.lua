@@ -11,6 +11,7 @@ local actionIDs = {
     RouteRequested = 6,
     ReportOpened = 7,
     LootOpened = 8,
+    GearOpened = 9,
 }
 local steps = {"BookOpened", "QuestRead", "RouteRequested"}
 local provider, seen, stage = nil, {}, 1

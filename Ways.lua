@@ -553,18 +553,36 @@ end
 -- dungeon's own name.
 local WING_HALLS = {
     SM = {
-        [L"Кладбище"] = {"Чертог Искупления", "Покинутый двор", "Гробница Доблести", "Chamber of Atonement", "Forlorn Cloister", "Honor's Tomb"},
-        [L"Библиотека"] = {"Двор охотника", "Сокровищница", "Читальня", "Huntsman's Cloister", "Gallery of Treasures", "Athenaeum"},
+        [L"Кладбище"] = {L"Чертог Искупления", L"Покинутый двор", L"Гробница Доблести", "Chamber of Atonement", "Forlorn Cloister", "Honor's Tomb"},
+        [L"Библиотека"] = {L"Двор охотника", L"Сокровищница", L"Читальня", "Huntsman's Cloister", "Gallery of Treasures", "Athenaeum"},
         [L"Оружейная"] = {"Training Grounds", "Footman's Armory", "Crusader's Armory", "Hall of Champions"},
         [L"Собор"] = {"Chapel Gardens", "Crusader's Chapel"},
     },
 }
+-- The owner in the Cathedral (16.11.2026): "we went into the Cathedral; why do I see all the
+-- bosses now?" By its door the hall bears the monastery's own name, and the Cathedral's halls
+-- were written in English alone. Each wing is a map of its own in the game (as the Aegis
+-- journal has them: the Graveyard 302, the Library 303, and on to the Cathedral 305): the map
+-- the player stands on tells the wing from the first step.
+local WING_MAPS = {
+    SM = {[302]=L"Кладбище", [303]=L"Библиотека", [304]=L"Оружейная", [305]=L"Собор"},
+}
+local function mapHere()
+    if not (C_Map and C_Map.GetBestMapForUnit) then return nil end
+    local ok, id = pcall(C_Map.GetBestMapForUnit, "player")
+    return ok and tonumber(id) or nil
+end
 local wingNow  -- {key, name}: the wing the player is in, while inside
 local function wingHere(d, wings)
     if not (d and P.InDungeon and P.InDungeon(d)) then wingNow = nil return end
     local room = P.Room and P.Room()
     if room == atlas.DungeonName(d) then room = nil end
-    local name
+    local map = mapHere()
+    local name = map and WING_MAPS[d.key] and WING_MAPS[d.key][map]
+    if name then
+        wingNow = {key=d.key, name=name}
+        for _, part in ipairs(wings) do if part.name == name then return part end end
+    end
     if room then
         local learnt = P.char and P.char.wingHalls and P.char.wingHalls[d.key]
         name = learnt and learnt[room]
@@ -602,11 +620,69 @@ function P.WingHere(d)
     return wingNow and wingNow.key == d.key and wingNow.name or nil
 end
 
+-- The owner (16.11.2026): "I do not like that the progress on the bosses killed in a
+-- dungeon is not kept." The marks were forgotten by the clock: three quarters of an hour after
+-- the last kill, walking in or a /reload took them for another run's - a long pull, a wipe and
+-- the run back, a break, and every mark was gone. The copy of the dungeon the group is in is
+-- now known instead: every creature's GUID carries the number of the copy it lives in (its
+-- fifth part). The marks belong to the copy they were made in; they go when the group stands
+-- in another copy of the same place (the dungeon reset, another group), not by the clock.
+local copySeen   -- {key, map, zone}: the copy the player stands in, from the last creature seen
+local function copyOf(guid)
+    guid = atlas.PlainText and atlas.PlainText(guid) or guid
+    if type(guid) ~= "string" then return nil end
+    local kind, _, _, _, zone = strsplit("-", guid)
+    if kind == "Creature" or kind == "Vehicle" then
+        zone = tonumber(zone)
+        if zone and zone > 0 then return zone end
+    end
+end
+local function placeKey() return tostring(mapHere() or 0) end
+-- A creature seen inside: the copy is noted, and the marks of another copy of this place are
+-- dropped. Returns true when marks were dropped.
+function P.SeenCopy(d, guid)
+    local zone = copyOf(guid)
+    if not (d and zone and P.char) then return false end
+    local map = placeKey()
+    copySeen = {key=d.key, map=map, zone=zone}
+    local kills = P.char.kills
+    if not (kills and kills.key == d.key) then return false end
+    kills.copies = type(kills.copies) == "table" and kills.copies or {}
+    local known = kills.copies[map]
+    if known == nil then
+        -- A place of the dungeon not yet stood in with these marks: it is theirs now.
+        if next(kills.copies) ~= nil then kills.copies[map] = zone end
+        return false
+    end
+    if known ~= zone then
+        P.char.kills = nil
+        return true
+    end
+    return false
+end
+-- Do the marks belong to the copy the player stands in now: true, false, or nil (not known).
+local function sameCopy(d)
+    local kills = P.char and P.char.kills
+    if not (kills and kills.key == d.key and type(kills.copies) == "table" and copySeen and copySeen.key == d.key) then return nil end
+    local known = kills.copies[copySeen.map]
+    if known == nil then return nil end
+    return known == copySeen.zone
+end
+local function noteCopy(d)
+    local kills = P.char and P.char.kills
+    if kills and copySeen and copySeen.key == d.key and copySeen.map == placeKey() then
+        kills.copies = type(kills.copies) == "table" and kills.copies or {}
+        kills.copies[copySeen.map] = copySeen.zone
+    end
+end
+
 local function fallen(d)
     local db = P.char
     if not db then return {} end
     local now = GetServerTime and GetServerTime() or 0
-    if db.kills and (db.kills.key ~= d.key or now - (db.kills.at or 0) > 14400) then db.kills = nil end
+    -- Marks tied to a copy are kept a day; the others, as before, four hours.
+    local keep = (db.kills and type(db.kills.copies) == "table" and next(db.kills.copies)) and 86400 or 14400
+    if db.kills and (db.kills.key ~= d.key or now - (db.kills.at or 0) > keep) then db.kills = nil end
     return db.kills or {}
 end
 
@@ -859,6 +935,8 @@ function P.EnterRun(d)
     local kills = P.char and P.char.kills
     if not (d and kills) then return false end
     local now = GetServerTime and GetServerTime() or 0
+    -- Marks that know their copy are judged by it (P.SeenCopy), not by the clock.
+    if kills.key == d.key and type(kills.copies) == "table" and next(kills.copies) then return false end
     if kills.key ~= d.key or now - (kills.at or 0) > 2700 then
         P.char.kills = nil
         return true
@@ -869,6 +947,9 @@ end
 function P.Revived(d, npc, name)
     local kills = d and P.char and P.char.kills
     if not kills or kills.key ~= d.key then return false end
+    -- In the very copy the marks were made in a boss does not rise: one alive there is
+    -- another of the same name (or the marks are wrong, and the right button puts them back).
+    if sameCopy(d) == true then return false end
     local run = runs[d.key]
     if run then
         for _, stop in ipairs(run) do
@@ -898,6 +979,7 @@ function P.ToggleKilled(d, npc, name)
     else
         P.char.kills[key] = true
         P.char.kills.at = GetServerTime and GetServerTime() or 0
+        noteCopy(d)
     end
     return true
 end
@@ -1037,6 +1119,7 @@ function P.Killed(d, npc, name)
         P.char.kills = P.char.kills or {}
         P.char.kills.key, P.char.kills.at = d.key, now
         P.char.kills[name] = true
+        noteCopy(d)
         everMark(d, name)
         remember(d, name, true)
         return true
@@ -1055,6 +1138,7 @@ function P.Killed(d, npc, name)
             P.char.kills = P.char.kills or {}
             P.char.kills.key, P.char.kills.at = d.key, GetServerTime and GetServerTime() or 0
             P.char.kills[stop.npc] = true
+            noteCopy(d)
             everMark(d, stop.npc)
             remember(d, stop.npc, true)
             return true

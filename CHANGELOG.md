@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.49.0
+- Best gear: a Gear button on the panel (also /dq gear and the minimap menu) opens a window like the character frame. Every slot shows the best item for your class and talent tree at your level and the next steps (up to 60): the dungeon and boss that drop it, or the quest, vendor or craft that gives it; "equipped", "+N over equipped" or the level it needs. Hover for the item and where it comes from; the figure in the middle wears the set. The lists are those of Timesaver.gg (13 November 2026).
+- A small gold sight at the end of a goal that is one creature (one to kill, or one thing only he drops): a click targets him, like /target. It is set out of combat and stays put in one.
+- Boss kills are kept as long as you are in the same copy of the dungeon, known by the creatures in it: a wipe, a long run back or a /reload no longer forget them. Another copy (a reset, another group) starts afresh.
+- Scarlet Monastery: the wing is known by its map from the first step, so the Cathedral shows the Cathedral's bosses alone.
+- The plate on top leads to the nearest quest to hand in, also when it stands by the dungeon and something far is left.
+- A dungeon put away (right click in the journal, or the menu behind the dots) gives way on the panel to the next one.
+
 ## 3.48.12
 - Fixed for real: a long quest name beside the distance at the right was laid out in the full width and measured as one line, then narrowed to two over the line under it. The name is now set in the width left to it.
 

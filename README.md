@@ -13,6 +13,9 @@ dungeon right in the quest tracker.
   on the world map and the minimap, even under the fog of war: click one to go to its master.
 - **Inside.** Bosses in order, what is left to do at each, and their loot with the best
   items for your class marked.
+- **Best gear.** The Gear button opens a window like the character frame with the best item
+  for every slot for your class and talent tree, at your level and the next ones: which boss
+  of which dungeon drops it or which quest gives it, and how much better it is than what you wear.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
   ones are left to you), and junk quests can be cleared from the log with one button.
 
@@ -57,6 +60,10 @@ GPL-3.0-or-later, see `LICENSE`.
 - Coordinates of the passes between zones were compiled from public sources (the zone
   connection table of Carbonite Classic, RestedXP and Guidelime guide steps) and
   cross-checked against the game's map geometry.
+- The best-gear lists in `GearData.lua` (item, slot, level and source for every class,
+  talent tree and level) are taken from the WoW Forever leveling gear lists of
+  [Timesaver.gg](https://timesaver.gg/tools/wow-forever/leveling-gear) (checked 13 November
+  2026) by `dev/make-gear.py`; the Russian names come from QuestieDB.
 - The pointer hand artwork was generated for this addon.
 - If *Dungeon Quest Atlas* is installed, its dungeon maps are used for the small floor
   plan; nothing of that addon is included here.
@@ -80,6 +87,9 @@ GPL-3.0-or-later, see `LICENSE`.
   для твоего класса. С аддоном *Dungeon Quest Atlas* рядом стоит маленький план этажа
   с путём к следующему боссу; наведи на босса — что он умеет и что с него падает.
   Над предметами, которые можно нажать (гонг, сундук, нужный для задания предмет), висит палец.
+- **Лучшие вещи.** Кнопка «Вещи» открывает окно, как у персонажа: лучшая вещь в каждый слот
+  для твоего класса и ветки талантов на твоём уровне и дальше — с какого босса какого
+  подземелья падает или за какое задание даётся, и насколько она лучше надетой.
 - **Меньше кликов.** Задания берутся и сдаются сами (серые и повторяемые — на твоё усмотрение),
   мусорные задания убираются из журнала одной кнопкой.
 

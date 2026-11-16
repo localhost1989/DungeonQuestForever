@@ -825,6 +825,7 @@ local function create()
                 if db then
                     db.hidden = db.hidden or {}
                     db.hidden[item.d.key] = not db.hidden[item.d.key] or nil
+                    if P.LeaveHidden then P.LeaveHidden() end
                     if P.Refresh then P.Refresh() end
                 end
             elseif item.kind == "dungeon" then

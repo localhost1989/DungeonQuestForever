@@ -1149,6 +1149,7 @@ local function settingsMenu(owner, menu)
     if menu.CreateTitle then menu:CreateTitle(title) end
     menu:CreateButton(L"Журнал: задания, боссы, добыча", function() if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end end)
     menu:CreateButton(L"Список подземелий", slash(""))
+    menu:CreateButton(L"Лучшие вещи для класса", function() if P.ToggleGear then P.ToggleGear() end end)
     if menu.CreateDivider then menu:CreateDivider() end
     if menu.CreateTitle then menu:CreateTitle(L"Настройки") end
     menu:CreateCheckbox(L"Принимать и сдавать задания самому", function() return not db.noAuto end, slash("auto"))
@@ -1335,6 +1336,27 @@ end
 function P.Selected() return selected, result end
 function P.OpenRow(row) openRoute(row) end
 function P.Choose(d) choose(d) end
+-- The dungeon on the panel put away (the owner, 16.11.2026: "hide the dungeons I do not want
+-- to finish any more", by the right button in the journal or in the menu behind the dots):
+-- the panel goes on to the best one left, as on coming in, or to the list when none is.
+function P.LeaveHidden()
+    if not (db and db.hidden and selected and db.hidden[selected.key]) then return end
+    countsDirty = true
+    rebuildList()
+    local level = UnitLevel and UnitLevel("player") or 1
+    local best, bestScore
+    for _, d in ipairs(visible) do
+        if d.key and not db.hidden[d.key] then
+            local score = -math.max(0, (d.minLevel or level) - level, level - (d.maxLevel or level))
+            for _, id in ipairs(d.quests or {}) do
+                local idx = C_QuestLog.GetLogIndexForQuestID(id)
+                if idx and idx > 0 then score = score + 100 end
+            end
+            if not best or score > bestScore then best, bestScore = d, score end
+        end
+    end
+    if best then choose(best) else browse() end
+end
 
 local SHORT_DOOR = {[L"Ко входу"]=L"Вход", [L"К порталу"]=L"Портал", [L"К телепорту"]=L"Телепорт", [L"К выходу"]=L"Выход"}
 local DOOR_ICON = {Horde="Interface\\Icons\\INV_Misc_Map_01", Alliance="Interface\\Icons\\INV_Misc_Map_01"}   -- (ChatGPT's choice: the map of the way)
@@ -1513,6 +1535,9 @@ local function linkRow(self, items)
     -- ("Поделиться") takes the room it needs and the others share the rest.
     local room = (tonumber(self.GetWidth and self:GetWidth()) or 260) - 4
     local rows = {}
+    -- Three to a row; four or more that do not fit one row are shared out evenly (2 + 2).
+    local perRow = math.ceil(#items / math.max(1, math.ceil(#items / 3)))
+    local naturalSum = 0
     for i, item in ipairs(items) do
         local button = navButton(nav, i)
         button:Plain(false)
@@ -1521,9 +1546,14 @@ local function linkRow(self, items)
         button:Pill(item.icon)
         button.label:SetText(item.text)
         button.natural = (tonumber(button.label:GetStringWidth()) or 50) + (item.icon and 24 or 0) + 12
-        local r = math.floor((i - 1) / 3) + 1
+        naturalSum = naturalSum + button.natural
+    end
+    if naturalSum + 4 * (#items - 1) <= room then perRow = math.max(1, #items) end
+    if #items == 4 and naturalSum + 12 > room then perRow = 2 end
+    for i = 1, #items do
+        local r = math.floor((i - 1) / perRow) + 1
         rows[r] = rows[r] or {}
-        table.insert(rows[r], button)
+        table.insert(rows[r], nav.buttons[i])
     end
     for r, list in ipairs(rows) do
         local sum = 0
@@ -1543,7 +1573,7 @@ local function linkRow(self, items)
     end
     for i = #items + 1, #nav.buttons do nav.buttons[i]:Hide() end
     nav:SetShown(#items > 0)
-    local rows = #items > 0 and math.ceil(#items / 3) or 0
+    local rows = #rows
     nav.rows = rows
     self.fromHeaderOffsetY = #items > 0 and -(12 + (rows - 1) * 32 + 28) or -6
 end
@@ -1573,6 +1603,12 @@ local function drawNav(self, options)
                 -- says what it does, the scroll of a quest by it.
                 items[#items+1] = {text=L"Поделиться", tip=L"Поделиться с группой всеми заданиями этого подземелья, что у тебя в журнале, и попросить в чате группы недостающие. Аддон у других поделится ими сам.",
                     icon="Interface\\Icons\\INV_Scroll_03", link=function() P.ShareWithGroup() end}
+            end
+            -- The owner: "a button in sight, and by it the best things for my class." The
+            -- window of them, as ChatGPT drew it: the fourth word of the row.
+            if P.ToggleGear then
+                items[#items+1] = {text=L"Вещи", tip=L"Лучшие вещи для твоего класса и ветки талантов на твоём уровне и дальше: где каждая падает или за какое задание даётся.",
+                    icon="Interface\\Icons\\INV_Chest_Cloth_17", link=function() P.ToggleGear() end}
             end
         end
         -- The junk in the quest log, when there is any: a word that opens the list of it.
@@ -1691,6 +1727,8 @@ local function addLine(block, key, text, single)
     local hide = (ObjectiveTrackerDashStyle and ObjectiveTrackerDashStyle.Hide) or OBJECTIVE_DASH_STYLE_HIDE or 2
     local line = block:AddObjective(key, text, nil, true, hide)
     if type(line) == "table" and type(line.Dash) == "table" and line.Dash.Hide then pcall(line.Dash.Hide, line.Dash) end
+    -- A line lent before to a goal with a sight keeps no sight.
+    if type(line) == "table" then line.targetName = nil end
     -- A line lent before to a step of a chain keeps no click of it.
     if type(line) == "table" and line.stepOf then
         line.stepOf, line.rowOf = nil, nil
@@ -1718,6 +1756,111 @@ local function addLine(block, key, text, single)
         end)
     end
     return line
+end
+
+-- The owner by the Razorfen (16.11.2026): "I can't find Malcin. On a quest with one elite
+-- mob, a small button that takes him as the target." As ChatGPT drew it and the owner
+-- approved: a small gold sight at the end of the goal's line, and over it "Take as target:
+-- Ambassador Malcin. Works when he is near." A click is /target with his name. Only the
+-- game's secure buttons may target, and they may not be shown, hidden or moved in a fight:
+-- the sights stand on the screen by themselves (not on the panel, which a fight redraws),
+-- are put beside their lines out of a fight, and stay where they are in one.
+local targetLines = setmetatable({}, {__mode="k"})
+local targetPool = {}
+local function targetLine(block, line, name)
+    if not (type(line) == "table" and type(line.Text) == "table" and type(name) == "string" and name ~= "") then return end
+    -- The words make room for the sight on the right.
+    pcall(function()
+        local width = line.Text:GetWidth()
+        if type(width) == "number" and width > 80 then
+            local old = line:GetHeight()
+            line.Text:SetWidth(width - 20)
+            line.Text:SetHeight(0)
+            local new = line.Text:GetHeight()
+            if old and new and new > 0 and new ~= old then
+                line:SetHeight(new)
+                if type(block.height) == "number" then block.height = block.height + (new - old) end
+            end
+        end
+    end)
+    line.targetName = name
+    targetLines[line] = true
+end
+local function targetButton(i)
+    if targetPool[i] then return targetPool[i] end
+    local ok, b = pcall(CreateFrame, "Button", "DungeonQuestForeverTarget" .. i, UIParent, "SecureActionButtonTemplate")
+    if not ok or not b then return end
+    b:SetSize(16, 16)
+    b:SetFrameStrata("HIGH")
+    pcall(b.RegisterForClicks, b, "AnyUp", "AnyDown")
+    b:SetAttribute("type", "macro")
+    b.back = b:CreateTexture(nil, "BACKGROUND")
+    b.back:SetAllPoints(b)
+    if b.back.SetColorTexture then b.back:SetColorTexture(.08, .06, .04, .9) end
+    b.rim = {}
+    for k, edge in ipairs({{"TOPLEFT", "TOPRIGHT"}, {"BOTTOMLEFT", "BOTTOMRIGHT"}, {"TOPLEFT", "BOTTOMLEFT"}, {"TOPRIGHT", "BOTTOMRIGHT"}}) do
+        local t = b:CreateTexture(nil, "BORDER")
+        t:SetPoint(edge[1], b, edge[1], 0, 0)
+        t:SetPoint(edge[2], b, edge[2], 0, 0)
+        if k <= 2 then t:SetHeight(1) else t:SetWidth(1) end
+        if t.SetColorTexture then t:SetColorTexture(.85, .68, .25, 1) end
+        b.rim[k] = t
+    end
+    b.icon = b:CreateTexture(nil, "ARTWORK")
+    b.icon:SetPoint("TOPLEFT", b, "TOPLEFT", 1, -1)
+    b.icon:SetPoint("BOTTOMRIGHT", b, "BOTTOMRIGHT", -1, 1)
+    b.icon:SetTexture("Interface\\CURSOR\\Crosshairs")
+    if b.icon.SetVertexColor then b.icon:SetVertexColor(1, .82, .3) end
+    b:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
+    b:SetScript("OnEnter", function(self)
+        if not GameTooltip then return end
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        GameTooltip:AddLine((L"Взять в цель: %s"):format(self.who or ""), 1, .82, .25)
+        GameTooltip:AddLine(L"Работает, когда он рядом.", 1, 1, 1, true)
+        GameTooltip:Show()
+    end)
+    b:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+    targetPool[i] = b
+    return b
+end
+-- Each sight beside its line, out of a fight; the ones no line asks for, hidden.
+local function placeTargets()
+    if InCombatLockdown and InCombatLockdown() then return end
+    local used = 0
+    for line in pairs(targetLines) do
+        if not line.targetName then
+            targetLines[line] = nil
+        elseif line.IsVisible and line:IsVisible() and type(line.Text) == "table" then
+            local right, top = line.Text:GetRight(), line:GetTop()
+            local b = right and top and targetButton(used + 1)
+            if b then
+                used = used + 1
+                local mine, theirs = line:GetEffectiveScale(), UIParent:GetEffectiveScale()
+                if mine and theirs and theirs > 0 then b:SetScale(mine / theirs) end
+                b:ClearAllPoints()
+                b:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", right + 4, top)
+                if b.who ~= line.targetName then
+                    b.who = line.targetName
+                    b:SetAttribute("macrotext", "/target " .. line.targetName)
+                end
+                b:Show()
+            end
+        end
+    end
+    for i = used + 1, #targetPool do targetPool[i]:Hide() end
+end
+P.PlaceTargets = placeTargets
+do
+    local keeper = CreateFrame and CreateFrame("Frame")
+    local wait = 0
+    if keeper then
+        keeper:SetScript("OnUpdate", function(_, elapsed)
+            wait = wait - (elapsed or 0)
+            if wait > 0 then return end
+            wait = .25
+            placeTargets()
+        end)
+    end
 end
 
 -- A line struck through: a step of a chain that is done. (The owner: "the task is struck
@@ -1913,11 +2056,21 @@ local function goalLines(block, id, fallback)
     local goals = goalsOf(id)
     if not goals then return end
     local current = ledGoal(id) or fallback
+    -- The goals that are one creature: his name, for the sight.
+    local whom = {}
+    if atlas.QuestWork then
+        local ok, spots = pcall(atlas.QuestWork, id, selected)
+        for _, spot in ipairs(ok and spots or {}) do
+            if spot.target and spot.text then whom[spot.text] = spot.target end
+        end
+    end
     for i, goal in ipairs(goals) do
         -- Done: struck out, without the count ("5/5" said nothing the stroke does not).
         if goal.done then addStruck(block, "goal" .. i, "|cff8e8c87- " .. (goal.text:gsub(":%s*%d+%s*/%s*%d+%s*$", "")) .. "|r")
-        elseif goal.text == current then addLine(block, "goal" .. i, "|cffffffff- " .. goal.text .. "|r")
-        else addLine(block, "goal" .. i, "|cffbcb7ab- " .. goal.text .. "|r") end
+        else
+            local line = addLine(block, "goal" .. i, (goal.text == current and "|cffffffff- " or "|cffbcb7ab- ") .. goal.text .. "|r")
+            if whom[goal.text] then targetLine(block, line, whom[goal.text]) end
+        end
     end
     return true
 end
@@ -2584,7 +2737,10 @@ local function layout(self)
                         if line:sub(1, #give) == give and (after == "" or after == " " or after == ":") then
                             addLine(block, "act", "|cff71c886" .. L"Сдай" .. "|r|cffe6e0d2" .. line:sub(#give + 1) .. "|r")
                         else
-                            addLine(block, "act", "|cffe6e0d2" .. line .. "|r")
+                            local said = addLine(block, "act", "|cffe6e0d2" .. line .. "|r")
+                            -- One creature to find: the sight at the end of the line.
+                            local whom = entry.working and entry.work and entry.work.target
+                            if whom and not goalsOf(entry.step or entry.id) then targetLine(block, said, whom) end
                         end
                     end
                     if entry.working then goalLines(block, entry.step or entry.id, entry.work and entry.work.text) end
@@ -2780,6 +2936,7 @@ local function dungeonMenu(owner, menu)
     local function move(d)
         return function()
             db.hidden[d.key] = not db.hidden[d.key] or nil
+            P.LeaveHidden()
             P.Refresh()
             return again()
         end
@@ -3770,7 +3927,7 @@ local function initialize()
     -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
     -- addon know there is an update and what is new"): a few lines in the chat, seconds
     -- after coming in. Not to a character new to the addon: the welcome page is for him.
-    local NEWS = "3.48.0"
+    local NEWS = "3.49.0"
     if not db.welcomed then
         db.newsSeen = NEWS
     elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
@@ -3779,9 +3936,9 @@ local function initialize()
             db.newsSeen = NEWS
             say(L"обновление " .. NEWS .. L", что нового:")
             for _, line in ipairs({
-                L"• пять новых подземелий Forever: Затонувший город, Крепость Крол'док, Тюрьма Альказа, Цитадель Чернопасти, Терраса ваятеля — со входом и заданиями, какие уже известны",
-                L"• взятые задания разделены: «Сделать до входа», «Сделать у входа», «Взято, делается внутри»; когда осталось только у входа — «можно идти в подземелье»",
-                L"• у трудных мест есть «как найти», а к целям в пещере у входа стрелка ведёт через вход в пещеру",
+                L"• кнопка «Вещи»: лучшие вещи для твоего класса и ветки на твоём уровне и дальше — с какого босса или за какое задание",
+                L"• золотой прицел у цели, где нужен один моб: щелчок берёт его в цель",
+                L"• убитые боссы помнятся, пока вы в той же копии подземелья; в Монастыре видны боссы только твоего крыла",
             }) do
                 if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
             end
@@ -4589,9 +4746,16 @@ function P.Refresh()
                     -- in the header; the plate leads to the first errand one has to run for.
                     -- The plate leads to the nearest thing to run for out here (the owner: "the
                     -- nearest is the goal to take first"); the stages as before where none is.
+                    -- (The owner, 16.11.2026, by the Razorfen with two to hand in: the plate sent
+                    -- him over the sea to Undercity while the other, 170 yards off, stood by the
+                    -- door and was passed over as "by the dungeon". While something far is left, a
+                    -- hand-in is a hand-in: the nearest one leads, wherever it stands. With nothing
+                    -- far left, the plate says "go in" and the hand-in by the door is "on the way".)
+                    local farLeft = false
+                    for _, row in ipairs(errands) do farLeft = farLeft or row.stage == 1 end
                     local lead, leadYards
                     for _, row in ipairs(errands) do
-                        if row.stage == 1 then
+                        if row.stage == 1 or (farLeft and row.handin and row.stage == 3) then
                             local y = (row.place and P.Distance and P.Distance(row.place)) or math.huge
                             if not lead or y < leadYards then lead, leadYards = row, y end
                         end
@@ -4601,7 +4765,7 @@ function P.Refresh()
                             if row.stage ~= 2 then lead = row break end
                         end
                     end
-                    if lead and lead.stage ~= 3 then
+                    if lead and (lead.stage ~= 3 or (lead.handin and farLeft)) then
                         local who = lead.place and atlas.PlaceName(lead.place)
                         local zone = lead.place and lead.place.mapID and atlas.ZoneName(lead.place.mapID)
                         local far = P.Reach(lead.place)
@@ -4857,6 +5021,7 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
             pcall(function()
                 for slot = 1, GetNumLootItems() do
                     local guid = GetLootSourceInfo(slot)
+                    if P.SeenCopy and P.SeenCopy(d, guid) then news = true end
                     local npc = atlas.NpcIDFromGUID(atlas.PlainText(guid))
                     if npc and P.Killed(d, npc) then news = true end
                 end
@@ -4876,8 +5041,16 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
     end
     if sightings[event] or event == "NAME_PLATE_UNIT_ADDED" then
         if db then
-            P.SeenUnit(sightings[event] or id)
-            if seenDead(sightings[event] or id) and not pending then P.Refresh() end
+            local unit = sightings[event] or id
+            P.SeenUnit(unit)
+            -- Every creature inside tells the copy of the dungeon the group is in: the marks of
+            -- the dead belong to one copy (P.SeenCopy).
+            local d = P.SeenCopy and UnitGUID and unit and not (issecretvalue and issecretvalue(unit)) and atlas.CurrentDungeon and atlas.CurrentDungeon()
+            if d and not (UnitIsPlayer and UnitIsPlayer(unit)) then
+                local ok, guid = pcall(UnitGUID, unit)
+                if ok and guid and not (issecretvalue and issecretvalue(guid)) and P.SeenCopy(d, guid) and not pending then P.Refresh() end
+            end
+            if seenDead(unit) and not pending then P.Refresh() end
         end
         return
     end
@@ -4965,6 +5138,10 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
     -- column of tasks.
     if msg and msg:match("^%s*book%s*$") then
         if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end
+        return
+    end
+    if msg and msg:match("^%s*gear%s*$") then
+        if P.ToggleGear then P.ToggleGear() end
         return
     end
     local size = msg and msg:match("^%s*size%s*([%d%.,]*)%s*$")
