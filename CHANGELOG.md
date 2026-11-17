@@ -1,5 +1,8 @@
 # Changelog
 
+## 3.50.1
+- Inside Uldaman, the quests done in the tunnels before the portal (the Tablet of Ryun'eh, the Garrett and Stoutarm chests) say "outside, before the portal": a click tells you to do them on the way out, and no longer sets the arrow to the entrance.
+
 ## 3.50.0
 - A boss in the list shows your best item when it drops from him (up to two, from the best-gear lists for your class, talent tree and level), with its icon and name.
 - Under the next boss, a short tip on how to fight him: 132 bosses have one.

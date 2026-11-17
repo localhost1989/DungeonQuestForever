@@ -692,7 +692,9 @@ function P.TaskHint(row)
             if row.atBoss then return (L"босс: ") .. row.atBoss end
             local needs = P.Needs(row.step or row.id)
             if #needs == 0 then return end
-            return (L"осталось: ") .. P.NeedText(needs[1]) .. (#needs > 1 and (L" и ещё " .. (#needs - 1)) or "")
+            -- Done out there, not in here: said, so that nobody looks for it inside.
+            local out = IsInInstance and IsInInstance() and row.work and row.work.mapID and (row.work.cave and (L" • снаружи, перед порталом") or (L" • снаружи"))
+            return (L"осталось: ") .. P.NeedText(needs[1]) .. (#needs > 1 and (L" и ещё " .. (#needs - 1)) or "") .. (out or "")
         end
         if row.task == L"готово" then
             if row.handInside then return (L"сдать здесь") .. (type(row.handInside) == "string" and (": " .. row.handInside) or "") end
@@ -806,6 +808,15 @@ function P.Route(d,row, automatic, quiet)
     local finishing = active(id) and C_QuestLog.IsComplete(id)
     local place, label, kind
     if active(id) and not finishing then
+        -- Inside, a goal that lies out there (the Tablet of Ryun'eh in the tunnels before the
+        -- Uldaman portal) is said, not pointed at: the owner, 17.11.2026, inside: "it keeps
+        -- leading the arrows to the entrance, I do not understand anything."
+        if row.work and row.work.mapID and P.InDungeon(d) then
+            if automatic then return end
+            local what = row.work.name or title
+            return (row.work.cave and (L"Это снаружи, в пещере перед порталом: ") or (L"Это снаружи: "))
+                .. what .. L". Сделай на выходе.", "outside"
+        end
         -- The place where its open goal is done, when the database knows one outside.
         place = row.work and row.work.mapID and row.work or activeObjective(id)
         label, kind = row.work and row.work.name or title, "objective"
