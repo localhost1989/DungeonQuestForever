@@ -32,8 +32,8 @@ for i in sorted(items):
         if s[0] in "dnv" and s[4]: ask.append("npc %d" % s[4])
         if s[0] == "q" and s[4]: ask.append("quest %d" % s[4])
 env = dict(os.environ)
-env.setdefault("QDB_ROOT", "/private/tmp/claude-501/-Users-aleksey-Documents/ca2fbd79-cd6b-413f-b39c-cf98ef669709/scratchpad/qdb111/unz/QuestieDB/")
-said = subprocess.run(["/private/tmp/dprep-lua54/lua", "make-gear-names.lua"], input="\n".join(sorted(set(ask))) + "\n",
+env.setdefault("QDB_ROOT", os.path.join(os.path.dirname(os.path.abspath(__file__)), "QuestieDB") + "/")
+said = subprocess.run([os.environ.get("LUA", "lua"), "make-gear-names.lua"], input="\n".join(sorted(set(ask))) + "\n",
     capture_output=True, text=True, env=env, check=True).stdout
 ru, area = {}, {}
 for line in said.splitlines():

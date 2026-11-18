@@ -692,9 +692,7 @@ function P.TaskHint(row)
             if row.atBoss then return (L"босс: ") .. row.atBoss end
             local needs = P.Needs(row.step or row.id)
             if #needs == 0 then return end
-            -- Done out there, not in here: said, so that nobody looks for it inside.
-            local out = IsInInstance and IsInInstance() and row.work and row.work.mapID and (row.work.cave and (L" • снаружи, перед порталом") or (L" • снаружи"))
-            return (L"осталось: ") .. P.NeedText(needs[1]) .. (#needs > 1 and (L" и ещё " .. (#needs - 1)) or "") .. (out or "")
+            return (L"осталось: ") .. P.NeedText(needs[1]) .. (#needs > 1 and (L" и ещё " .. (#needs - 1)) or "")
         end
         if row.task == L"готово" then
             if row.handInside then return (L"сдать здесь") .. (type(row.handInside) == "string" and (": " .. row.handInside) or "") end
@@ -762,7 +760,12 @@ local dalaranSteps = {
 
 function P.InDungeon(d)
     local _, kind, _, _, _, _, _, instance = GetInstanceInfo()
-    return d and d.instanceID and instance == d.instanceID and (kind == "party" or kind == "raid")
+    if not (d and (kind == "party" or kind == "raid")) then return false end
+    -- One of Forever's own, whose number is learned by its name the first time in: asked
+    -- here too, or inside Alcaz Prison the arrow went to the entrance (the run over every
+    -- quest, 17.11.2026).
+    if not d.instanceID and atlas.CurrentDungeon then atlas.CurrentDungeon() end
+    return d.instanceID ~= nil and instance == d.instanceID
 end
 
 -- Reuse the atlas staircase as an intermediate landmark, not as the book's coordinates.
@@ -816,6 +819,13 @@ function P.Route(d,row, automatic, quiet)
             local what = row.work.name or title
             return (row.work.cave and (L"Это снаружи, в пещере перед порталом: ") or (L"Это снаружи: "))
                 .. what .. L". Сделай на выходе.", "outside"
+        end
+        -- Inside, a goal whose place in here is known: the floor with its spot, and where in
+        -- words (P.InsideSpots, BossRoute.lua).
+        if P.InDungeon(d) and not dalaranSteps[id] and P.InsideSpots and P.InsideSpots[id] then
+            local where = P.WhereInside and P.WhereInside(row)
+            local shown = not automatic and P.ShowGoal and P.ShowGoal(d, id)
+            if where or shown then return (where or title), "floor" end
         end
         -- The place where its open goal is done, when the database knows one outside.
         place = row.work and row.work.mapID and row.work or activeObjective(id)
@@ -1090,6 +1100,7 @@ end
 -- Abandon the quests given, as the button of the quest log does. Returns how many the
 -- game let go at once (the log answers a moment later; P.StillInLog tells what stayed).
 function P.AbandonQuests(list)
+    if #list > 0 then if P.Track then P.Track("JunkRemoved") end end
     local sent = 0
     for _, quest in ipairs(list) do
         local ok = pcall(function()
@@ -1140,11 +1151,13 @@ function P.QuestHands(event)
         elseif AcceptQuest then
             AcceptQuest()
         end
+        if P.Track then P.Track("AutoAccepted") end
         return "accept"
     elseif event == "QUEST_PROGRESS" then
         local id = GetQuestID and GetQuestID()
         if inLog(id) and IsQuestCompletable and IsQuestCompletable() and CompleteQuest then
             CompleteQuest()
+            if P.Track then P.Track("AutoTurnedIn") end
             return "complete"
         end
     elseif event == "QUEST_COMPLETE" then
@@ -1214,6 +1227,8 @@ local function note(event, did, err)
     while #db.handsLog > 40 do table.remove(db.handsLog, 1) end
 end
 function P.QuestHandsEvent(event)
+    -- What the quest gives is read first, while its window is open (Book.lua).
+    if P.KeepReward then pcall(P.KeepReward, event) end
     local ok, did = pcall(P.QuestHands, event)
     note(event, ok and did or nil, not ok and did or nil)
     if not ok or not (C_Timer and C_Timer.After) then return end

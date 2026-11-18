@@ -47,9 +47,11 @@ def russian(name):
     a, b = text.find("-- BEGIN LOOT"), text.find("-- END LOOT")
     if a >= 0 and b >= 0: skip = (a, b)
     c, d = text.find("-- LOCALE BEGIN"), text.find("-- LOCALE END")
+    # The places inside the dungeons carry both tongues themselves (make-inside-lua.py).
+    g, h = text.find("-- BEGIN INSIDE SPOTS"), text.find("-- END INSIDE SPOTS")
     out = []
     for kind, s, e in tokens(text):
-        if kind != "string" or (skip[0] <= s < skip[1]) or (c >= 0 and c <= s < d): continue
+        if kind != "string" or (skip[0] <= s < skip[1]) or (c >= 0 and c <= s < d) or (g >= 0 and g <= s < h): continue
         if text[s] != '"' or not CYR.search(text[s:e]): continue
         out.append((s, e))
     return text, out

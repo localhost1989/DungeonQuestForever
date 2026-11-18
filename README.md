@@ -11,7 +11,9 @@ dungeon right in the quest tracker.
   mage teleports, and on foot it follows walkable paths around mountains and cliffs
   instead of a straight line. Flight points you have not discovered yet are shown in silver
   on the world map and the minimap, even under the fog of war: click one to go to its master.
-- **Inside.** Bosses in order, what is left to do at each, and their loot with the best
+- **Inside: the way to every boss.** The game shows no map and no position inside a dungeon,
+  so the addon says in a line or two how to walk to the next boss from the last one, in every
+  classic dungeon. Bosses in order, what is left to do at each, and their loot with the best
   items for your class marked.
 - **Best gear.** The Gear button opens a window like the character frame with the best item
   for every slot for your class and talent tree, at your level and the next ones: which boss
@@ -67,6 +69,13 @@ GPL-3.0-or-later, see `LICENSE`.
 - The quests of Alcaz Prison and Shaper's Terrace, and the bosses' tips, were compiled from
   the WoW Forever database of [Wowhead](https://www.wowhead.com/wow-forever/) (checked
   16 November 2026) by `dev/make-forever-quests.py` and `dev/make-boss-tips.py`.
+- The quest rewards in `Book.lua` were compiled from the [VMaNGOS](https://github.com/vmangos/core)
+  world database (GPL-2.0) and the WoW Forever database of Wowhead by `dev/make-rewards.py` and
+  `dev/make-rewards-lua.py`; the game's own answer is read in play and preferred.
+- Where the goals of the quests lie inside (`P.InsideSpots`) was computed by
+  `dev/make-inside-spots.py` from the spawn points of the [AzerothCore](https://github.com/azerothcore/azerothcore-wotlk)
+  world database (GPL-2.0) and the client's map tables served by [wago.tools](https://wago.tools).
+- The walking directions to the bosses were written for this addon from public dungeon guides.
 - The pointer hand artwork was generated for this addon.
 - If *Dungeon Quest Atlas* is installed, its dungeon maps are used for the small floor
   plan; nothing of that addon is included here.
@@ -86,8 +95,10 @@ GPL-3.0-or-later, see `LICENSE`.
   и на миникарте, даже под туманом войны: щелчок ведёт к распорядителю.
 - **Группа.** Кнопка «Поделиться» раздаёт группе твои задания этого подземелья и просит
   в чате группы недостающие. У кого стоит аддон, поделятся сами.
-- **Внутри.** Боссы по порядку, что осталось сделать у каждого, их добыча с пометкой лучшего
-  для твоего класса. С аддоном *Dungeon Quest Atlas* рядом стоит маленький план этажа
+- **Внутри: путь к каждому боссу.** Внутри подземелья игра не показывает ни карты, ни где ты,
+  поэтому аддон одной-двумя строками говорит, как дойти от прошлого босса до следующего, во всех
+  классических подземельях. Боссы по порядку, что осталось сделать у каждого, их добыча с пометкой
+  лучшего для твоего класса. С аддоном *Dungeon Quest Atlas* рядом стоит маленький план этажа
   с путём к следующему боссу; наведи на босса — что он умеет и что с него падает.
   Над предметами, которые можно нажать (гонг, сундук, нужный для задания предмет), висит палец.
 - **Лучшие вещи.** Кнопка «Вещи» открывает окно, как у персонажа: лучшая вещь в каждый слот
@@ -122,4 +133,8 @@ Players who enable analytics in Wago App can contribute usage statistics. The ad
 
 Click the bug icon next to Close in the quest book, or type `/dq bug`. Copy the link into your browser and choose which diagnostics to include in the GitHub issue.
 
-For maintainers, compare the number of participating sessions at each consecutive `Flow_` step. Open the quest book, read a quest, request directions. `Reached_` flags independent actions, and `Count_` records their frequency. `LastAction` is the last observed action within that UI load. Its codes are 1 = Loaded, 2 = BookOpened, 3 = DungeonChosen, 4 = QuestRead, 5 = BossRead, 6 = RouteRequested, 7 = ReportOpened, 8 = LootOpened. A session can end normally at any step.
+For maintainers, compare the number of participating sessions at each consecutive `Flow_` step. Open the quest book, read a quest, request directions. `Reached_` flags independent actions, and `Count_` records their frequency. `LastAction` is the last observed action within that UI load. Its codes are 1 = Loaded, 2 = BookOpened, 3 = DungeonChosen, 4 = QuestRead, 5 = BossRead, 6 = RouteRequested, 7 = ReportOpened, 8 = LootOpened, 9 = GearOpened, 10 = ArrowRemoved, 11 = TeleportUsed, 12 = FlightPointClicked, 13 = StepClicked, 14 = SharedWithGroup, 15 = AutoAccepted, 16 = AutoTurnedIn, 17 = JunkRemoved, 18 = FloorPlanOpened, 19 = FloorPlanToggled, 20 = DungeonHidden, 21 = DoorPicked, 22 = SettingsMenuOpened, 23 = DungeonMenuOpened, 24 = WelcomeShown, 25 = Command, 26 = PanelCollapsed, 27 = NewRun, 28 = EnteredDungeon, 29 = BossKilled, 30 = ToldGroup, 31 = MetAddonUser, 32 = RewardClicked, 33 = BookModeSwitched. A session can end normally at any step.
+
+`Cmd_<word>` counts the `/dq` words and the settings menu, which goes through them (only a fixed list of words). The `Off_` switches (and `On_DarkBack`) are read once a session and tell which settings players have turned off. A `Reached_` flag that stays off everywhere marks a part of the addon nobody uses.
+
+In a dungeon group the addon says once in the group chat what it is, to group mates who do not have it yet (again after two hours, and not more often than every 20 minutes). The settings menu turns it off.

@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.51.0
+- The way to every boss: inside a dungeon the game shows no map and no position, so under the next boss a line or two say how to walk to him from the last one. 164 bosses of the 18 classic dungeons have them.
+- Where a goal is inside: a quest you have taken says where in the dungeon its goal lies ("near boss ...", "outside, before the portal", "all over the dungeon"), and with Dungeon Quest Atlas installed the spot is shown on its floor plan.
+- Rewards in the journal: every quest page shows what it gives (the items to choose from, the items given, the money), with the item icons, a green arrow on the ones better than what you wear, and Shift-click into the chat. What the game itself shows at the quest giver or in your log is remembered and stands over the database.
+- A new copy of a dungeon (another group, a reset) clears the killed bosses by itself as soon as the creatures around show it is another copy.
+- Dire Maul: its wings are known as Dire Maul, so the panel no longer loses the dungeon inside.
+- The last step of a chain that is only a hand-in in a city (the Platinum Discs to Thunder Bluff) is kept with its dungeon and gets its line and its road.
+- Sunken Temple: the two dragons come after Jammal'an and Ogom, as they do in the game.
+- Item names, colours and links are read through the game's newer item functions too, where the old one is missing.
+- In a dungeon group, a short line about the addon goes once to each new group mate who has not got it (again after two hours, not more often than every 20 minutes). The settings menu turns it off.
+- Usage statistics through Wago App (for those who turned them on there) now count every button and setting, so we can see what is used and what is not. No names, text or places are sent.
+
 ## 3.50.1
 - Inside Uldaman, the quests done in the tunnels before the portal (the Tablet of Ryun'eh, the Garrett and Stoutarm chests) say "outside, before the portal": a click tells you to do them on the way out, and no longer sets the arrow to the entrance.
 

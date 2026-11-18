@@ -173,6 +173,7 @@ local function showTeleport(hop, target)
         teleport.title:SetPoint("TOP", teleport, "BOTTOM", 0, -3)
         teleport.note = teleport:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         teleport.note:SetPoint("TOP", teleport.title, "BOTTOM", 0, -2)
+        teleport:HookScript("PostClick", function() if P.Track then P.Track("TeleportUsed") end end)
         teleport:SetScript("OnEnter", function(self)
             GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
             if self.spell and GameTooltip.SetSpellByID then GameTooltip:SetSpellByID(self.spell) end
@@ -785,7 +786,7 @@ local function openRoute(entry, noCard)
     end
     if entry.entrance then
         -- The line clicked is the point wanted, whichever the arrow would take by itself.
-        if entry.option and P.PickDoor then P.PickDoor(selected, entry.option.id) end
+        if entry.option and P.PickDoor then P.PickDoor(selected, entry.option.id); if P.Track then P.Track("DoorPicked") end end
         local point = P.Door(selected)
         if point then
             local name = P.DoorLabel(selected)
@@ -898,6 +899,7 @@ end
 local AUTHOR_LINK = "github.com/localhost1989/DungeonQuestForever"      -- the page of the addon; the line is not shown when this is empty
 local welcome
 function P.ShowWelcome()
+    if P.Track then P.Track("WelcomeShown") end
     if not welcome then
         local W, H = 560, 440
         local ok, frame = pcall(CreateFrame, "Frame", "DungeonQuestForeverWelcome", UIParent, "BasicFrameTemplateWithInset")
@@ -1212,6 +1214,7 @@ function P.MinimapButton()
             if mouse == "RightButton" then
                 if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end
             elseif MenuUtil and MenuUtil.CreateContextMenu then
+                if P.Track then P.Track("SettingsMenuOpened") end
                 MenuUtil.CreateContextMenu(self, settingsMenu)
             else
                 SlashCmdList.FOREVERDUNGEONPREP("")
@@ -1330,6 +1333,20 @@ if CreateFrame and UIParent then
     pcall(soft.RegisterEvent, soft, "PLAYER_REGEN_ENABLED")
     soft:SetScript("OnEvent", function(_, event, _, newTarget)
         if event == "PLAYER_SOFT_INTERACT_CHANGED" then pcall(P.SoftTargetChanged, newTarget) else pcall(P.SoftTargetChanged) end
+    end)
+end
+
+-- A room walked into where a quest taken wants something: said in the middle of the screen.
+if CreateFrame and UIParent then
+    local rooms = CreateFrame("Frame", "DungeonQuestForeverRooms", UIParent)
+    pcall(rooms.RegisterEvent, rooms, "ZONE_CHANGED_INDOORS")
+    pcall(rooms.RegisterEvent, rooms, "ZONE_CHANGED")
+    pcall(rooms.RegisterEvent, rooms, "ZONE_CHANGED_NEW_AREA")
+    rooms:SetScript("OnEvent", function(_, event)
+        if event == "ZONE_CHANGED_NEW_AREA" and P.RoomNewsReset then P.RoomNewsReset() end
+        local d = atlas.CurrentDungeon and atlas.CurrentDungeon()
+        if d and P.RoomNews then pcall(P.RoomNews, d) end
+        if d and P.Refresh then pcall(P.Refresh) end
     end)
 end
 
@@ -1967,6 +1984,7 @@ end
 stepClick = function(line)
     local id, entry = line.stepOf, line.rowOf
     if not (id and entry) then return end
+    if P.Track then P.Track("StepClicked") end
     local current = entry.step or entry.id
     if id == current then openRoute(entry) return end
     if C_QuestLog.IsQuestFlaggedCompleted(id) then
@@ -2503,6 +2521,9 @@ local function layout(self)
                 -- The hint goes under the name: beside it the line ran over the column.
                 block:SetHeader("  " .. tone .. entry.task .. ":|r «" .. title .. "»")
                 if hint then addLine(block, "left", hint) end
+                -- Where in here (the owner, 17.11.2026: "nothing is clear in the dungeons").
+                local where = entry.task == L"взято" and P.WhereInside and P.WhereInside(entry)
+                if where then addLine(block, "where", where) end
                 if entry.task == L"не взято" and entry.byBoss then addLine(block, "by", L"у босса: " .. entry.byBoss) end
             elseif entry.prep then
                 -- The quest under its own name; under it, what to do about it and where.
@@ -3023,7 +3044,7 @@ local function createPickMenu()
     button:SetScript("OnClick", function(self, mouse)
         GameTooltip:Hide()
         if mouse == "RightButton" then
-            if plain then MenuUtil.CreateContextMenu(self, dungeonMenu) end
+            if plain then if P.Track then P.Track("DungeonMenuOpened") end; MenuUtil.CreateContextMenu(self, dungeonMenu) end
             return
         end
         if P.OpenBook then P.OpenBook(selected) end
@@ -3169,7 +3190,7 @@ local function newBoard()
     minimize:SetPoint("RIGHT", header, "RIGHT", -10, -2)
     minimize:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-Up")
     minimize:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
-    minimize:SetScript("OnClick", function() board:SetCollapsed(not board:IsCollapsed()) end)
+    minimize:SetScript("OnClick", function() if not board:IsCollapsed() then if P.Track then P.Track("PanelCollapsed") end end board:SetCollapsed(not board:IsCollapsed()) end)
     minimize:SetScript("OnEnter", function()
         GameTooltip:SetOwner(minimize, "ANCHOR_LEFT")
         GameTooltip:SetText(board:IsCollapsed() and (L"Развернуть панель") or (L"Свернуть панель"), 1, .83, .35)
@@ -3538,7 +3559,7 @@ local function newBoard()
         end
         function block:SetHeader(text)
             self.text = text
-            self.objectives = nil
+            self.objectives, self.order = nil, nil
             self.struck = nil
             for _, line in ipairs(self.lines) do line:Hide() end
             self.count = 0
@@ -3551,7 +3572,9 @@ local function newBoard()
             self.height = self.HeaderText:GetStringHeight() or 14
         end
         function block:AddObjective(key, text)
-            self.objectives = self.objectives or {}
+            self.objectives, self.order = self.objectives or {}, self.order or {}
+            -- (The keys in the order the lines stand, for reading them back.)
+            if self.objectives[key] == nil then self.order[#self.order+1] = key end
             self.objectives[key] = text
             self.count = (self.count or 0) + 1
             local line = self.lines[self.count]
@@ -3926,6 +3949,7 @@ local function initialize()
     db = ForeverDungeonPrepChar or {}
     ForeverDungeonPrepChar = db
     P.char = db
+    if P.TrackSettings then pcall(P.TrackSettings, db) end
     -- The addon's own ground: dungeons and quests are read from QuestieDB here.
     if atlas.Init then atlas.Init(db) end
     if P.SeedEver then P.SeedEver() end
@@ -3941,7 +3965,7 @@ local function initialize()
     -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
     -- addon know there is an update and what is new"): a few lines in the chat, seconds
     -- after coming in. Not to a character new to the addon: the welcome page is for him.
-    local NEWS = "3.50.0"
+    local NEWS = "3.51.0"
     if not db.welcomed then
         db.newsSeen = NEWS
     elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
@@ -3950,9 +3974,9 @@ local function initialize()
             db.newsSeen = NEWS
             say(L"обновление " .. NEWS .. L", что нового:")
             for _, line in ipairs({
-                L"• у босса видна твоя лучшая вещь, если она с него падает",
-                L"• под следующим боссом — короткий совет, как его бить",
-                L"• задания Тюрьмы Алказ и Террасы Творцов",
+                L"• внутри подземелья: как дойти до каждого босса",
+                L"• в журнале: награда за каждое задание",
+                L"• в новом заходе убитые боссы сбрасываются сами",
             }) do
                 if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
             end
@@ -4137,7 +4161,23 @@ function P.Refresh()
         if inDungeon and P.InferKills then P.InferKills(selected, result.rows) end
         -- Walking in is the start of a run, unless the last boss fell a moment ago. The
         -- first look after a /reload inside counts the same: old marks do not outlive it.
-        if inDungeon and wasInside ~= true and P.EnterRun then P.EnterRun(selected) end
+        if inDungeon and wasInside ~= true and P.EnterRun then
+            P.EnterRun(selected)
+            if P.Track then P.Track("EnteredDungeon") end
+            -- The owner (17.11.2026): in a new copy the bosses of the last one hung on as
+            -- killed. The creatures in sight say which copy this is, now and a moment later.
+            if P.LookForCopy then
+                P.LookForCopy(selected)
+                if C_Timer and C_Timer.After then
+                    local d = selected
+                    for _, delay in ipairs({2, 5}) do
+                        C_Timer.After(delay, function()
+                            if P.InDungeon(d) and P.LookForCopy(d) and P.Refresh then P.Refresh() end
+                        end)
+                    end
+                end
+            end
+        end
         wasInside = inDungeon and true or false
         bossTarget = nil
         if inDungeon and db.bossTargets[selected.key] then
@@ -5141,9 +5181,11 @@ SLASH_FOREVERDUNGEONPREP1 = "/dq"
 SLASH_FOREVERDUNGEONPREP2 = "/dprep"
 SlashCmdList.FOREVERDUNGEONPREP = function(msg)
     if not db then return end
+    if P.Track then P.Track("Command", msg) end
     P.Refresh()
     if msg and msg:match("^%s*run%s*$") then
         if P.NewRun then P.NewRun() end
+        if P.Track then P.Track("NewRun") end
         P.Refresh()
         say(L"Новый заход: отметки убитых боссов сброшены.")
         return
@@ -5320,9 +5362,12 @@ end
 do
     local PREFIX = "DQForever"
     -- (No web address: a link in the chat cannot be copied; the name is searched for.)
-    local AD = "Dungeon Quest Forever (addon, find it on CurseForge): every quest of the dungeon before you go, "
-        .. "the shortest way there, bosses in order and their loot."
-    local peers, newsSaid, lastHello, waiting = {}, false, {}, false
+    -- 3.51.0: the owner asked for more of it, leading with the way to the bosses.
+    local AD = "Dungeon Quest Forever (addon, on CurseForge and Wago): the way to every boss inside, "
+        .. "what each drops for your class, and every quest of the dungeon before you go."
+    -- Told once to each new group mate without the addon (again after two hours), and not
+    -- more often than every 20 minutes.
+    local peers, newsSaid, lastHello, waiting, told = {}, false, {}, false, {}
     local function mine()
         local get = (C_AddOns and C_AddOns.GetAddOnMetadata) or GetAddOnMetadata
         local ok, v = pcall(get, "ForeverDungeonPrep", "Version")
@@ -5386,7 +5431,10 @@ do
         local v = text:match("^V:(.+)$")
         if not v then return end
         local name = type(sender) == "string" and ((Ambiguate and Ambiguate(sender, "none")) or sender:match("^[^-]+")) or nil
-        if name then peers[name] = v end
+        if name then
+            if not peers[name] then if P.Track then P.Track("MetAddonUser") end end
+            peers[name] = v
+        end
         if later(v, mine()) and not newsSaid then
             newsSaid = true
             say(L"Вышла новая версия Dungeon Quest Forever: " .. v .. L" (у тебя " .. mine() .. L"). Обнови её через приложение CurseForge или Wago, или скачай с их страниц.")
@@ -5399,6 +5447,7 @@ do
     -- ones asked for in its chat (with the addon's word), and asked of the addons there.
     function P.ShareWithGroup()
         if not (selected and result) then return end
+        if P.Track then P.Track("SharedWithGroup") end
         local channel = groupChannel()
         if not channel then say(L"Ты не в группе: делиться не с кем. Вступи в группу — тогда кнопка поделится твоими заданиями и попросит недостающие.") return end
         -- The owner: "it writes Russian into an English chat; such links nobody can copy;
@@ -5443,8 +5492,8 @@ do
         if not channel then return end
         if not (IsInInstance and IsInInstance()) then return end
         local now = GetServerTime and GetServerTime() or 0
-        if db.toldAt and now - db.toldAt < 7200 then return end
-        local without = false
+        if db.toldAt and now - db.toldAt < 1200 then return end
+        local without, names = false, {}
         -- In a party the others are party1..4; in a raid raid1..40, the player among them.
         local raid = channel == "RAID"
         local count = GetNumGroupMembers and GetNumGroupMembers() or 1
@@ -5453,14 +5502,18 @@ do
             local me = raid and UnitIsUnit and UnitIsUnit(unit, "player")
             if not me then
                 local ok, name = pcall(UnitName, unit)
-                if ok and (name == nil or (issecretvalue and issecretvalue(name)) or not peers[name]) then without = true end
+                local plain = ok and type(name) == "string" and not (issecretvalue and issecretvalue(name))
+                if plain then names[#names + 1] = name end
+                if not (plain and peers[name]) and not (plain and told[name] and now - told[name] < 7200) then without = true end
             end
         end
         if not without then return end
         if InCombatLockdown and InCombatLockdown() then waiting = true return end
         waiting = false
         db.toldAt = now
+        for _, name in ipairs(names) do told[name] = now end
         if SendChatMessage then pcall(SendChatMessage, AD, channel) end
+        if P.Track then P.Track("ToldGroup") end
         return AD
     end
     if CreateFrame and UIParent then

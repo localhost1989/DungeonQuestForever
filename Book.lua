@@ -304,6 +304,124 @@ function P.GearChanged()
     for key in pairs(wornCache) do wornCache[key] = nil end
 end
 
+-- ------------------------------------------
+-- What a quest gives
+-- ------------------------------------------
+-- The owner, 17.11.2026: "why is there no reward in our quest journal?" - and he approved
+-- ChatGPT's layout of it: under "Где", "Награда"; the things to choose from, each picture
+-- in a rim of its quality and its name in that colour, a green arrow on the one better than
+-- what is worn; then what is given besides, and the money in coins. What the databases
+-- know is at the foot of this file (P.Rewards); but Forever adds things of its own to the
+-- choice, so the game's own answer, read while the quest is in the log or open at its
+-- giver, is kept (db.rewards) and stands over the databases from then on.
+local russian = (GetLocale and GetLocale() or "enUS") == "ruRU"
+local function itemOf(link) return type(link) == "string" and tonumber(link:match("item:(%d+)")) or nil end
+-- count things read through link(i) and info(i) (the count third, as the game gives it).
+local function readThings(count, link, info)
+    local list = {}
+    for i = 1, tonumber(count) or 0 do
+        local id = itemOf(link(i))
+        if not id then return nil end   -- the game does not know the thing yet: read again later
+        local _, _, n = info(i)
+        list[#list+1] = id
+        list[#list+1] = tonumber(n) or 1
+    end
+    return list
+end
+local function keep(id, choice, given, money)
+    local db = P.char
+    if not (db and type(id) == "number" and id > 0 and choice and given) then return false end
+    db.rewards = type(db.rewards) == "table" and db.rewards or {}
+    db.rewards[id] = {c=choice, g=given, m=tonumber(money) or 0, at=time and time() or nil}
+    return true
+end
+-- At the giver: the quest offered (QUEST_DETAIL) or handed in (QUEST_COMPLETE). Called by the
+-- hands of Plan.lua before they accept or take anything, while the window is still open.
+function P.KeepReward(event)
+    if event ~= "QUEST_DETAIL" and event ~= "QUEST_COMPLETE" then return end
+    if not (GetQuestID and GetNumQuestChoices and GetNumQuestRewards and GetQuestItemLink and GetQuestItemInfo) then return end
+    local id = GetQuestID()
+    local choice = readThings(GetNumQuestChoices(), function(i) return GetQuestItemLink("choice", i) end, function(i) return GetQuestItemInfo("choice", i) end)
+    local given = readThings(GetNumQuestRewards(), function(i) return GetQuestItemLink("reward", i) end, function(i) return GetQuestItemInfo("reward", i) end)
+    return keep(id, choice, given, GetRewardMoney and GetRewardMoney() or 0)
+end
+-- In the log: the quest's entry is chosen for a moment, read, and the choice put back. Not
+-- while the player's own quest log is open, nor in a fight; a quest is read once a sitting
+-- (again a little later if the game did not know a thing yet).
+local readAt = {}
+function P.RewardFromLog(id)
+    if not (P.char and SelectQuestLogEntry and GetQuestLogSelection and GetQuestLogIndexByID and GetNumQuestLogChoices
+        and GetNumQuestLogRewards and GetQuestLogItemLink and GetQuestLogChoiceInfo and GetQuestLogRewardInfo) then return false end
+    local now = GetTime and GetTime() or 0
+    if readAt[id] and (readAt[id] == true or now - readAt[id] < 10) then return false end
+    if QuestLogFrame and QuestLogFrame.IsShown and QuestLogFrame:IsShown() then return false end
+    if InCombatLockdown and InCombatLockdown() then return false end
+    local index = GetQuestLogIndexByID(id)
+    if not index or index == 0 then return false end
+    readAt[id] = now
+    local before = GetQuestLogSelection()
+    local ok, choice, given, money = pcall(function()
+        SelectQuestLogEntry(index)
+        return readThings(GetNumQuestLogChoices(), function(i) return GetQuestLogItemLink("choice", i) end, GetQuestLogChoiceInfo),
+            readThings(GetNumQuestLogRewards(), function(i) return GetQuestLogItemLink("reward", i) end, GetQuestLogRewardInfo),
+            GetQuestLogRewardMoney and GetQuestLogRewardMoney() or 0
+    end)
+    pcall(SelectQuestLogEntry, before or 0)
+    if ok and keep(id, choice, given, money) then readAt[id] = true return true end
+    return false
+end
+-- What a quest gives: {choice={{id, count}...}, given={...}, money, live} or nil when nothing
+-- is known of it, or it gives nothing.
+function P.RewardOf(id)
+    local live = P.char and type(P.char.rewards) == "table" and P.char.rewards[id]
+    local raw = live or (P.Rewards and P.Rewards[id])
+    if not raw then return nil end
+    local out = {choice={}, given={}, money=tonumber(raw.m) or 0, live=live and true or false}
+    for _, pair in ipairs({{raw.c, out.choice}, {raw.g, out.given}}) do
+        local list, into = pair[1] or {}, pair[2]
+        for i = 1, #list, 2 do into[#into+1] = {id=list[i], count=list[i + 1] or 1} end
+    end
+    if #out.choice == 0 and #out.given == 0 and out.money <= 0 then return nil end
+    return out
+end
+-- The name and quality of a thing: the game's, else the databases' until the game tells.
+local function thingName(id)
+    local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+    local ok, name, _, quality = pcall(info or function() end, id)
+    if ok and type(name) == "string" and name ~= "" then return name, quality end
+    request(id)
+    local baked = P.RewardItems and P.RewardItems[id]
+    if baked then return (russian and baked[1] or baked[2] or baked[1] or ("#" .. id)), baked[3] end
+    local okDb, dbName = pcall(function() return ItemDB and ItemDB.Get(id, "name") end)
+    return (okDb and type(dbName) == "string" and dbName ~= "" and dbName) or ("#" .. id), nil
+end
+P.RewardName = thingName
+-- Money in coins: "1 золотой 20 серебра".
+function P.MoneyText(copper)
+    copper = math.floor(tonumber(copper) or 0)
+    local gold, silver, rest = math.floor(copper / 10000), math.floor(copper / 100) % 100, copper % 100
+    local parts = {}
+    if gold > 0 then
+        local word = (gold % 10 == 1 and gold % 100 ~= 11) and (L"золотой") or (L"золотых")
+        parts[#parts+1] = "|TInterface\\MoneyFrame\\UI-GoldIcon:14:14:0:0|t |cffffd100" .. gold .. " " .. word .. "|r"
+    end
+    if silver > 0 then parts[#parts+1] = "|TInterface\\MoneyFrame\\UI-SilverIcon:14:14:0:0|t |cffe6e0d2" .. silver .. " " .. L"серебра" .. "|r" end
+    if rest > 0 then parts[#parts+1] = "|TInterface\\MoneyFrame\\UI-CopperIcon:14:14:0:0|t |cffe6e0d2" .. rest .. " " .. L"меди" .. "|r" end
+    return table.concat(parts, "   ")
+end
+
+-- Every quest in the log whose reward the game has not told yet.
+function P.SweepRewards()
+    if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then return 0 end
+    local read = 0
+    for i = 1, tonumber(C_QuestLog.GetNumQuestLogEntries()) or 0 do
+        local ok, info = pcall(C_QuestLog.GetInfo, i)
+        local id = ok and type(info) == "table" and not info.isHeader and info.questID
+        if id and not (P.char and type(P.char.rewards) == "table" and P.char.rewards[id]) and P.RewardFromLog(id) then read = read + 1 end
+    end
+    return read
+end
+
 local book, dungeon, items, picked, offset, mode, lootAt = nil, nil, {}, nil, 0, "quests", 0
 local openChain = {}
 
@@ -428,10 +546,14 @@ local function questPage(id, row, item)
             lines[#lines+1] = tone .. i .. ". " .. name .. (s == "done" and (L" — сдано") or s == "log" and (L" — в журнале") or s == "ready" and (L" — можно сдать") or s == "take" and (L" — можно взять") or "") .. "|r"
         end
     end
+    -- The reward: its head ends the text; the things and the money stand under it.
+    if P.IsActive and P.IsActive(id) and not (P.char and type(P.char.rewards) == "table" and P.char.rewards[id]) then pcall(P.RewardFromLog, id) end
+    local reward = P.RewardOf(id)
+    if reward then head(L"Награда") end
     local meta = {}
     if info.level and info.level > 0 then meta[#meta+1] = L"Уровень: " .. info.level end
     if info.required and info.required > 0 then meta[#meta+1] = L"Требуется уровень " .. info.required end
-    return {title=P.Title(id) or ("#" .. id), meta=table.concat(meta, "   "), status=status, state=state, body=table.concat(lines, "\n"), row=row, id=id}
+    return {title=P.Title(id) or ("#" .. id), meta=table.concat(meta, "   "), status=status, state=state, body=table.concat(lines, "\n"), row=row, id=id, reward=reward}
 end
 
 -- The drop of a boss, each thing weighed, the best first: the best of a slot, then what
@@ -670,6 +792,78 @@ local function draw()
     end
     book.lootNote:SetText(note and (FADED .. note .. "|r") or "")
     view.lootNote = note
+    -- The reward of a quest, under its head: "На выбор:" and the things, "Вы получите:" and
+    -- the things given and the money. Two to a line when one to a line does not fit.
+    for _, bit in ipairs(book.rewardRows) do bit:Hide() end
+    for _, bit in ipairs(book.rewardLabels) do bit:Hide() end
+    view.reward = nil
+    local reward = page and page.reward
+    if reward then
+        local room = 1000
+        if book.body.GetBottom and book.paper.GetBottom then
+            local top, floor = book.body:GetBottom(), book.paper:GetBottom()
+            if type(top) == "number" and type(floor) == "number" then room = top - floor - 48 end
+        end
+        local groups = {}
+        if #reward.choice > 0 then groups[#groups+1] = {label=L"На выбор:", list=reward.choice} end
+        if #reward.given > 0 or reward.money > 0 then groups[#groups+1] = {label=L"Вы получите:", list=reward.given, money=reward.money} end
+        local LINE, ROW = 20, 34
+        local need = 0
+        for _, g in ipairs(groups) do need = need + LINE + #g.list * ROW + ((g.money or 0) > 0 and LINE or 0) end
+        local columns = need > room and 2 or 1
+        local cell = math.floor(book.body:GetWidth() / columns)
+        local shown = {rows={}, labels={}, columns=columns}
+        local y, rows, labels, left = 2, 0, 0, 0
+        local function label(text)
+            labels = labels + 1
+            local l = book:RewardLabel(labels)
+            l:ClearAllPoints()
+            l:SetPoint("TOPLEFT", book.body, "BOTTOMLEFT", 0, -y)
+            l:SetText(text)
+            l:Show()
+            shown.labels[#shown.labels+1] = text
+            y = y + LINE
+        end
+        for _, g in ipairs(groups) do
+            label(INK .. g.label .. "|r")
+            for i, thing in ipairs(g.list) do
+                local column = (i - 1) % columns
+                if y + ROW > room and column == 0 then left = left + 1
+                elseif y + ROW <= room then
+                    rows = rows + 1
+                    local r = book:RewardRow(rows)
+                    local name, quality = thingName(thing.id)
+                    local worth = P.Worth(thing.id)
+                    local better = worth.known and not worth.unusable and not worth.worn and (worth.gain or 0) > 0 or false
+                    local tone = QUALITY[quality or -1] or "ffffffff"
+                    r.thing = thing
+                    r:ClearAllPoints()
+                    r:SetPoint("TOPLEFT", book.body, "BOTTOMLEFT", column * cell, -y)
+                    r:SetSize(cell - 6, ROW - 4)
+                    local icon = (C_Item and C_Item.GetItemIconByID and C_Item.GetItemIconByID(thing.id))
+                        or (P.RewardItems and P.RewardItems[thing.id] and P.RewardItems[thing.id][4] and ("Interface\\Icons\\" .. P.RewardItems[thing.id][4]))
+                        or "Interface\\Icons\\INV_Misc_QuestionMark"
+                    r.icon:SetTexture(icon)
+                    r.iconFile = icon
+                    r.edge:SetVertexColor(tonumber(tone:sub(3, 4), 16) / 255, tonumber(tone:sub(5, 6), 16) / 255, tonumber(tone:sub(7, 8), 16) / 255)
+                    r.name:SetWidth(cell - 6 - 38)
+                    r.name:SetText("|c" .. tone .. name .. "|r")
+                    r.count:SetText((thing.count or 1) > 1 and tostring(thing.count) or "")
+                    r.better:SetShown(better)
+                    r.worth = worth
+                    r:Show()
+                    shown.rows[#shown.rows+1] = {id=thing.id, name=name, quality=quality, count=thing.count, better=better, choice=g.money == nil}
+                else left = left + 1 end
+                if (column == columns - 1 or i == #g.list) and y + ROW <= room then y = y + ROW end
+            end
+            if (g.money or 0) > 0 then
+                label(P.MoneyText(g.money))
+                shown.money = P.MoneyText(g.money)
+            end
+        end
+        if left > 0 then label(FADED .. L"и ещё " .. left .. "|r") end
+        view.reward = shown
+    end
 end
 
 local function create()
@@ -735,6 +929,7 @@ local function create()
     switch.label = switch:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     switch.label:SetPoint("CENTER")
     switch:SetScript("OnClick", function()
+        if P.Track then P.Track("BookModeSwitched") end
         mode = mode == "dungeons" and "quests" or "dungeons"
         offset, picked, lootAt = 0, nil, 0
         draw()
@@ -820,6 +1015,7 @@ local function create()
             local item = self.item
             if not item then return end
             if item.kind == "dungeon" and mouse == "RightButton" then
+                if P.Track then P.Track("DungeonHidden") end
                 -- Marked passed, or back in the list.
                 local db = P.char
                 if db then
@@ -983,6 +1179,67 @@ local function create()
     frame.lootNote:SetPoint("BOTTOMLEFT", paper, "BOTTOMLEFT", 18, 10)
     frame.lootNote:SetWidth(width)
     frame.lootNote:SetJustifyH("LEFT")
+    -- The reward of a quest (the layout of 17.11.2026): a picture in a rim of its quality,
+    -- the count on it as the game puts it, the name in the colour of its quality, the green
+    -- arrow of the game's bags on the thing better than what is worn.
+    frame.rewardRows, frame.rewardLabels = {}, {}
+    function frame:RewardLabel(i)
+        if self.rewardLabels[i] then return self.rewardLabels[i] end
+        local l = self:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        l:SetWidth(width)
+        l:SetJustifyH("LEFT")
+        self.rewardLabels[i] = l
+        return l
+    end
+    function frame:RewardRow(i)
+        if self.rewardRows[i] then return self.rewardRows[i] end
+        local row = CreateFrame("Button", nil, self)
+        self.rewardRows[i] = row
+        if row.SetFrameLevel and self.GetFrameLevel then row:SetFrameLevel((self:GetFrameLevel() or 1) + 6) end
+        row.edge = row:CreateTexture(nil, "BORDER")
+        if row.edge.SetColorTexture then row.edge:SetColorTexture(1, 1, 1, 1) end
+        row.edge:SetSize(30, 30)
+        row.edge:SetPoint("LEFT", row, "LEFT", 0, 0)
+        row.icon = row:CreateTexture(nil, "ARTWORK")
+        row.icon:SetSize(26, 26)
+        row.icon:SetPoint("CENTER", row.edge, "CENTER", 0, 0)
+        if row.icon.SetTexCoord then row.icon:SetTexCoord(.07, .93, .07, .93) end
+        row.count = row:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
+        row.count:SetPoint("BOTTOMRIGHT", row.edge, "BOTTOMRIGHT", -1, 1)
+        row.better = row:CreateTexture(nil, "OVERLAY")
+        row.better:SetSize(14, 14)
+        row.better:SetPoint("BOTTOMRIGHT", row.edge, "BOTTOMRIGHT", 2, -2)
+        local atlasOk = row.better.SetAtlas and pcall(row.better.SetAtlas, row.better, "bags-greenarrow")
+        if not atlasOk or (row.better.GetAtlas and not row.better:GetAtlas()) then
+            row.better:SetTexture("Interface\\AddOns\\ForeverDungeonPrep\\arrow")
+            if row.better.SetDesaturated then row.better:SetDesaturated(true) end
+            row.better:SetVertexColor(.25, 1, .25)
+        end
+        row.name = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+        row.name:SetPoint("LEFT", row, "LEFT", 38, 0)
+        row.name:SetJustifyH("LEFT")
+        row.name:SetWordWrap(false)
+        row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+        row:SetScript("OnEnter", function(self)
+            if not (self.thing and GameTooltip) then return end
+            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+            local ok = GameTooltip.SetItemByID and pcall(GameTooltip.SetItemByID, GameTooltip, self.thing.id)
+            if not ok then pcall(GameTooltip.SetHyperlink, GameTooltip, "item:" .. self.thing.id) end
+            local worth = self.worth
+            if worth and worth.known and not worth.unusable and not worth.worn and (worth.gain or 0) > 0 then
+                GameTooltip:AddLine("+" .. ("%.0f"):format(worth.gain) .. L" к надетому", .25, .88, .25)
+            end
+            GameTooltip:Show()
+        end)
+        row:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+        row:SetScript("OnClick", function(self)
+            if P.Track then P.Track("RewardClicked") end
+            local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+            local _, link = info and self.thing and info(self.thing.id)
+            if link and HandleModifiedItemClick then HandleModifiedItemClick(link) end
+        end)
+        return row
+    end
     frame:Hide()
 end
 
@@ -994,7 +1251,7 @@ do
     local ears = CreateFrame and CreateFrame("Frame", "DungeonQuestForeverGear", UIParent)
     if ears then
         for _, event in ipairs({"GET_ITEM_INFO_RECEIVED", "PLAYER_EQUIPMENT_CHANGED", "PLAYER_LEVEL_UP"}) do pcall(ears.RegisterEvent, ears, event) end
-        local due, pace, age = nil, 0, 0
+        local due, pace, age, swept = nil, 0, 0, false
         ears:SetScript("OnEvent", function(_, event, id)
             if event == "GET_ITEM_INFO_RECEIVED" then
                 -- Only the things asked for here are read.
@@ -1017,6 +1274,11 @@ do
             if pace >= (open and .33 or 1) then
                 pace = 0
                 if (open or age > 30) and not (InCombatLockdown and InCombatLockdown()) then P.AskGear(1) end
+                -- The rewards of the quests in the log, read once a while after coming in.
+                if not swept and age > 20 and not (InCombatLockdown and InCombatLockdown()) then
+                    swept = true
+                    pcall(P.SweepRewards)
+                end
             end
         end)
     end
@@ -1351,7 +1613,8 @@ local function lootRow(i)
     row:SetScript("OnLeave", function() GameTooltip:Hide() end)
     -- Shift-click puts the thing into the chat, as everywhere in the game.
     row:SetScript("OnClick", function(self)
-        local link = self.id and GetItemInfo and select(2, GetItemInfo(self.id))
+        local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+        local link = self.id and info and select(2, info(self.id))
         if link and IsModifiedClick and IsModifiedClick("CHATLINK") and ChatEdit_InsertLink then ChatEdit_InsertLink(link) end
     end)
     return row
@@ -1434,8 +1697,9 @@ function P.DrawLoot()
         row.id = thing.id
         local worth = thing.worth or {}
         local name, quality, icon
-        if GetItemInfo then
-            local got = {GetItemInfo(thing.id)}
+        local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+        if info then
+            local got = {info(thing.id)}
             if got[1] then name, quality, icon = got[1], got[3], got[10] end
         end
         quality = quality or worth.quality or 1
@@ -1531,3 +1795,649 @@ end
 
 -- The boss whose loot is open (his row wears the gold frame).
 function P.LootOpenFor() return lootFrame and lootFrame:IsShown() and lootFrame.npc or nil end
+
+-- BEGIN REWARDS: generated by dungeon-quest-handoff/make-rewards-lua.py from quest-rewards.json; do not edit by hand
+-- [quest] = {c things to choose from {item, count, ...}, g things given, m money in copper}
+P.Rewards = {
+    [17]={g={250947,5},m=5500},
+    [166]={c={6087,1,2041,1,2042,1}},
+    [167]={c={1893,1,270012,1,270013,1}},
+    [168]={c={2037,1,2036,1,270007,1}},
+    [214]={c={2074,1,2089,1,6094,1,270005,1}},
+    [261]={m=4500},
+    [303]={m=2500},
+    [373]={m=700},
+    [377]={c={2033,1,2906,1,270029,1}},
+    [378]={c={3562,1,1264,1,270036,1}},
+    [386]={c={3400,1,1317,1,270027,1}},
+    [387]={m=4000},
+    [388]={m=4000},
+    [391]={m=2500},
+    [704]={c={4980,1,270059,1,270060,1}},
+    [709]={c={4746,1,270074,1,270075,1}},
+    [738]={g={4982,1,1529,1,2776,2},m=400},
+    [739]={g={4983,1}},
+    [762]={g={4987,1},m=12500},
+    [865]={g={5342,5,5343,1}},
+    [880]={m=800},
+    [914]={c={6505,1,6504,1,270018,1}},
+    [959]={m=1000},
+    [962]={g={10919,1},m=2000},
+    [971]={g={6743,1}},
+    [1013]={c={6335,1,4534,1,270030,1}},
+    [1014]={g={6414,1}},
+    [1048]={c={6802,1,6803,1,10711,1}},
+    [1049]={c={7747,1,17508,1,7749,1}},
+    [1050]={g={7746,1}},
+    [1051]={c={7750,1,4643,1},g={7751,1}},
+    [1053]={c={6829,1,6830,1,6831,1,11262,1}},
+    [1098]={c={3324,1,270023,1,270024,1},m=1800},
+    [1101]={c={4197,1,6742,1,6725,1},g={3041,1}},
+    [1102]={c={4197,1,6742,1,6725,1}},
+    [1139]={g={6723,1},m=13000},
+    [1142]={c={6751,1,6752,1}},
+    [1144]={c={6748,1,6750,1,6749,1,274078,1}},
+    [1199]={c={270025,1},g={6998,1,7000,1}},
+    [1200]={c={7001,1,7002,1,270031,1,270032,1},m=6500},
+    [1221]={g={6755,1}},
+    [1275]={c={7003,1,7004,1},m=3500},
+    [1318]={c={18366,1,18367,1,18368,1,18369,1}},
+    [1360]={m=6000},
+    [1424]={m=12000},
+    [1445]={g={1490,1}},
+    [1446]={c={11123,1,11124,1}},
+    [1475]={g={1490,1}},
+    [1486]={c={6480,1,918,1},m=1800},
+    [1487]={c={6476,1,8071,1,6481,1},m=2500},
+    [1491]={m=1000},
+    [2040]={c={7606,1,7607,1,270015,1,270016,1}},
+    [2202]={g={9030,5},m=5500},
+    [2240]={c={9626,1,9627,1}},
+    [2258]={m=4500},
+    [2340]={m=12500},
+    [2341]={g={7888,1}},
+    [2342]={m=6000},
+    [2361]={g={7673,1}},
+    [2398]={m=500},
+    [2418]={c={9522,1,10358,1,10359,1,270055,1}},
+    [2439]={c={3928,5,6149,5},g={9587,1}},
+    [2440]={c={3928,5,6149,5},g={9587,1}},
+    [2500]={m=4500},
+    [2768]={c={9533,1,9534,1,270099,1}},
+    [2770]={g={11122,1},m=7500},
+    [2841]={c={9623,1,9624,1,9625,1}},
+    [2843]={g={9173,1}},
+    [2846]={g={9527,1,9531,1},m=6500},
+    [2865]={m=6500},
+    [2904]={c={9535,1,9536,1,270042,1}},
+    [2922]={m=2000},
+    [2924]={m=5500},
+    [2926]={m=2200},
+    [2928]={c={9608,1,9609,1}},
+    [2929]={c={9623,1,9624,1,9625,1},m=3500},
+    [2930]={g={9605,1,9604,1},m=2500},
+    [2952]={g={9363,1}},
+    [2962]={m=2500},
+    [2991]={m=7000},
+    [3042]={m=19500},
+    [3341]={c={270081,1},g={10823,1,10824,1}},
+    [3373]={g={10455,1}},
+    [3442]={m=14000},
+    [3443]={m=14000},
+    [3447]={g={10773,1}},
+    [3452]={m=7500},
+    [3454]={g={10515,1}},
+    [3463]={c={10742,1,10743,1,10744,1},m=23000},
+    [3481]={g={10569,1}},
+    [3525]={g={10710,1}},
+    [3528]={c={10749,1,10750,1,10751,1},m=24000},
+    [3636]={c={270081,1},g={10823,1,10824,1}},
+    [3701]={g={12102,1},m=16500},
+    [3802]={g={11000,1},m=23000},
+    [3906]={m=15500},
+    [3907]={c={12113,1,12114,1,12112,1,12115,1},m=25500},
+    [4004]={c={12544,1,12545,1},m=27000},
+    [4024]={c={12066,1,12082,1,12083,1},m=26500},
+    [4061]={m=16500},
+    [4063]={c={12109,1,12110,1,12108,1,12111,1},m=26500},
+    [4081]={m=15500},
+    [4082]={m=16500},
+    [4121]={m=26500},
+    [4123]={m=8500},
+    [4126]={c={11964,1,12000,1},g={12003,10},m=16500},
+    [4132]={g={12059,1},m=26500},
+    [4134]={c={11964,1,12000,1},g={3928,5,6149,5},m=8500},
+    [4136]={c={11865,1,11963,1,12049,1},m=6000},
+    [4182]={m=16500},
+    [4201]={c={11962,1,11866,1},m=8000},
+    [4242]={c={12018,1,12021,1,12041,1}},
+    [4262]={m=15500},
+    [4263]={c={12113,1,12114,1,12112,1,12115,1},m=8500},
+    [4282]={m=9000},
+    [4286]={g={11883,1},m=8500},
+    [4322]={c={12061,1,12062,1},g={12065,1},m=17500},
+    [4363]={c={12548,1,12543,1},m=26500},
+    [4605]={g={9363,1}},
+    [4606]={g={9363,1}},
+    [4701]={c={15824,1,15825,1,15827,1},m=18000},
+    [4724]={c={15824,1,15825,1,15827,1},m=18000},
+    [4726]={m=7500},
+    [4729]={g={12264,1},m=9000},
+    [4734]={g={12144,1},m=18000},
+    [4735]={m=27000},
+    [4743]={g={12344,1}},
+    [4765]={c={15861,1,15860,1},m=27000},
+    [4768]={c={15861,1,15860,1},m=27000},
+    [4771]={c={15853,1,15854,1},m=27000},
+    [4810]={c={15862,1,15863,1}},
+    [4862]={g={12529,1},m=9000},
+    [4866]={g={15873,1},m=18000},
+    [4867]={g={15867,1}},
+    [4903]={c={13958,1,13959,1,13961,1,13962,1,13963,1},m=18000},
+    [4974]={c={13966,1,13968,1,13965,1},m=27000},
+    [4983]={c={15858,1,15859,1},m=18000},
+    [5002]={m=18000},
+    [5081]={c={13958,1,13959,1,13961,1,13962,1,13963,1},m=18000},
+    [5102]={c={13966,1,13968,1,13965,1},m=27000},
+    [5125]={c={17044,1,17045,1}},
+    [5127]={g={12696,1,9224,5,12849,1}},
+    [5212]={m=18000},
+    [5213]={c={13209,1,19812,1}},
+    [5214]={g={13171,1}},
+    [5243]={c={13216,1,13217,1},g={3928,5,6149,5},m=18000},
+    [5251]={m=18000},
+    [5282]={g={13315,1},m=18000},
+    [5341]={m=18000},
+    [5343]={m=18000},
+    [5384]={c={15805,1,15806,1},g={13544,1}},
+    [5466]={c={13982,1,13986,1,13984,1},g={14002,1}},
+    [5518]={g={18258,1}},
+    [5528]={g={18269,5,18284,5}},
+    [5529]={m=9000},
+    [5723]={m=700},
+    [5724]={c={15452,1,15453,1}},
+    [5725]={c={15449,1,15450,1,15451,1}},
+    [5726]={m=250},
+    [5728]={m=800},
+    [5761]={m=800},
+    [6022]={m=9000},
+    [6042]={m=9000},
+    [6133]={m=9000},
+    [6135]={c={16994,1,16995,1},m=9000},
+    [6136]={c={17002,1,17003,1,17004,1},m=9000},
+    [6163]={c={18022,1,17001,1},m=18000},
+    [6502]={g={16309,1}},
+    [6521]={c={17039,1,17042,1,17043,1},m=2000},
+    [6522]={m=4000},
+    [6561]={c={7001,1,7002,1,270031,1,270032,1},m=6500},
+    [6563]={m=1400},
+    [6564]={m=1100},
+    [6565]={c={17694,1,17695,1},m=4000},
+    [6602]={g={16309,1}},
+    [6626]={m=7500},
+    [6921]={m=4500},
+    [6922]={c={16886,1,16887,1,270043,1}},
+    [7028]={c={17775,1,17776,1,17777,1,17779,1}},
+    [7029]={c={17768,1,17778,1,17770,1}},
+    [7041]={c={17768,1,17778,1,17770,1}},
+    [7046]={g={17191,1}},
+    [7064]={c={17705,1,17743,1,17753,1}},
+    [7065]={c={17705,1,17743,1,17753,1}},
+    [7066]={m=15000},
+    [7067]={g={17774,1},m=14000},
+    [7068]={c={17772,1,17773,1}},
+    [7070]={c={17772,1,17773,1}},
+    [7201]={g={12038,1},m=24500},
+    [7441]={c={18411,1,18410,1},m=17500},
+    [7462]={c={18420,1,18421,1,18424,1},m=27000},
+    [7481]={m=18000},
+    [7482]={m=18000},
+    [7488]={c={18491,1,270125,1},m=17000},
+    [7489]={c={18491,1,270125,1},m=17000},
+    [7498]={g={18465,1}},
+    [7499]={g={18466,1}},
+    [7500]={g={18468,1}},
+    [7501]={g={18472,1}},
+    [7502]={g={18467,1}},
+    [7503]={g={18473,1}},
+    [7504]={g={18469,1}},
+    [7505]={g={18471,1}},
+    [7506]={g={18470,1}},
+    [7604]={g={18592,1}},
+    [7703]={c={18366,1,18367,1,18368,1,18369,1}},
+    [7877]={c={18420,1,18421,1,18424,1},m=27000},
+    [8301]={g={20403,1}},
+    [8905]={g={22108,1}},
+    [8906]={g={22011,1}},
+    [8907]={g={22063,1}},
+    [8908]={g={22088,1}},
+    [8909]={g={22079,1}},
+    [8910]={g={22004,1}},
+    [8911]={g={22071,1}},
+    [8912]={g={21996,1}},
+    [8913]={g={22108,1}},
+    [8914]={g={22011,1}},
+    [8915]={g={22063,1}},
+    [8916]={g={22079,1}},
+    [8917]={g={22004,1}},
+    [8918]={g={22095,1}},
+    [8919]={g={22071,1}},
+    [8920]={g={21996,1}},
+    [8921]={g={22320,1}},
+    [8924]={m=9000},
+    [8925]={m=9000},
+    [8926]={g={22106,1,22110,1}},
+    [8927]={g={22106,1,22110,1}},
+    [8931]={g={22010,1,22015,1}},
+    [8932]={g={22062,1,22066,1}},
+    [8933]={g={22086,1,22090,1}},
+    [8934]={g={22078,1,22081,1}},
+    [8935]={g={22002,1,22006,1}},
+    [8936]={g={22070,1,22077,1}},
+    [8937]={g={21994,1,21998,1}},
+    [8938]={g={22010,1,22015,1}},
+    [8939]={g={22062,1,22066,1}},
+    [8940]={g={22078,1,22081,1}},
+    [8941]={g={22006,1,22002,1}},
+    [8942]={g={22098,1,22099,1}},
+    [8943]={g={22070,1,22077,1}},
+    [8944]={g={21994,1,21998,1}},
+    [8945]={g={22137,1}},
+    [8949]={c={22150,1,22149,1}},
+    [8951]={g={22107,1,22111,1,22112,1}},
+    [8952]={g={22061,1,22017,1,22016,1}},
+    [8953]={g={22064,1,22067,1,22068,1}},
+    [8954]={g={22087,1,22092,1,22093,1}},
+    [8955]={g={22084,1,22085,1,22082,1}},
+    [8956]={g={22003,1,22007,1,22008,1}},
+    [8957]={g={22096,1,22100,1,22101,1}},
+    [8958]={g={22076,1,22072,1,22073,1}},
+    [8959]={g={21995,1,22000,1,22001,1}},
+    [8985]={c={22192,3,22193,3}},
+    [8986]={c={22192,3,22193,3}},
+    [8987]={c={22192,3,22193,3}},
+    [8988]={c={22192,3,22193,3}},
+    [9016]={g={22107,1,22111,1,22112,1}},
+    [9017]={g={22061,1,22017,1,22016,1}},
+    [9018]={g={22064,1,22067,1,22068,1}},
+    [9019]={g={22084,1,22085,1,22082,1}},
+    [9020]={g={22003,1,22007,1,22008,1}},
+    [9021]={g={22076,1,22072,1,22073,1}},
+    [9022]={g={21995,1,22000,1,22001,1}},
+    [95264]={c={279833,1,279831,1,279474,1}},
+    [95483]={c={279831,1,279833,1,279474,1}},
+    [95790]={c={279931,1,279901,1}},
+    [95924]={c={279903,1,279905,1}},
+    [95925]={c={279908,1,279910,1,279912,1}},
+    [95926]={c={279908,1,279910,1,279912,1}},
+    [95928]={c={279904,1,279906,1}},
+    [96332]={c={279824,1,279826,1,279829,1}},
+    [96334]={c={279448,1,279473,1}},
+    [96337]={g={274041,1}},
+    [96376]={g={279450,1}},
+    [96377]={g={279450,1}},
+    [96381]={c={279825,1,279826,1,279829,1}},
+    [97049]={c={279932,1,279902,1}},
+}
+-- [item] = {name ru, name en, quality, icon}: said until the game tells its own
+P.RewardItems = {
+    [918]={"\208\161\209\131\208\188\208\176 \208\184\208\183 \208\184\209\129\208\186\208\176\208\182\208\181\208\189\208\189\208\190\208\185 \209\136\208\186\209\131\209\128\209\139","Deviate Hide Pack",1,"inv_misc_bag_07_black"},
+    [1264]={"\208\147\208\190\208\187\208\190\208\178\208\190\208\186\209\128\209\131\209\136\208\184\209\130\208\181\208\187\209\140","Headbasher",2,"inv_mace_07"},
+    [1317]={"\208\163\208\191\209\128\208\190\209\135\208\189\208\181\208\189\208\189\209\139\208\185 \208\191\208\190\209\129\208\190\209\133 \208\184\208\183 \208\186\208\190\209\128\208\189\209\143","Hardened Root Staff",2,"inv_staff_16"},
+    [1490]={"\208\162\208\176\208\187\208\184\209\129\208\188\208\176\208\189-\209\133\209\128\208\176\208\189\208\184\209\130\208\181\208\187\209\140","Guardian Talisman",2,"inv_jewelry_talisman_05"},
+    [1529]={"\208\157\208\181\209\132\209\128\208\184\209\130","Jade",2,"inv_misc_gem_stone_01"},
+    [1893]={"\208\156\208\181\209\129\209\130\209\140 \208\179\208\190\209\128\208\189\209\143\208\186\208\176","Miner's Revenge",2,"inv_pick_03"},
+    [2033]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\191\208\190\209\129\208\187\208\176","Ambassador's Boots",2,"inv_boots_08"},
+    [2036]={"\208\159\209\139\208\187\209\140\208\189\209\139\208\181 \209\136\208\176\209\133\209\130\208\181\209\128\209\129\208\186\208\184\208\181 \208\191\208\181\209\128\209\135\208\176\209\130\208\186\208\184","Dusty Mining Gloves",2,"inv_gauntlets_05"},
+    [2037]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\191\209\128\208\190\209\133\208\190\208\180\209\135\208\184\208\186\208\176","Tunneler's Boots",2,"inv_boots_01"},
+    [2041]={"\208\156\209\131\208\189\208\180\208\184\209\128 \208\151\208\176\208\191\208\176\208\180\208\189\208\190\208\179\208\190 \208\154\209\128\208\176\209\143","Tunic of Westfall",3,"inv_chest_leather_07"},
+    [2042]={"\208\159\208\190\209\129\208\190\209\133 \208\151\208\176\208\191\208\176\208\180\208\189\208\190\208\179\208\190 \208\154\209\128\208\176\209\143","Staff of Westfall",3,"inv_staff_10"},
+    [2074]={"\208\162\208\178\208\181\209\128\208\180\209\139\208\185 \208\186\208\187\208\184\208\189\208\190\208\186","Solid Shortblade",2,"inv_sword_23"},
+    [2089]={"\208\160\208\181\208\183\208\189\208\190\208\185 \208\186\208\184\208\189\208\182\208\176\208\187","Scrimshaw Dagger",2,"inv_weapon_shortblade_01"},
+    [2776]={"\208\151\208\190\208\187\208\190\209\130\208\176\209\143 \209\128\209\131\208\180\208\176","Gold Ore",2,"inv_ore_copper_01"},
+    [2906]={"\208\154\208\190\208\187\209\140\209\135\209\131\208\182\208\189\209\139\208\181 \208\191\208\190\208\189\208\190\208\182\208\184 \208\162\208\181\208\188\208\189\208\190\208\187\208\181\209\129\209\140\209\143","Darkshire Mail Leggings",2,"inv_pants_03"},
+    [3041]={"\208\156\209\131\209\136\208\186\208\181\209\130\208\190\208\189 \34\208\147\208\187\208\176\208\183 \208\188\208\176\208\179\208\176\34","\"Mage-Eye\" Blunderbuss",2,"inv_weapon_rifle_05"},
+    [3324]={"\208\159\209\128\208\184\208\183\209\128\208\176\209\135\208\189\208\190\208\181 \208\190\208\191\208\187\208\181\209\135\209\140\208\181","Ghostly Mantle",2,"inv_shoulder_09"},
+    [3400]={"\208\148\208\187\208\184\208\189\208\189\209\139\208\185 \208\188\208\181\209\135 \208\155\209\142\209\134\208\184\208\189\208\176","Lucine Longsword",2,"inv_sword_20"},
+    [3562]={"\208\159\208\190\209\143\209\129 \208\158\208\191\208\190\209\128\209\139","Belt of Vindication",2,"inv_belt_05"},
+    [3928]={"\208\157\208\176\208\184\208\187\209\131\209\135\209\136\208\181\208\181 \208\187\208\181\209\135\208\181\208\177\208\189\208\190\208\181 \208\183\208\181\208\187\209\140\208\181","Superior Healing Potion",1,"inv_potion_53"},
+    [4197]={"\208\145\208\181\209\128\208\184\208\187\208\187\208\190\208\178\208\190\208\181 \208\190\208\191\208\187\208\181\209\135\209\140\208\181","Berylline Pads",3,"inv_shoulder_05"},
+    [4534]={"\208\157\208\176\209\128\209\131\209\135\208\184 \209\129\208\190 \209\129\209\130\208\176\208\187\209\140\208\189\209\139\208\188\208\184 \208\183\208\176\209\129\209\130\208\181\208\182\208\186\208\176\208\188\208\184","Steel-clasped Bracers",2,"inv_bracer_06"},
+    [4643]={"\208\157\208\176\208\186\208\184\208\180\208\186\208\176 \208\157\208\181\209\131\208\188\208\190\208\187\208\184\208\188\208\190\208\185 \209\129\209\130\208\176\208\187\208\184","Grimsteel Cape",2,"inv_misc_cape_02"},
+    [4746]={"\208\158\208\180\208\181\209\143\208\189\208\184\208\181 \208\146\208\181\209\129\209\130\208\189\208\184\208\186\208\176 \209\128\208\190\208\186\208\176","Doomsayer's Robe",2,"inv_chest_cloth_19"},
+    [4980]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\179\208\181\208\190\208\187\208\190\208\179\208\176","Prospector Gloves",2,"inv_gauntlets_04"},
+    [4982]={"\208\148\209\128\208\176\208\189\209\139\208\185 \208\191\208\190\209\143\209\129 \208\179\208\181\208\190\208\187\208\190\208\179\208\176","Ripped Prospector Belt",0,"inv_belt_06"},
+    [4983]={"\208\154\208\176\208\188\208\181\208\189\208\189\209\139\208\185 \209\128\208\176\209\129\208\191\209\139\208\187\208\184\209\130\208\181\208\187\209\140","Rock Pulverizer",2,"inv_hammer_17"},
+    [4987]={"\208\156\208\181\209\135 \208\180\208\178\208\190\209\128\209\132\208\184\208\185\209\129\208\186\208\190\208\179\208\190 \208\186\208\176\208\191\208\184\209\130\208\176\208\189\208\176","Dwarf Captain's Sword",2,"inv_sword_25"},
+    [5342]={"\208\159\209\131\208\189\209\136 \208\175\209\137\208\181\209\128\208\176","Raptor Punch",1,"inv_drink_04"},
+    [5343]={"\208\159\208\187\208\176\209\137 \208\177\208\176\209\128\208\188\208\181\208\189\208\176","Barkeeper's Cloak",2,"inv_misc_cape_03"},
+    [6087]={"\208\168\208\190\209\129\209\129\209\139 \208\151\208\176\208\191\208\176\208\180\208\189\208\190\208\179\208\190 \208\154\209\128\208\176\209\143","Chausses of Westfall",3,"inv_pants_03"},
+    [6094]={"\208\159\209\128\208\190\208\189\208\183\208\176\209\142\209\137\208\184\208\185 \209\130\208\190\208\191\208\190\209\128","Piercing Axe",2,"inv_throwingaxe_01"},
+    [6149]={"\208\161\208\184\208\187\209\140\208\189\208\190\208\181 \208\183\208\181\208\187\209\140\208\181 \208\188\208\176\208\189\209\139","Greater Mana Potion",1,"inv_potion_73"},
+    [6335]={"\208\161\208\181\209\128\209\139\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Grizzled Boots",2,"inv_boots_03"},
+    [6414]={"\208\159\208\181\209\135\208\176\209\130\209\140 \208\161\208\184\208\187\209\140\208\178\208\176\208\189\209\139","Seal of Sylvanas",3,"inv_jewelry_ring_15"},
+    [6476]={"\208\146\209\139\208\186\209\128\208\190\208\185\208\186\208\176: \208\191\208\190\209\143\209\129 \208\184\208\183 \208\184\209\129\208\186\208\176\208\182\208\181\208\189\208\189\208\190\208\185 \209\135\208\181\209\136\209\131\208\184","Pattern: Deviate Scale Belt",2,"inv_scroll_06"},
+    [6480]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\184\208\183 \208\184\209\129\208\186\208\176\208\182\208\181\208\189\208\189\208\190\208\185 \209\135\208\181\209\136\209\131\208\184","Slick Deviate Leggings",2,"inv_pants_02"},
+    [6481]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\147\209\128\209\143\208\183\208\189\208\190\209\130\208\190\208\191\208\184","Dagmire Gauntlets",2,"inv_gauntlets_05"},
+    [6504]={"\208\154\209\128\209\139\208\187\208\190-\208\186\208\187\208\184\208\189\208\190\208\186","Wingblade",3,"inv_sword_16"},
+    [6505]={"\208\159\208\190\209\129\208\190\209\133 \208\159\208\190\208\187\209\131\208\188\208\181\209\129\209\143\209\134\208\176","Crescent Staff",3,"inv_staff_04"},
+    [6723]={"\208\156\208\181\208\180\208\176\208\187\209\140 \208\183\208\176 \208\190\209\130\208\178\208\176\208\179\209\131","Medal of Courage",2,"inv_jewelry_amulet_03"},
+    [6725]={"\208\163\208\186\209\128\208\176\209\136\208\181\208\189\208\189\209\139\208\185 \208\188\209\128\208\176\208\188\208\190\209\128\208\190\208\188 \208\186\209\131\208\187\208\176\209\135\208\189\209\139\208\185 \209\137\208\184\209\130","Marbled Buckler",3,"inv_shield_10"},
+    [6742]={"\208\160\208\181\208\188\208\181\208\189\209\140 \208\154\208\176\208\188\208\181\208\189\208\189\208\190\208\179\208\190 \208\154\209\131\208\187\208\176\208\186\208\176","Stonefist Girdle",3,"inv_belt_35"},
+    [6743]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\178\208\190\208\190\208\180\209\131\209\136\208\181\208\178\208\187\208\181\208\189\208\184\209\143","Sustaining Ring",2,"inv_jewelry_ring_08"},
+    [6748]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\158\208\177\208\181\208\183\209\140\209\143\208\189\209\139","Monkey Ring",2,"inv_jewelry_ring_14"},
+    [6749]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\162\208\184\208\179\209\128\208\176","Tiger Band",2,"inv_jewelry_ring_13"},
+    [6750]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\151\208\188\208\181\208\184","Snake Hoop",2,"inv_jewelry_ring_06"},
+    [6751]={"\208\162\209\128\208\176\209\131\209\128\208\189\208\176\209\143 \209\136\208\176\208\187\209\140","Mourning Shawl",2,"inv_misc_cape_11"},
+    [6752]={"\208\163\208\187\208\176\208\189\209\129\208\186\208\184\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Lancer Boots",2,"inv_boots_03"},
+    [6755]={"\208\156\208\176\208\187\208\181\208\189\209\140\208\186\208\176\209\143 \209\136\208\186\208\176\209\130\209\131\208\187\208\186\208\176 \209\129 \209\129\208\176\208\188\208\190\209\134\208\178\208\181\209\130\208\176\208\188\208\184","A Small Container of Gems",1,"inv_misc_ornatebox"},
+    [6802]={"\208\156\208\181\209\135 \208\158\208\188\208\181\208\189\208\176","Sword of Omen",3,"inv_sword_19"},
+    [6803]={"\208\159\209\128\208\190\209\128\208\190\209\135\208\181\209\129\208\186\208\176\209\143 \208\191\208\176\208\187\208\186\208\176","Prophetic Cane",3,"inv_staff_01"},
+    [6829]={"\208\156\208\181\209\135 \208\177\208\181\208\183\208\188\209\143\209\130\208\181\208\182\208\189\208\190\209\129\209\130\208\184","Sword of Serenity",3,"inv_sword_27"},
+    [6830]={"\208\154\208\190\209\129\209\130\208\181\208\186\209\131\209\129","Bonebiter",3,"inv_axe_04"},
+    [6831]={"\208\167\208\181\209\128\208\189\208\176\209\143 \209\131\208\179\209\128\208\190\208\183\208\176","Black Menace",3,"inv_sword_13"},
+    [6998]={"\208\158\209\128\208\181\208\190\208\187\209\140\208\189\209\139\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Nimbus Boots",2,"inv_boots_05"},
+    [7000]={"\208\160\208\181\208\188\208\181\208\189\209\140 \208\161\208\181\209\128\208\180\209\134\208\176 \208\148\209\128\208\181\208\178\208\176","Heartwood Girdle",2,"inv_belt_04"},
+    [7001]={"\208\157\208\176\208\180\208\179\209\128\208\190\208\177\208\189\209\139\208\185 \209\129\208\186\208\184\208\191\208\181\209\130\209\128","Gravestone Scepter",3,"inv_wand_04"},
+    [7002]={"\208\144\209\128\208\186\209\130\208\184\209\135\208\181\209\129\208\186\208\184\208\185 \208\186\209\131\208\187\208\176\209\135\208\189\209\139\208\185 \209\137\208\184\209\130","Arctic Buckler",3,"inv_shield_02"},
+    [7003]={"\208\150\209\131\209\135\208\184\208\189\209\139\208\181 \208\183\208\176\209\129\209\130\208\181\208\182\208\186\208\184","Beetle Clasps",2,"inv_bracer_06"},
+    [7004]={"\208\157\208\176\208\186\208\184\208\180\208\186\208\176 \208\191\209\128\208\181\208\187\208\176\209\130\208\176","Prelacy Cape",2,"inv_misc_cape_18"},
+    [7606]={"\208\161\208\189\208\181\208\182\208\189\209\139\208\181 \209\128\209\131\208\186\208\176\208\178\208\184\209\134\209\139","Polar Gauntlets",2,"inv_gauntlets_04"},
+    [7607]={"\208\161\208\190\208\177\208\190\208\187\208\184\208\185 \208\182\208\181\208\183\208\187","Sable Wand",2,"inv_staff_02"},
+    [7673]={"\208\158\208\182\208\181\209\128\208\181\208\187\209\140\208\181 \208\163\209\129\208\184\208\187\208\181\208\189\208\184\209\143 \208\162\208\176\208\187\208\178\208\176\209\136","Talvash's Enhancing Necklace",3,"inv_jewelry_necklace_02"},
+    [7746]={"\208\144\208\188\209\131\208\187\208\181\209\130 \208\155\208\184\208\179\208\184 \208\152\209\129\209\129\208\187\208\181\208\180\208\190\208\178\208\176\209\130\208\181\208\187\208\181\208\185","Explorers' League Commendation",2,"inv_jewelry_talisman_01"},
+    [7747]={"\208\159\208\190\208\179\208\184\208\177\208\181\208\187\209\140\208\189\208\176\209\143 \208\183\208\176\209\137\208\184\209\130\208\176","Vile Protector",2,"inv_shield_02"},
+    [7749]={"\208\161\209\132\208\181\209\128\208\176 \208\158\208\188\208\181\208\179\208\184","Omega Orb",2,"inv_misc_orb_03"},
+    [7750]={"\208\158\208\191\208\187\208\181\209\135\209\140\208\181 \208\179\208\190\209\128\209\143","Mantle of Woe",2,"inv_shoulder_23"},
+    [7751]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\146\208\190\209\128\209\128\208\181\208\187\208\176","Vorrel's Boots",2,"inv_boots_03"},
+    [7888]={"\208\158\208\182\208\181\209\128\208\181\208\187\209\140\208\181 \208\163\209\129\208\184\208\187\208\181\208\189\208\184\209\143 \208\148\208\182\208\176\209\128\208\186\208\176\208\187\208\176","Jarkal's Enhancing Necklace",3,"inv_jewelry_necklace_02"},
+    [8071]={"\208\168\208\184\208\191\209\143\209\137\208\181\208\181 \208\180\209\128\208\181\208\178\208\186\208\190","Sizzle Stick",2,"inv_staff_02"},
+    [9030]={"\208\159\209\128\208\184\208\178\208\190\208\180\209\143\209\137\208\181\208\181 \208\178 \209\129\208\190\208\183\208\189\208\176\208\189\208\184\208\181 \208\183\208\181\208\187\209\140\208\181","Restorative Potion",1,"inv_potion_01"},
+    [9173]={"\208\147\208\190\208\177\208\187\208\184\208\189\209\129\208\186\208\184\208\185 \208\184\208\188\208\191\209\131\208\187\209\140\209\129\208\189\209\139\208\185 \208\191\208\190\208\178\209\130\208\190\209\128\208\184\209\130\208\181\208\187\209\140","Goblin Transponder",1,"inv_battery_01"},
+    [9224]={"\208\173\208\187\208\184\208\186\209\129\208\184\209\128 \209\131\208\177\208\184\208\185\209\129\209\130\208\178\208\176 \208\180\208\181\208\188\208\190\208\189\208\190\208\178","Elixir of Demonslaying",1,"inv_potion_27"},
+    [9363]={"\208\154\208\190\209\128\208\190\208\177\208\186\208\176, \209\131\208\191\208\176\208\186\208\190\208\178\208\176\208\189\208\189\208\176\209\143 \34\208\167\208\184\209\129\209\130\208\181\209\128\208\190\208\188\34","Sparklematic-Wrapped Box",1,"inv_misc_gift_01"},
+    [9522]={"\208\173\208\189\208\181\209\128\208\179\208\181\209\130\208\184\209\135\208\181\209\129\208\186\208\184\208\185 \208\186\208\176\208\188\208\181\208\189\208\189\209\139\208\185 \208\190\208\177\209\128\209\131\209\135","Energized Stone Circle",2,"inv_shield_10"},
+    [9527]={"\208\150\208\181\208\183\208\187 \208\161\208\188\208\181\208\189\209\139 \208\183\208\176\208\186\208\187\209\143\209\130\208\184\208\185","Spellshifter Rod",2,"inv_wand_11"},
+    [9531]={"\208\157\208\176\208\191\208\187\208\181\209\135\209\140\208\181 \208\148\209\128\208\176\208\179\208\190\209\134\208\181\208\189\208\189\208\190\208\185 \209\129\208\186\208\190\209\128\208\187\209\131\208\191\209\139","Gemshale Pauldrons",2,"inv_shoulder_23"},
+    [9533]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\156\208\176\209\129\208\190\208\189\209\129\208\186\208\190\208\179\208\190 \208\177\209\128\208\176\209\130\209\129\209\130\208\178\208\176","Masons Fraternity Ring",3,"inv_jewelry_ring_03"},
+    [9534]={"\208\147\208\190\208\187\208\190\208\178\208\189\208\190\208\185 \209\131\208\177\208\190\209\128 \208\147\208\184\208\187\209\140\208\180\208\184\208\185","Engineer's Guild Headpiece",3,"inv_helmet_33"},
+    [9535]={"\208\158\208\179\208\189\208\181\209\129\208\178\208\176\209\128\208\189\209\139\208\181 \208\189\208\176\209\128\209\131\209\135\208\184","Fire-welded Bracers",2,"inv_bracer_02"},
+    [9536]={"\208\146\208\190\208\187\209\136\208\181\208\177\208\189\208\190\208\186\209\128\209\139\208\187\208\190\208\181 \208\190\208\191\208\187\208\181\209\135\209\140\208\181","Fairywing Mantle",2,"inv_shoulder_02"},
+    [9587]={"\208\161\209\131\208\188\208\176 \208\184\208\183 \208\188\209\143\208\179\208\186\208\190\208\185 \208\186\208\190\208\182\208\184","Thawpelt Sack",1,"inv_misc_bag_17"},
+    [9604]={"\208\162\209\128\209\131\208\177\208\190\208\188\208\190\208\187\208\190\209\130 \208\188\208\176\209\133\208\189\208\184\208\186\208\176","Mechanic's Pipehammer",2,"inv_mace_04"},
+    [9605]={"\208\157\208\176\208\186\208\184\208\180\208\186\208\176 \209\128\208\181\208\188\208\190\208\189\209\130\208\189\208\184\208\186\208\176","Repairman's Cape",2,"inv_misc_cape_06"},
+    [9608]={"\208\158\208\177\208\181\208\183\208\190\209\128\209\131\208\182\208\184\208\178\208\176\209\142\209\137\208\184\208\185 \208\184\208\189\209\129\209\130\209\128\209\131\208\188\208\181\208\189\209\130 \208\168\208\190\208\189\208\184","Shoni's Disarming Tool",2,"inv_misc_wrench_01"},
+    [9609]={"\208\159\208\190\208\187\209\131\208\191\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\157\208\181\209\128\208\181\209\136\208\184\209\130\208\181\208\187\209\140\208\189\208\190\209\129\209\130\208\184","Shilly Mitts",2,"inv_gauntlets_27"},
+    [9623]={"\208\158\208\180\208\181\209\143\208\189\208\184\209\143 \208\161\208\184\208\178\208\184\208\189\208\176\208\180\208\176","Civinad Robes",3,"inv_chest_cloth_18"},
+    [9624]={"\208\168\208\176\209\128\208\190\208\178\208\176\209\128\209\139 \208\177\208\181\208\179\209\131\208\189\208\176","Triprunner Dungarees",3,"inv_pants_08"},
+    [9625]={"\208\148\208\178\208\190\208\185\208\189\209\139\208\181 \209\131\209\129\208\184\208\187\208\181\208\189\208\189\209\139\208\181 \208\191\208\190\208\189\208\190\208\182\208\184","Dual Reinforced Leggings",3,"inv_pants_03"},
+    [9626]={"\208\148\208\178\208\190\209\128\209\132\208\184\208\185\209\129\208\186\208\184\208\185 \208\189\208\176\209\130\208\184\209\129\208\186","Dwarven Charge",2,"inv_axe_09"},
+    [9627]={"\208\159\209\131\209\130\208\181\208\178\208\190\208\180\208\189\208\176\209\143 \208\183\208\178\208\181\208\183\208\180\208\176 \208\155\208\184\208\179\208\184 \208\184\209\129\209\129\208\187\208\181\208\180\208\190\208\178\208\176\209\130\208\181\208\187\208\181\208\185","Explorer's League Lodestar",2,"inv_misc_lantern_01"},
+    [10358]={"\208\148\209\142\209\128\208\176\209\134\208\184\208\189\208\190\208\178\209\139\208\181 \208\189\208\176\209\128\209\131\209\135\208\184","Duracin Bracers",2,"inv_bracer_04"},
+    [10359]={"\208\148\208\190\208\187\208\179\208\190\208\178\208\181\209\135\208\189\209\139\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Everlast Boots",2,"inv_boots_07"},
+    [10455]={"\208\161\208\186\208\190\208\178\208\176\208\189\208\189\208\176\209\143 \208\161\209\131\209\137\208\189\208\190\209\129\209\130\209\140 \208\173\209\128\208\176\208\189\208\184\208\186\209\131\209\129\208\176","Chained Essence of Eranikus",2,"inv_stone_03"},
+    [10515]={"\208\164\208\176\208\186\208\181\208\187 \208\146\208\190\208\183\208\180\208\176\209\143\208\189\208\184\209\143","Torch of Retribution",1,"inv_wand_04"},
+    [10569]={"\208\161\208\190\208\186\209\128\208\190\208\178\208\184\209\137\208\189\208\184\209\134\208\176 \209\135\208\181\209\128\208\189\209\139\209\133 \208\180\209\128\208\176\208\186\208\190\208\189\208\190\208\178","Hoard of the Black Dragonflight",1,"inv_box_02"},
+    [10710]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\148\209\128\208\176\208\186\208\190\208\189\209\140\208\181\208\179\208\190 \208\186\208\190\208\179\209\130\209\143","Dragonclaw Ring",3,"inv_jewelry_ring_04"},
+    [10711]={"\208\158\208\182\208\181\209\128\208\181\208\187\209\140\208\181 \208\148\209\128\208\176\208\186\208\190\208\189\209\140\208\181\208\185 \208\154\209\128\208\190\208\178\208\184","Dragon's Blood Necklace",3,"inv_jewelry_necklace_02"},
+    [10742]={"\208\148\209\128\208\176\208\186\208\190\208\189\209\140\208\184 \208\191\208\190\208\189\208\190\208\182\208\184","Dragonflight Leggings",2,"inv_pants_05"},
+    [10743]={"\208\168\208\187\208\181\208\188 \208\159\208\187\208\176\208\188\208\181\208\189\208\184 \208\180\209\128\208\176\208\186\208\190\208\189\208\176","Drakefire Headguard",2,"inv_helmet_17"},
+    [10744]={"\208\162\208\190\208\191\208\190\209\128 \208\173\208\177\208\181\208\189\208\190\208\178\208\190\208\179\208\190 \208\180\209\128\208\176\208\186\208\190\208\189\208\176","Axe of the Ebon Drake",2,"inv_axe_12"},
+    [10749]={"\208\168\208\187\208\181\208\188 \208\144\208\178\208\176\208\189\208\179\208\176\209\128\208\180\208\176","Avenguard Helm",3,"inv_helmet_22"},
+    [10750]={"\208\154\208\190\209\128\209\130\208\184\208\186 \208\150\208\184\208\183\208\189\208\181\209\129\208\184\208\187\209\139","Lifeforce Dirk",3,"inv_sword_21"},
+    [10751]={"\208\148\209\128\208\176\208\179\208\190\209\134\208\181\208\189\208\189\209\139\208\185 \208\178\208\181\208\189\208\181\209\134","Gemburst Circlet",3,"inv_crown_01"},
+    [10773]={"\208\163\209\128\208\189\208\176 \208\165\208\176\208\186\208\186\208\176\209\128\208\184","Hakkari Urn",2,"inv_box_01"},
+    [10823]={"\208\156\208\181\209\135 \208\159\208\190\208\186\208\190\209\128\208\184\209\130\208\181\208\187\209\143","Vanquisher's Sword",3,"inv_sword_35"},
+    [10824]={"\208\162\208\176\208\187\208\184\209\129\208\188\208\176\208\189 \208\175\208\189\209\130\208\176\209\128\208\189\208\190\208\179\208\190 \209\129\208\178\208\181\209\130\208\176","Amberglow Talisman",3,"inv_jewelry_necklace_07"},
+    [10919]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\176\208\191\209\130\208\181\208\186\208\176\209\128\209\143","Apothecary Gloves",2,"inv_gauntlets_06"},
+    [11000]={"\208\154\208\187\209\142\209\135 \208\154\209\131\208\183\208\189\208\184 \208\162\208\181\208\189\208\181\208\185","Shadowforge Key",1,"inv_misc_key_08"},
+    [11122]={"\208\156\208\190\209\128\208\186\208\190\208\178\208\186\208\176 \208\189\208\176 \208\191\208\176\208\187\208\190\209\135\208\186\208\181","Carrot on a Stick",2,"inv_misc_food_54"},
+    [11123]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\161\209\130\209\128\208\176\208\189\208\189\208\184\208\186\208\176 \208\180\208\190\208\182\208\180\209\143","Rainstrider Leggings",3,"inv_pants_08"},
+    [11124]={"\208\168\208\187\208\181\208\188 \208\152\208\183\208\179\208\189\208\176\208\189\208\184\209\143","Helm of Exile",3,"inv_helmet_21"},
+    [11262]={"\208\161\209\132\208\181\209\128\208\176 \208\155\208\190\209\128\208\184\208\186\208\184","Orb of Lorica",3,"inv_misc_orb_01"},
+    [11865]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\158\208\183\208\187\208\190\208\177\208\187\208\181\208\189\208\184\209\143","Rancor Boots",2,"inv_boots_02"},
+    [11866]={"\208\159\208\190\209\143\209\129-\209\133\208\187\209\139\209\129\209\130 \208\157\208\176\208\179\208\188\208\176\209\128\209\139","Nagmara's Whipping Belt",3,"inv_belt_11"},
+    [11883]={"\208\151\208\176\208\186\208\190\208\191\209\135\208\181\208\189\208\189\208\176\209\143 \209\129\209\131\208\188\208\176-\208\182\208\181\209\129\209\130\209\143\208\189\208\186\208\176","A Dingy Fanny Pack",1,"inv_misc_bag_09_black"},
+    [11962]={"\208\154\208\176\208\189\208\180\208\176\208\187\209\139","Manacle Cuffs",3,"inv_bracer_13"},
+    [11963]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\186\208\176\209\128\209\139","Penance Spaulders",2,"inv_shoulder_25"},
+    [11964]={"\208\159\208\176\208\187\208\186\208\176 \208\188\208\190\208\187\208\189\208\184\208\181\208\189\208\190\209\129\208\189\208\190\208\179\208\190 \209\131\208\180\208\176\209\128\208\176","Swiftstrike Cudgel",2,"inv_mace_08"},
+    [12000]={"\208\154\208\190\208\187\209\131\208\189 \208\186\208\190\208\189\208\181\209\135\208\189\208\190\209\129\209\130\208\181\208\185","Limb Cleaver",2,"inv_axe_02"},
+    [12003]={"\208\162\208\181\208\188\208\189\208\190\208\181 \208\180\208\178\208\190\209\128\209\132\208\184\208\185\209\129\208\186\208\190\208\181 \208\191\208\184\208\178\208\190","Dark Dwarven Lager",1,"inv_drink_05"},
+    [12018]={"\208\168\208\187\208\181\208\188 \208\158\209\133\209\128\208\176\208\189\208\184\209\130\208\181\208\187\209\143","Conservator Helm",2,"inv_helmet_01"},
+    [12021]={"\208\169\208\184\209\130\208\190\208\187\208\176\209\130\208\189\209\139\208\181 \208\177\208\176\209\136\208\188\208\176\208\186\208\184","Shieldplate Sabatons",2,"inv_boots_plate_01"},
+    [12038]={"\208\159\208\181\209\135\208\176\209\130\209\140 \208\155\208\176\208\179\209\128\208\176\208\178\208\176","Lagrave's Seal",2,"inv_jewelry_ring_03"},
+    [12041]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\146\208\181\209\130\209\128\208\190\209\128\208\181\208\183\208\190\208\178","Windshear Leggings",2,"inv_pants_13"},
+    [12049]={"\208\161\209\130\208\176\208\187\209\140\208\189\208\190\208\190\209\129\208\186\208\190\208\187\208\190\209\135\208\189\208\176\209\143 \208\177\209\128\208\190\208\189\209\143","Splintsteel Armor",2,"inv_chest_chain_16"},
+    [12059]={"\208\156\208\181\208\180\208\176\208\187\209\140\208\190\208\189 \208\151\208\176\208\178\208\190\208\181\208\178\208\176\209\130\208\181\208\187\209\143","Conqueror's Medallion",3,"inv_jewelry_amulet_03"},
+    [12061]={"\208\154\208\187\208\184\208\189\208\190\208\186 \208\160\208\176\209\129\209\135\208\181\209\130\208\190\208\178","Blade of Reckoning",2,"inv_sword_26"},
+    [12062]={"\208\154\208\178\208\176\208\187\208\184\209\132\208\184\209\134\208\184\209\128\208\190\208\178\208\176\208\189\208\189\209\139\208\185 \208\177\208\190\208\181\208\178\208\190\208\185 \208\186\208\187\208\184\208\189\208\190\208\186","Skilled Fighting Blade",2,"inv_sword_21"},
+    [12065]={"\208\158\208\177\208\181\209\128\208\181\208\179 \208\161\209\130\208\184\209\133\208\184\208\185","Ward of the Elements",2,"inv_jewelry_talisman_02"},
+    [12066]={"\208\157\208\176\208\186\208\184\208\180\208\186\208\176 \208\147\208\187\208\184\208\189\208\184\209\129\209\130\208\190\208\185 \208\186\208\190\208\182\208\184","Shaleskin Cape",2,"inv_misc_cape_02"},
+    [12082]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\184\208\183 \209\136\208\186\209\131\209\128\209\139 \208\183\208\188\208\181\209\143","Wyrmhide Spaulders",2,"inv_shoulder_16"},
+    [12083]={"\208\146\208\176\208\187\209\140\208\186\208\190\208\189\208\184\208\185\209\129\208\186\208\184\208\185 \208\186\209\131\209\136\208\176\208\186","Valconian Sash",2,"inv_belt_11"},
+    [12102]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\144\209\128\208\184\209\129\209\130\208\190\208\186\209\128\208\176\209\130\208\176","Ring of the Aristocrat",2,"inv_jewelry_ring_15"},
+    [12108]={"\208\145\208\176\208\183\208\176\208\187\209\140\209\130\208\190\208\178\208\176\209\143 \209\135\208\181\209\136\209\131\208\185\209\135\208\176\209\130\208\176\209\143 \208\177\209\128\208\190\208\189\209\143","Basaltscale Armor",2,"inv_chest_chain_16"},
+    [12109]={"\208\155\208\176\208\183\209\131\209\128\208\189\209\139\208\185 \208\187\209\131\208\189\208\189\209\139\208\185 \208\189\208\176\209\128\208\176\208\188\208\189\208\184\208\186","Azure Moon Amice",2,"inv_shoulder_02"},
+    [12110]={"\208\159\208\181\208\187\208\181\209\128\208\184\208\189\208\176 \208\151\208\176\208\186\208\187\208\184\208\189\208\176\209\130\208\181\208\187\209\143 \208\148\208\190\208\182\208\180\209\143","Raincaster Drape",2,"inv_misc_cape_16"},
+    [12111]={"\208\155\208\176\208\178\208\190\208\178\209\139\208\181 \209\128\209\131\208\186\208\176\208\178\208\184\209\134\209\139","Lavaplate Gauntlets",2,"inv_gauntlets_26"},
+    [12112]={"\208\157\208\176\209\128\209\131\209\135\208\184 \209\129\208\186\208\187\208\181\208\191\208\189\208\190\208\179\208\190 \208\180\208\181\208\188\208\190\208\189\208\176","Crypt Demon Bracers",2,"inv_bracer_17"},
+    [12113]={"\208\161\208\190\208\187\208\189\208\181\209\135\208\189\208\176\209\143 \208\189\208\176\208\186\208\184\208\180\208\186\208\176","Sunborne Cape",2,"inv_misc_cape_08"},
+    [12114]={"\208\161\209\131\208\188\209\128\208\176\209\135\208\189\209\139\208\181 \208\191\208\181\209\128\209\135\208\176\209\130\208\186\208\184","Nightfall Gloves",2,"inv_gauntlets_17"},
+    [12115]={"\208\161\209\130\208\190\208\185\208\186\208\184\208\185 \208\191\208\190\209\143\209\129\208\190\208\186","Stalwart Clutch",2,"inv_belt_34"},
+    [12144]={"\208\175\208\185\209\134\208\181\209\133\208\187\208\176\208\180\208\190\209\129\208\186\208\190\208\191","Eggscilloscope",1,"inv_gizmo_09"},
+    [12264]={"\208\159\208\181\209\128\208\181\208\189\208\190\209\129\208\186\208\176 \208\180\208\187\209\143 \208\178\208\190\209\128\208\179\208\176","Worg Carrier",1,"inv_box_petcarrier_01"},
+    [12344]={"\208\159\208\181\209\135\208\176\209\130\209\140 \208\146\208\190\208\183\208\189\208\181\209\129\208\181\208\189\208\184\209\143","Seal of Ascension",3,"inv_jewelry_ring_01"},
+    [12529]={"\208\154\208\187\208\181\209\130\208\186\208\176 \208\158\208\179\208\189\208\181\208\191\208\176\209\131\209\130\208\184\208\189\208\186\208\184","Smolderweb Carrier",1,"inv_box_birdcage_01"},
+    [12543]={"\208\159\208\190\209\142\209\137\208\184\208\185 \208\186\208\176\208\188\208\181\208\189\209\140 \208\161\209\130\208\176\208\187\209\140\208\179\208\190\209\128\208\189\208\176","Songstone of Ironforge",3,"inv_jewelry_ring_05"},
+    [12544]={"\208\160\208\181\209\136\208\184\208\188\208\190\209\129\209\130\209\140 \208\162\209\128\208\176\208\187\208\187\208\176","Thrall's Resolve",3,"inv_jewelry_ring_05"},
+    [12545]={"\208\158\208\186\208\190 \208\158\209\128\208\179\209\128\208\184\208\188\208\188\208\176\209\128\208\176","Eye of Orgrimmar",3,"inv_jewelry_ring_05"},
+    [12548]={"\208\146\208\190\208\187\209\143 \208\156\208\176\208\179\208\189\208\184","Magni's Will",3,"inv_jewelry_ring_05"},
+    [12696]={"\208\167\208\181\209\128\209\130\208\181\208\182: \208\178\209\139\208\186\208\190\208\178\208\176\208\189\208\189\208\176\209\143 \208\180\208\181\208\188\208\190\208\189\208\190\208\188 \208\186\208\184\209\128\208\176\209\129\208\176","Plans: Demon Forged Breastplate",3,"inv_scroll_03"},
+    [12849]={"\208\161\209\131\208\188\208\186\208\176 \208\159\208\190\209\134\208\181\208\187\209\131\209\143 \208\180\208\181\208\188\208\190\208\189\208\176","Demon Kissed Sack",2,"inv_misc_bag_13"},
+    [13171]={"\208\146\208\190\209\129\208\191\208\187\208\176\208\188\208\181\208\189\208\184\209\130\208\181\208\187\209\140 \208\148\209\139\208\188\208\186\208\176","Smokey's Lighter",2,"spell_fire_searingtotem"},
+    [13209]={"\208\159\208\181\209\135\208\176\209\130\209\140 \208\160\208\176\209\129\209\129\208\178\208\181\209\130\208\176","Seal of the Dawn",3,"inv_misc_armorkit_18"},
+    [13216]={"\208\154\208\190\209\128\208\190\208\189\208\176 \208\159\208\190\208\186\208\176\209\143\208\189\208\184\209\143","Crown of the Penitent",2,"inv_helmet_06"},
+    [13217]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\159\208\190\208\186\208\176\209\143\208\189\208\184\209\143","Band of the Penitent",2,"inv_jewelry_ring_30"},
+    [13315]={"\208\151\208\176\208\178\208\181\209\137\208\176\208\189\208\184\208\181 \208\189\208\176\208\180\208\181\208\182\208\180\209\139","Testament of Hope",2,"inv_misc_book_06"},
+    [13544]={"\208\161\209\131\209\137\208\189\208\190\209\129\209\130\209\140 \208\191\209\128\208\184\208\178\208\184\208\180\208\181\208\189\208\184\209\143","Spectral Essence",2,"inv_misc_orb_05"},
+    [13958]={"\208\158\208\186\208\190\208\178\209\139 \208\146\209\131\209\128\208\188\209\130\208\176\208\187\208\176\208\186\208\176","Wyrmthalak's Shackles",3,"inv_bracer_04"},
+    [13959]={"\208\162\208\181\209\129\209\140\208\188\208\176-\209\132\208\184\208\186\209\129\208\176\209\130\208\190\209\128 \208\158\208\188\208\190\208\186\208\186\208\176","Omokk's Girth Restrainer",3,"inv_belt_13"},
+    [13961]={"\208\157\208\176\208\188\208\190\209\128\208\180\208\189\208\184\208\186 \208\165\208\176\208\187\208\184\208\186\208\190\208\189","Halycon's Muzzle",3,"inv_shoulder_24"},
+    [13962]={"\208\159\208\190\209\143\209\129 \208\146\208\190\209\129'\208\179\208\176\208\180\208\182\208\184\208\189","Vosh'gajin's Strand",3,"inv_belt_15"},
+    [13963]={"\208\159\208\190\208\179\208\176\208\189\209\139\208\181 \208\183\208\176\209\133\208\178\208\176\209\130\209\139 \208\146\209\131\208\189\208\176","Voone's Vice Grips",3,"inv_gauntlets_15"},
+    [13965]={"\208\159\208\187\208\176\209\129\209\130\208\184\209\130\208\176 \208\167\208\181\209\128\208\189\208\190\209\128\209\131\208\186\208\176","Blackhand's Breadth",3,"inv_misc_armorkit_09"},
+    [13966]={"\208\151\208\189\208\176\208\186 \208\162\208\184\209\128\208\176\208\189\208\184\208\184","Mark of Tyranny",3,"inv_jewelry_talisman_09"},
+    [13968]={"\208\147\208\187\208\176\208\183 \208\151\208\178\208\181\209\128\209\143","Eye of the Beast",3,"inv_jewelry_talisman_08"},
+    [13982]={"\208\145\208\190\208\181\208\178\208\190\208\185 \208\186\208\187\208\184\208\189\208\190\208\186 \208\154\208\176\209\141\209\128 \208\148\208\176\209\128\209\128\208\190\209\131","Warblade of Caer Darrow",3,"inv_sword_39"},
+    [13984]={"\208\159\208\184\208\186\208\176 \208\148\209\141\209\128\209\128\208\190\209\131","Darrowspike",3,"inv_weapon_shortblade_21"},
+    [13986]={"\208\154\208\190\209\128\208\190\208\189\208\176 \208\154\208\176\209\141\209\128 \208\148\208\176\209\128\209\128\208\190\209\131","Crown of Caer Darrow",3,"inv_crown_01"},
+    [14002]={"\208\161\208\184\208\187\209\140\208\189\208\190\209\129\209\130\209\128\208\176\208\182 \208\148\208\176\209\128\209\128\208\190\209\131\209\136\208\184\209\128\208\176","Darrowshire Strongguard",3,"inv_shield_05"},
+    [15449]={"\208\156\208\181\209\128\209\130\208\178\208\181\208\189\208\189\209\139\208\181 \208\177\209\128\209\142\208\186\208\184","Ghastly Trousers",2,"inv_pants_14"},
+    [15450]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\177\208\190\208\187\208\190\209\130\208\189\208\190\208\179\208\190 \209\135\208\181\209\128\208\191\208\176\209\130\208\181\208\187\209\143","Dredgemire Leggings",2,"inv_pants_07"},
+    [15451]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\179\208\190\209\128\208\179\209\131\208\187\209\140\208\184","Gargoyle Leggings",2,"inv_pants_03"},
+    [15452]={"\208\159\208\181\209\128\208\190\208\177\208\184\209\129\208\181\209\128\208\189\209\139\208\181 \208\189\208\176\209\128\209\131\209\135\208\184","Featherbead Bracers",2,"inv_bracer_08"},
+    [15453]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\161\208\176\208\178\208\176\208\189\208\189\209\139","Savannah Bracers",2,"inv_bracer_07"},
+    [15805]={"\208\160\208\190\208\183\208\176 \208\159\208\181\208\189\208\181\208\187\208\190\208\191\209\139","Penelope's Rose",3,"inv_misc_flower_04"},
+    [15806]={"\208\159\208\181\209\129\208\189\209\143 \208\156\208\184\209\128\208\176\209\133\208\176","Mirah's Song",3,"inv_sword_34"},
+    [15824]={"\208\144\209\129\209\130\208\190\209\128\208\184\208\185\209\129\208\186\208\184\208\181 \208\190\208\180\208\181\209\143\208\189\208\184\209\143","Astoria Robes",2,"inv_chest_cloth_07"},
+    [15825]={"\208\151\208\178\208\181\209\128\208\190\208\187\208\190\208\178\208\181\209\134\208\186\208\184\208\185 \208\182\208\176\208\186\208\181\209\130","Traphook Jerkin",2,"inv_chest_plate06"},
+    [15827]={"\208\154\208\184\209\128\208\176\209\129\208\176 \208\184\208\183 \208\189\208\181\209\132\209\128\208\184\209\130\208\190\208\178\208\190\208\185 \209\135\208\181\209\136\209\131\208\184","Jadescale Breastplate",2,"inv_chest_chain_04"},
+    [15853]={"\208\146\208\181\209\130\209\128\208\190\208\182\208\189\208\181\209\134","Windreaper",3,"inv_axe_08"},
+    [15854]={"\208\162\208\176\208\189\209\134\209\131\209\142\209\137\208\181\208\181 \209\129\208\181\209\128\208\181\208\177\209\128\208\190","Dancing Sliver",3,"inv_staff_07"},
+    [15858]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\146\208\190\208\187\209\140\208\189\208\190\208\179\208\190 \208\178\208\181\209\130\209\128\208\176","Freewind Gloves",2,"inv_gauntlets_16"},
+    [15859]={"\208\160\208\181\208\188\208\181\208\189\209\140 \208\188\208\190\209\128\209\129\208\186\208\190\208\185 \208\183\208\176\209\129\209\130\208\176\208\178\209\139","Seapost Girdle",2,"inv_belt_23"},
+    [15860]={"\208\145\208\190\208\181\208\178\209\139\208\181 \208\189\208\176\209\128\209\131\209\135\208\184 \208\188\208\179\208\189\208\190\208\178\208\181\208\189\208\189\208\190\208\179\208\190 \209\131\208\180\208\176\209\128\208\176","Blinkstrike Armguards",2,"inv_bracer_17"},
+    [15861]={"\208\145\209\139\209\129\209\130\209\128\208\190\209\129\209\130\209\131\208\191\208\189\209\139\208\181 \208\177\208\190\209\130\209\132\208\190\209\128\209\130\209\139","Swiftfoot Treads",2,"inv_boots_07"},
+    [15862]={"\208\156\208\190\208\187\208\189\208\184\208\181\208\189\208\190\209\129\208\189\209\139\208\185 \208\186\208\190\208\187\209\131\208\189","Blitzcleaver",2,"inv_weapon_halberd_06"},
+    [15863]={"\208\156\208\190\208\179\208\184\208\187\209\140\208\189\209\139\208\185 \209\129\208\186\208\184\208\191\208\181\209\130\209\128","Grave Scepter",2,"inv_mace_07"},
+    [15867]={"\208\158\208\177\208\181\209\128\208\181\208\179-\208\191\209\128\208\184\208\183\208\188\208\176","Prismcharm",2,"inv_misc_gem_variety_02"},
+    [15873]={"\208\157\208\181\209\131\208\191\208\184\208\178\208\176\208\181\208\188\208\176\209\143 \209\135\208\176\209\136\208\176 \208\148\208\182\208\190\208\189\208\176-\208\158\208\177\208\190\209\128\208\178\208\176\208\189\209\134\208\176","Ragged John's Neverending Cup",3,"inv_drink_03"},
+    [16309]={"\208\144\208\188\209\131\208\187\208\181\209\130 \208\159\208\187\208\176\208\188\208\181\208\189\208\184 \208\180\209\128\208\176\208\186\208\190\208\189\208\176","Drakefire Amulet",3,"inv_jewelry_talisman_11"},
+    [16886]={"\208\161\208\176\208\177\208\187\209\143 \208\177\208\181\208\183\208\183\208\176\208\186\208\190\208\189\208\189\208\184\208\186\208\176","Outlaw Sabre",3,"inv_sword_33"},
+    [16887]={"\208\146\208\181\208\180\209\140\208\188\208\184\208\189 \208\191\208\176\208\187\208\181\209\134","Witch's Finger",3,"inv_wand_12"},
+    [16994]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\162\208\181\208\189\208\181\208\186\209\128\209\139\208\187\208\176","Duskwing Gloves",2,"inv_gauntlets_02"},
+    [16995]={"\208\162\208\181\208\189\208\181\208\186\209\128\209\139\208\187\209\139\208\181 \208\190\208\191\208\187\208\181\209\135\209\140\208\181","Duskwing Mantle",2,"inv_shoulder_19"},
+    [17001]={"\208\158\208\177\209\128\209\131\209\135 \208\161\209\130\208\184\209\133\208\184\208\185","Elemental Circle",2,"inv_jewelry_ring_29"},
+    [17002]={"\208\160\208\176\208\183\208\177\209\128\209\139\208\183\208\179\208\184\208\178\208\176\209\130\208\181\208\187\209\140 \208\187\208\184\208\188\209\132\209\139","Ichor Spitter",2,"inv_weapon_halberd_05"},
+    [17003]={"\208\156\208\190\208\187\208\190\209\130 \208\154\208\176\208\188\208\181\208\189\208\189\208\190\208\179\208\190 \209\135\208\181\209\128\208\181\208\191\208\176","Skullstone Hammer",2,"inv_misc_bone_orcskull_01"},
+    [17004]={"\208\160\209\131\208\186\208\190\208\178\208\190\208\180\209\129\209\130\208\178\208\190 \208\161\208\176\209\128\209\139","Sarah's Guide",2,"inv_staff_10"},
+    [17039]={"\208\159\209\128\208\190\208\177\208\184\208\178\208\176\209\130\208\181\208\187\209\140 \209\135\208\181\209\128\208\181\208\191\208\190\208\178","Skullbreaker",2,"inv_misc_bone_dwarfskull_01"},
+    [17042]={"\208\147\208\178\208\190\208\183\208\180\208\190\208\188\208\181\209\130","Nail Spitter",2,"inv_weapon_rifle_01"},
+    [17043]={"\208\158\208\180\208\181\209\143\208\189\208\184\208\181 \209\132\208\176\208\189\208\176\209\130\208\184\208\186\208\176","Zealot's Robe",2,"inv_chest_cloth_06"},
+    [17044]={"\208\146\208\190\208\187\209\143 \208\156\209\131\209\135\208\181\208\189\208\184\208\186\208\176","Will of the Martyr",3,"inv_jewelry_talisman_07"},
+    [17045]={"\208\154\209\128\208\190\208\178\209\140 \208\156\209\131\209\135\208\181\208\189\208\184\208\186\208\176","Blood of the Martyr",3,"inv_jewelry_ring_25"},
+    [17191]={"\208\161\208\186\208\184\208\191\208\181\209\130\209\128 \208\154\208\181\208\187\208\181\208\177\209\128\208\176\209\129\208\176","Scepter of Celebras",3,"inv_staff_16"},
+    [17508]={"\208\154\209\131\208\187\208\176\209\135\208\189\209\139\208\185 \209\137\208\184\209\130 \208\154\208\176\208\188\208\189\208\181\209\129\208\184\208\187\209\139","Forcestone Buckler",2,"inv_shield_02"},
+    [17694]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\154\209\131\208\187\208\176\208\186\208\176","Band of the Fist",2,"inv_jewelry_ring_02"},
+    [17695]={"\208\158\208\191\208\187\208\181\209\135\209\140\208\181 \208\147\208\189\208\181\208\180\208\190\208\179\208\190","Chestnut Mantle",2,"inv_shoulder_09"},
+    [17705]={"\208\156\208\190\208\187\208\190\209\130\209\143\209\137\208\184\208\185 \208\186\208\187\208\184\208\189\208\190\208\186","Thrash Blade",3,"inv_sword_36"},
+    [17743]={"\208\150\208\181\208\183\208\187 \208\146\208\190\208\183\209\128\208\190\208\182\208\180\208\181\208\189\208\184\209\143","Resurgence Rod",3,"inv_staff_goldfeathered_01"},
+    [17753]={"\208\166\208\181\208\187\209\140 \208\151\208\181\208\187\208\181\208\189\208\190\208\179\208\190 \209\133\209\128\208\176\208\189\208\184\209\130\208\181\208\187\209\143","Verdant Keeper's Aim",3,"inv_weapon_bow_03"},
+    [17768]={"\208\154\208\190\208\187\209\140\209\134\208\190 \208\155\208\181\209\129\208\189\209\139\209\133 \208\161\208\181\208\188\209\143\208\189","Woodseed Hoop",2,"inv_jewelry_ring_18"},
+    [17770]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\154\208\190\208\179\209\130\208\184\209\129\209\130\208\190\208\185 \208\178\208\181\209\130\208\178\208\184","Branchclaw Gauntlets",2,"inv_gauntlets_30"},
+    [17772]={"\208\156\208\190\208\179\209\131\209\135\208\176\209\143 \208\191\208\190\208\180\208\178\208\181\209\129\208\186\208\176 \208\158\209\129\208\186\208\190\208\187\208\186\208\190\208\178 \208\161\209\131\208\188\209\128\208\176\208\186\208\176","Zealous Shadowshard Pendant",2,"inv_jewelry_necklace_06"},
+    [17773]={"\208\167\209\131\208\180\208\181\209\129\208\189\208\176\209\143 \208\191\208\190\208\180\208\178\208\181\209\129\208\186\208\176 \208\158\209\129\208\186\208\190\208\187\208\186\208\190\208\178 \208\161\209\131\208\188\209\128\208\176\208\186\208\176","Prodigious Shadowshard Pendant",2,"inv_jewelry_necklace_06"},
+    [17774]={"\208\151\208\189\208\176\208\186 \208\152\208\183\208\177\209\128\208\176\208\189\208\189\208\190\208\179\208\190","Mark of the Chosen",2,"inv_jewelry_talisman_08"},
+    [17775]={"\208\159\209\128\208\190\208\189\208\184\209\134\208\176\209\130\208\181\208\187\209\140\208\189\209\139\208\181 \208\190\208\180\208\181\209\143\208\189\208\184\209\143","Acumen Robes",2,"inv_chest_cloth_49"},
+    [17776]={"\208\168\208\187\208\181\208\188 \208\154\208\190\208\187\209\140\209\134\208\176 \208\180\209\131\209\133\208\190\208\178","Sprightring Helm",2,"inv_helmet_35"},
+    [17777]={"\208\145\208\181\209\129\208\191\208\190\209\137\208\176\208\180\208\189\208\176\209\143 \208\186\208\190\208\187\209\140\209\135\209\131\208\179\208\176","Relentless Chain",2,"inv_chest_chain_07"},
+    [17778]={"\208\159\208\190\208\187\209\139\208\189\208\189\209\139\208\185 \209\128\208\181\208\188\208\181\208\189\209\140","Sagebrush Girdle",2,"inv_belt_25"},
+    [17779]={"\208\157\208\176\208\191\208\187\208\181\209\135\209\140\208\181 \208\188\208\181\208\179\208\176\208\186\208\176\208\188\208\189\209\143","Hulkstone Pauldrons",2,"inv_shoulder_23"},
+    [18022]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\144\208\187\208\181\208\186\209\129\208\184\209\129\208\176","Royal Seal of Alexis",3,"inv_jewelry_ring_30"},
+    [18258]={"\208\145\209\128\208\190\208\189\209\143 \208\190\208\179\209\128\208\190\208\178 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok Ogre Suit",2,"inv_chest_chain_14"},
+    [18269]={"\208\151\208\181\208\187\208\181\208\189\209\139\208\185 \208\179\209\128\208\190\208\179 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok Green Grog",2,"inv_drink_03"},
+    [18284]={"\208\163\208\177\208\190\208\185\208\189\208\190\208\181 \208\191\208\190\208\185\208\187\208\190 \208\154\209\128\208\184\208\179\208\176","Kreeg's Stout Beatdown",2,"inv_drink_05"},
+    [18366]={"\208\145\208\190\208\181\208\178\209\139\208\181 \209\128\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok's Handguards",3,"inv_gauntlets_09"},
+    [18367]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok's Gauntlets",3,"inv_gauntlets_09"},
+    [18368]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok's Gloves",3,"inv_gauntlets_01"},
+    [18369]={"\208\159\208\190\208\178\209\143\208\183\208\186\208\184 \208\147\208\190\209\128\208\180\208\190\208\186\208\176","Gordok's Handwraps",3,"inv_gauntlets_06"},
+    [18410]={"\208\156\208\181\209\135 \209\129\208\191\209\128\208\184\208\189\209\130\208\181\209\128\208\176","Sprinter's Sword",2,"inv_sword_28"},
+    [18411]={"\208\159\208\190\208\180\208\178\208\184\208\182\208\189\209\139\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Spry Boots",2,"inv_boots_06"},
+    [18420]={"\208\154\208\190\209\129\209\130\208\181\208\186\209\128\209\131\209\136\208\184\209\130\208\181\208\187\209\140","Bonecrusher",3,"inv_mace_02"},
+    [18421]={"\208\168\208\187\208\181\208\188 \208\151\208\176\208\180\208\189\208\181\208\187\208\181\209\129\208\176","Backwood Helm",3,"inv_helmet_19"},
+    [18424]={"\208\158\209\129\208\190\208\186\208\190\208\178\209\139\208\181 \209\129\208\176\208\191\208\190\208\179\208\184","Sedge Boots",3,"inv_boots_05"},
+    [18465]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18466]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18467]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18468]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18469]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18470]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18471]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18472]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18473]={"\208\154\208\190\209\128\208\190\208\187\208\181\208\178\209\129\208\186\208\176\209\143 \208\191\208\181\209\135\208\176\209\130\209\140 \208\173\208\187\209\140\208\180\209\128\208\181'\208\162\208\176\208\187\208\176\209\129\208\176","Royal Seal of Eldre'Thalas",3,"inv_jewelry_talisman_10"},
+    [18491]={"\208\156\208\176\209\129\209\130\208\181\209\128-\208\191\209\128\209\143\208\180\208\184\208\187\209\140\209\137\208\184\208\186","Lorespinner",3,"inv_weapon_shortblade_21"},
+    [18592]={"\208\167\208\181\209\128\209\130\208\181\208\182: \209\129\209\131\208\187\209\140\209\132\209\131\209\128\208\190\208\189\209\129\208\186\208\184\208\185 \208\188\208\190\208\187\208\190\209\130","Plans: Sulfuron Hammer",4,"inv_scroll_03"},
+    [19812]={"\208\160\209\131\208\189\208\176 \208\160\208\176\209\129\209\129\208\178\208\181\209\130\208\176","Rune of the Dawn",3,"inv_misc_rune_06"},
+    [20403]={"\208\148\208\190\208\178\208\181\209\128\208\181\208\189\208\189\209\139\208\185 \208\157\208\190\208\183\208\180\208\190\209\128\208\188\209\131","Proxy of Nozdormu",2,"spell_holy_sealofwrath"},
+    [21994]={"\208\159\208\190\209\143\209\129 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Belt of Heroism",3,"inv_belt_34"},
+    [21995]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Boots of Heroism",4,"inv_boots_plate_03"},
+    [21996]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Bracers of Heroism",3,"inv_bracer_18"},
+    [21998]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Gauntlets of Heroism",4,"inv_gauntlets_26"},
+    [22000]={"\208\157\208\190\208\182\208\189\209\139\208\181 \208\187\208\176\209\130\209\139 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Legplates of Heroism",3,"inv_pants_04"},
+    [22001]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\147\208\181\209\128\208\190\208\184\208\183\208\188\208\176","Spaulders of Heroism",3,"inv_shoulder_30"},
+    [22002]={"\208\159\208\190\209\143\209\129 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \208\162\209\140\208\188\209\139","Darkmantle Belt",3,"inv_belt_03"},
+    [22003]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \208\162\209\140\208\188\209\139","Darkmantle Boots",4,"inv_boots_08"},
+    [22004]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \209\130\209\140\208\188\209\139","Darkmantle Bracers",3,"inv_bracer_07"},
+    [22006]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \208\162\209\140\208\188\209\139","Darkmantle Gloves",4,"inv_gauntlets_24"},
+    [22007]={"\208\168\209\130\208\176\208\189\209\139 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \208\162\209\140\208\188\209\139","Darkmantle Pants",3,"inv_pants_02"},
+    [22008]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\159\208\190\208\186\209\128\208\190\208\178\208\176 \208\162\209\140\208\188\209\139","Darkmantle Spaulders",3,"inv_shoulder_07"},
+    [22010]={"\208\159\208\190\209\143\209\129 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Belt",3,"inv_belt_28"},
+    [22011]={"\208\157\208\176\209\128\209\131\209\135\208\189\208\184\208\186\208\184 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Bindings",3,"inv_bracer_17"},
+    [22015]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Gloves",4,"inv_gauntlets_10"},
+    [22016]={"\208\158\208\191\208\187\208\181\209\135\209\140\208\181 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Mantle",3,"inv_shoulder_10"},
+    [22017]={"\208\168\209\130\208\176\208\189\209\139 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Pants",3,"inv_pants_03"},
+    [22061]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\159\208\190\208\178\208\181\208\187\208\184\209\130\208\181\208\187\209\143 \208\151\208\178\208\181\209\128\208\181\208\185","Beastmaster's Boots",4,"inv_boots_plate_07"},
+    [22062]={"\208\159\208\190\209\143\209\129 \208\188\208\176\208\179\208\176","Sorcerer's Belt",3,"inv_belt_08"},
+    [22063]={"\208\157\208\176\209\128\209\131\209\135\208\189\208\184\208\186\208\184 \208\178\208\190\208\187\209\136\208\181\208\177\208\189\208\184\208\186\208\176","Sorcerer's Bindings",3,"inv_jewelry_ring_23"},
+    [22064]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\178\208\190\208\187\209\136\208\181\208\177\208\189\208\184\208\186\208\176","Sorcerer's Boots",4,"inv_boots_02"},
+    [22066]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\178\208\190\208\187\209\136\208\181\208\177\208\189\208\184\208\186\208\176","Sorcerer's Gloves",4,"inv_gauntlets_17"},
+    [22067]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\178\208\190\208\187\209\136\208\181\208\177\208\189\208\184\208\186\208\176","Sorcerer's Leggings",3,"inv_pants_06"},
+    [22068]={"\208\156\208\176\208\189\209\130\208\184\209\143 \208\178\208\190\208\187\209\136\208\181\208\177\208\189\208\184\208\186\208\176","Sorcerer's Mantle",3,"inv_shoulder_23"},
+    [22070]={"\208\159\208\190\209\143\209\129 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Belt",3,"inv_belt_12"},
+    [22071]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Bracers",3,"inv_bracer_13"},
+    [22072]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Leggings",3,"inv_pants_08"},
+    [22073]={"\208\158\208\191\208\187\208\181\209\135\209\140\208\181 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Mantle",3,"inv_misc_bone_taurenskull_01"},
+    [22076]={"\208\161\208\176\208\189\208\180\208\176\208\187\208\184\208\184 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Sandals",4,"inv_boots_05"},
+    [22077]={"\208\159\208\190\208\178\209\143\208\183\208\186\208\184 \208\162\209\131\208\188\208\176\208\189\208\176 \209\129\208\188\208\181\209\128\209\130\208\184","Deathmist Wraps",4,"inv_gauntlets_32"},
+    [22078]={"\208\159\208\190\209\143\209\129 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Belt",3,"inv_belt_10"},
+    [22079]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Bracers",3,"inv_belt_31"},
+    [22081]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Gloves",4,"inv_gauntlets_14"},
+    [22082]={"\208\158\208\191\208\187\208\181\209\135\209\140\208\181 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Mantle",3,"inv_shoulder_02"},
+    [22084]={"\208\161\208\176\208\189\208\180\208\176\208\187\208\184\208\184 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Sandals",4,"inv_boots_05"},
+    [22085]={"\208\174\208\177\208\186\208\176 \208\148\208\190\208\177\209\128\208\190\208\180\208\181\209\130\208\181\208\187\208\184","Virtuous Skirt",3,"inv_pants_08"},
+    [22086]={"\208\159\208\190\209\143\209\129 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Belt",3,"inv_belt_11"},
+    [22087]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Boots",4,"inv_boots_plate_03"},
+    [22088]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Bracers",3,"inv_bracer_14"},
+    [22090]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Gauntlets",4,"inv_gauntlets_19"},
+    [22092]={"\208\157\208\190\208\182\208\189\209\139\208\181 \208\187\208\176\209\130\209\139 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Legplates",3,"inv_pants_04"},
+    [22093]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\151\208\176\208\186\208\176\208\187\208\181\208\189\208\189\208\190\208\179\208\190 \208\180\209\131\209\133\208\176","Soulforge Spaulders",3,"inv_shoulder_10"},
+    [22095]={"\208\157\208\176\209\128\209\131\209\135\208\189\208\184\208\186\208\184 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Bindings of The Five Thunders",3,"inv_bracer_02"},
+    [22096]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Boots of The Five Thunders",4,"inv_boots_wolf"},
+    [22098]={"\208\168\208\189\209\131\209\128\208\190\208\178\208\176\208\189\208\189\209\139\208\185 \209\128\208\181\208\188\208\181\208\189\209\140 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Cord of The Five Thunders",3,"inv_belt_16"},
+    [22099]={"\208\160\209\131\208\186\208\176\208\178\208\184\209\134\209\139 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Gauntlets of The Five Thunders",4,"inv_gauntlets_11"},
+    [22100]={"\208\154\208\184\208\187\209\130 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Kilt of The Five Thunders",3,"inv_pants_03"},
+    [22101]={"\208\157\208\176\208\191\208\187\208\181\209\135\209\140\208\181 \208\159\209\143\209\130\208\184 \208\147\209\128\208\190\208\188\208\190\208\178","Pauldrons of The Five Thunders",3,"inv_shoulder_29"},
+    [22106]={"\208\159\208\190\209\143\209\129 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Belt",3,"inv_belt_15"},
+    [22107]={"\208\161\208\176\208\191\208\190\208\179\208\184 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Boots",4,"inv_boots_08"},
+    [22108]={"\208\157\208\176\209\128\209\131\209\135\208\184 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Bracers",3,"inv_bracer_09"},
+    [22110]={"\208\159\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Gloves",4,"inv_gauntlets_17"},
+    [22111]={"\208\154\208\184\208\187\209\130 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Kilt",3,"inv_pants_08"},
+    [22112]={"\208\157\208\176\208\191\208\187\208\181\209\135 \208\150\208\181\209\129\209\130\208\190\208\186\208\190\208\179\208\190 \209\129\208\181\209\128\208\180\209\134\208\176","Feralheart Spaulders",3,"inv_shoulder_01"},
+    [22137]={"\208\161\209\131\208\188\208\186\208\176 \208\152\209\129\208\184\208\180\209\139","Ysida's Satchel",1,"inv_misc_bag_20"},
+    [22149]={"\208\145\209\131\209\129\209\139 \208\158\208\179\209\128\209\129\208\186\208\190\208\179\208\190 \208\154\208\190\208\187\208\180\208\190\208\178\209\129\209\130\208\178\208\176","Beads of Ogre Mojo",3,"inv_jewelry_amulet_05"},
+    [22150]={"\208\145\209\131\209\129\209\139 \208\158\208\179\209\128\209\129\208\186\208\190\208\185 \208\156\208\190\209\137\208\184","Beads of Ogre Might",3,"inv_jewelry_amulet_05"},
+    [22192]={"\208\173\208\187\208\184\208\186\209\129\208\184\209\128 \208\189\208\176\208\187\208\190\208\182\208\181\208\189\208\184\209\143 \209\135\208\176\209\128","Bloodkelp Elixir of Dodging",1,"inv_potion_52"},
+    [22193]={"\208\173\208\187\208\184\208\186\209\129\208\184\209\128 \209\131\209\129\209\130\208\190\208\185\209\135\208\184\208\178\208\190\209\129\209\130\208\184","Bloodkelp Elixir of Resistance",1,"inv_potion_21"},
+    [22320]={"\208\154\208\176\209\135\208\181\209\129\209\130\208\178\208\181\208\189\208\189\209\139\208\181 \209\130\208\190\208\178\208\176\209\128\209\139 \208\156\209\131\208\186\209\129\208\176","Mux's Quality Goods",1,"inv_misc_bag_12"},
+    [250947]={"\208\161\208\184\208\187\209\140\208\189\208\190\208\181 \208\183\208\181\208\187\209\140\208\181 \209\134\208\181\208\187\208\184\209\130\208\181\208\187\209\143","Greater Mender's Potion",1,"inv_potionf_3"},
+    [270005]={"\208\156\208\190\208\187\208\190\209\130 \208\188\208\190\208\189\208\176\209\133\208\176","Monastic Hammer",2,"inv_hammer_11"},
+    [270007]={"\208\159\208\190\209\130\208\181\209\128\209\130\209\139\208\185 \209\136\208\189\209\131\209\128\208\190\208\178\208\176\208\189\208\189\209\139\208\185 \209\128\208\181\208\188\208\181\208\189\209\140 \209\136\208\176\209\133\209\130\208\181\209\128\208\176","Worn Miner's Waistcord",2,"inv_belt_22"},
+    [270012]={"\208\160\208\176\208\177\208\190\209\135\208\184\208\181 \208\191\208\181\209\128\209\135\208\176\209\130\208\186\208\184 \208\179\208\190\209\128\208\189\209\143\208\186\208\176","Miner's Workgloves",2,"inv_gauntlets_16"},
+    [270013]={"\208\160\208\176\208\177\208\190\209\135\208\184\208\181 \208\177\208\190\209\130\208\184\208\189\208\186\208\184 \208\179\208\190\209\128\208\189\209\143\208\186\208\176","Miner's Workboots",2,"inv_boots_05"},
+    [270015]={"\208\159\208\190\209\128\209\131\209\135\208\184 \208\179\208\190\208\187\208\190\208\178\208\190\209\128\208\181\208\183\208\176","Bravo's Armbands",2,"inv_bracer_07"},
+    [270016]={"\208\159\208\190\208\189\208\190\208\182\208\184 \208\180\209\128\208\181\208\188\208\187\209\142\209\137\208\181\208\179\208\190","Dreamer's Leggings",2,"inv_pants_06"},
+    [270018]={"\208\154\208\190\209\129\209\130\208\181\208\188\208\190\208\187\208\190\209\130","Hammerbone",3,"inv_hammer_15"},
+    [270023]={"\208\148\209\131\208\177\208\187\208\181\208\189\209\139\208\181 \208\189\208\176\208\191\208\187\208\181\209\135\208\189\209\139\208\181 \208\191\208\187\208\176\209\129\209\130\208\184\208\189\209\139","Tanned Shoulderpads",2,"inv_shoulder_27"},
+    [270024]={"\208\158\209\130\208\180\208\181\208\187\208\176\208\189\208\189\209\139\208\181 \208\177\209\128\208\190\208\189\208\183\208\190\208\185 \208\189\208\176\208\191\208\187\208\181\209\135\208\189\209\139\208\181 \209\137\208\184\209\130\208\186\208\184","Bronzed Shoulderguards",2,"inv_shoulder_27"},
+    [270025]={"\208\159\208\190\209\129\208\181\209\128\208\181\208\177\209\128\208\181\208\189\208\189\209\139\208\181 \209\128\209\131\208\186\208\176\208\178\208\184\209\134\209\139","Silvered Gauntlets",2,"inv_gauntlets_21"},
+    [270027]={nil,"Ursine Hammer",2,"inv_hammer_16"},
+    [270029]={nil,"Town Clerk's Mittens",2,"inv_gauntlets_27"},
+    [270030]={"\208\160\208\178\208\176\208\189\209\139\208\181 \208\191\208\190\208\187\209\131\208\191\208\181\209\128\209\135\208\176\209\130\208\186\208\184","Tattered Mittens",2,"inv_gauntlets_27"},
+    [270031]={"\208\159\208\190\208\189\208\190\208\182\208\184 \209\130\208\181\208\188\208\189\208\190\208\179\208\190 \209\128\208\184\209\130\209\131\208\176\208\187\208\176","Dark Ritual Leggings",3,"inv_pants_02"},
+    [270032]={"\208\145\208\190\208\181\208\178\209\139\208\181 \208\189\208\176\209\128\209\131\209\135\208\184 \209\129\208\181\208\186\209\130\208\176\208\189\209\130\208\176","Cultist's Armguards",3,"inv_bracer_12"},
+    [270036]={nil,"Magistrate's Pantaloons",3,"inv_pants_14"},
+    [270042]={"\208\157\208\176\209\128\209\131\209\135\208\184 \209\130\208\181\209\133\208\189\208\184\208\186\208\176","Technician's Bracers",2,"inv_bracer_02"},
+    [270043]={nil,"Dreamer's Chestguard",3,"inv_chest_leather_01"},
+    [270055]={nil,"Charged Leather Bracers",2,"inv_bracer_08"},
+    [270059]={nil,"Restorer's Fine Gloves",2,"inv_gauntlets_21"},
+    [270060]={nil,"Excavator Gauntlets",2,"inv_gauntlets_28"},
+    [270074]={nil,"Doomcaller's Pants",2,"inv_pants_14"},
+    [270075]={nil,"Fists of Impending Doom",2,"inv_gauntlets_12"},
+    [270081]={nil,"Purified Ring",3,"inv_jewelry_ring_01"},
+    [270099]={nil,"Magister Cowl",3,"inv_helmet_13"},
+    [270125]={nil,"Satyrhide Armbands",3,"inv_bracer_18"},
+    [274041]={"\208\175\209\137\208\184\208\186 \209\129 \208\180\208\190\208\186\209\131\208\188\208\181\208\189\209\130\208\176\208\188\208\184","Document Box",1,"inv_misc_treasurechest01b"},
+    [274078]={nil,"Boar Signet",2,"inv_jewelry_ring_26"},
+    [279448]={nil,"Bloodsplattered Bandana",2,"inv_misc_bandana_03"},
+    [279450]={"\208\160\208\176\209\129\208\186\208\190\208\187\208\190\209\130\209\139\208\185 \208\183\208\189\208\176\208\186 \209\128\208\176\208\183\208\187\208\184\209\135\208\184\209\143","Fractured Insignia",2,"inv_misc_armorkit_04"},
+    [279473]={nil,"Makeshift Belt",2,"inv_misc_clothscrap_02"},
+    [279474]={nil,"Dustwallow Dirk",3,"inv_sword_13"},
+    [279824]={nil,"Kor'kron Battle Gauntlets",2,"inv_gauntlets_03"},
+    [279825]={nil,"Theramore Defender's Gauntlets",2,"inv_gauntlets_03"},
+    [279826]={nil,"Marshdweller's Pants",2,"inv_pants_10"},
+    [279829]={nil,"Naga Scale Spaulders",2,"inv_shoulder_07"},
+    [279831]={nil,"Fatebound Buckler",3,"inv_shield_02"},
+    [279833]={nil,"Courier's Clasp",3,"inv_jewelry_necklace_15"},
+    [279901]={nil,"Expeditionary Legplates",3,"inv_pants_04"},
+    [279902]={nil,"Reinforced Muck Protectors",3,"inv_pants_04"},
+    [279903]={nil,"Diemetradon Scale Spaulders",3,"inv_shoulder_28"},
+    [279904]={nil,"Crystalline Pauldrons",3,"inv_shoulder_26"},
+    [279905]={nil,"Ravasaur Hide Footpads",3,"inv_boots_05"},
+    [279906]={nil,"Potent Treads",3,"inv_boots_05"},
+    [279908]={nil,"Crystal-Infused Cleaver",3,"inv_axe_21"},
+    [279910]={nil,"Beastslayer's Trident",3,"inv_spear_04"},
+    [279912]={nil,"Faintly Glowing Orb",3,"inv_misc_orb_01"},
+    [279931]={nil,"Lost Researcher's Hood",3,"inv_helmet_29"},
+    [279932]={nil,"Slime-Resistant Shroud",3,"inv_helmet_29"},
+}
+-- END REWARDS

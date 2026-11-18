@@ -1,0 +1,10992 @@
+{
+ "source": {
+  "quests": "Wowhead Forever quest pages (www.wowhead.com/forever, patch 1.60.1, read 2026-11-17) where src=wowhead-forever; otherwise VMaNGOS world DB db-sqlite-13a411e.zip (quest_template, latest patch row = 1.12). xp = Wowhead's shown Forever XP (base x Forever multiplier, rounded like Wowhead); xpBase = base XP (VMaNGOS RewXP or QuestieDB Forever traces). money in copper at the quest level; moneyAtCap = copper instead of XP at max level. guessed = items not confirmed by a quest page (timesaver.gg gear sources or forever-quests.json).",
+  "items": "VMaNGOS item_template/item_display_info/locales_item (ruRU); ForeverDungeonPrep/GearData.lua (timesaver.gg + QuestieDB names); Wowhead nether tooltips dataEnv=16 (Forever) for items not in VMaNGOS."
+ },
+ "quests": {
+  "17": {
+   "items": [
+    {
+     "id": 250947,
+     "count": 5
+    }
+   ],
+   "choice": [],
+   "money": 5500,
+   "src": "wowhead-forever",
+   "xp": 6050,
+   "xpBase": 3450
+  },
+  "65": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1350,
+   "xpBase": 1350
+  },
+  "132": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 680,
+   "xpBase": 680
+  },
+  "135": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 680,
+   "xpBase": 680
+  },
+  "141": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 340,
+   "xpBase": 340
+  },
+  "142": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1350,
+   "xpBase": 1350
+  },
+  "155": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1700,
+   "xpBase": 1700
+  },
+  "166": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6087,
+     "count": 1
+    },
+    {
+     "id": 2041,
+     "count": 1
+    },
+    {
+     "id": 2042,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 6200,
+   "xpBase": 2600
+  },
+  "167": {
+   "items": [],
+   "choice": [
+    {
+     "id": 1893,
+     "count": 1
+    },
+    {
+     "id": 270012,
+     "count": 1
+    },
+    {
+     "id": 270013,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1550,
+   "xpBase": 1550
+  },
+  "168": {
+   "items": [],
+   "choice": [
+    {
+     "id": 2037,
+     "count": 1
+    },
+    {
+     "id": 2036,
+     "count": 1
+    },
+    {
+     "id": 270007,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1350,
+   "xpBase": 1350
+  },
+  "214": {
+   "items": [],
+   "choice": [
+    {
+     "id": 2074,
+     "count": 1
+    },
+    {
+     "id": 2089,
+     "count": 1
+    },
+    {
+     "id": 6094,
+     "count": 1
+    },
+    {
+     "id": 270005,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 2950,
+   "xpBase": 1250
+  },
+  "261": {
+   "items": [],
+   "choice": [],
+   "money": 4500,
+   "src": "wowhead-forever",
+   "xp": 3000,
+   "xpBase": 3000
+  },
+  "303": {
+   "items": [],
+   "choice": [],
+   "money": 2500,
+   "src": "wowhead-forever",
+   "xp": 2450,
+   "xpBase": 2450
+  },
+  "373": {
+   "items": [],
+   "choice": [],
+   "money": 700,
+   "src": "wowhead-forever",
+   "xp": 2050,
+   "xpBase": 870
+  },
+  "377": {
+   "items": [],
+   "choice": [
+    {
+     "id": 2033,
+     "count": 1
+    },
+    {
+     "id": 2906,
+     "count": 1
+    },
+    {
+     "id": 270029,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 4400,
+   "xpBase": 2100
+  },
+  "378": {
+   "items": [],
+   "choice": [
+    {
+     "id": 3562,
+     "count": 1
+    },
+    {
+     "id": 1264,
+     "count": 1
+    },
+    {
+     "id": 270036,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 5800,
+   "xpBase": 2750
+  },
+  "386": {
+   "items": [],
+   "choice": [
+    {
+     "id": 3400,
+     "count": 1
+    },
+    {
+     "id": 1317,
+     "count": 1
+    },
+    {
+     "id": 270027,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 4200,
+   "xpBase": 2000
+  },
+  "387": {
+   "items": [],
+   "choice": [],
+   "money": 4000,
+   "src": "wowhead-forever",
+   "xp": 5550,
+   "xpBase": 2650
+  },
+  "388": {
+   "items": [],
+   "choice": [],
+   "money": 4000,
+   "src": "wowhead-forever",
+   "xp": 5550,
+   "xpBase": 2650
+  },
+  "389": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 440,
+   "xpBase": 435
+  },
+  "391": {
+   "items": [],
+   "choice": [],
+   "money": 2500,
+   "src": "wowhead-forever",
+   "xp": 4950,
+   "xpBase": 2350
+  },
+  "629": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 2850,
+   "xpBase": 2850
+  },
+  "704": {
+   "items": [],
+   "choice": [
+    {
+     "id": 4980,
+     "count": 1
+    },
+    {
+     "id": 270059,
+     "count": 1
+    },
+    {
+     "id": 270060,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 5000,
+   "xpBase": 2850
+  },
+  "709": {
+   "items": [],
+   "choice": [
+    {
+     "id": 4746,
+     "count": 1
+    },
+    {
+     "id": 270074,
+     "count": 1
+    },
+    {
+     "id": 270075,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 6150,
+   "xpBase": 3150
+  },
+  "720": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 1350,
+   "xpBase": 1350
+  },
+  "721": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 4800,
+   "xpBase": 2750
+  },
+  "722": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 5500,
+   "xpBase": 3150
+  },
+  "723": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 2350,
+   "xpBase": 2350
+  },
+  "724": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1920,
+   "xpBase": 3150,
+   "xp": null
+  },
+  "725": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 960,
+   "xpBase": 1550,
+   "xp": null
+  },
+  "726": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1440,
+   "xpBase": 2350,
+   "xp": null
+  },
+  "738": {
+   "items": [
+    {
+     "id": 4982,
+     "count": 1
+    },
+    {
+     "id": 1529,
+     "count": 1
+    },
+    {
+     "id": 2776,
+     "count": 2
+    }
+   ],
+   "choice": [],
+   "money": 400,
+   "src": "vmangos",
+   "moneyAtCap": 900,
+   "xpBase": 1450,
+   "xp": null
+  },
+  "739": {
+   "items": [
+    {
+     "id": 4983,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "762": {
+   "items": [
+    {
+     "id": 4987,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 12500,
+   "src": "vmangos",
+   "moneyAtCap": 2820,
+   "xpBase": 4650,
+   "xp": null
+  },
+  "865": {
+   "items": [
+    {
+     "id": 5342,
+     "count": 5
+    },
+    {
+     "id": 5343,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 840,
+   "xpBase": 1350,
+   "xp": null
+  },
+  "870": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 420,
+   "xpBase": 680,
+   "xp": null
+  },
+  "877": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1150,
+   "xp": null
+  },
+  "880": {
+   "items": [],
+   "choice": [],
+   "money": 800,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1150,
+   "xp": null
+  },
+  "914": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6505,
+     "count": 1
+    },
+    {
+     "id": 6504,
+     "count": 1
+    },
+    {
+     "id": 270018,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1320,
+   "xpBase": 2200,
+   "guessed": [
+    270018
+   ],
+   "xp": null
+  },
+  "959": {
+   "items": [],
+   "choice": [],
+   "money": 1000,
+   "src": "vmangos",
+   "moneyAtCap": 840,
+   "xpBase": 1350,
+   "xp": null
+  },
+  "962": {
+   "items": [
+    {
+     "id": 10919,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 2000,
+   "src": "vmangos",
+   "moneyAtCap": 1020,
+   "xpBase": 1700,
+   "xp": null
+  },
+  "971": {
+   "items": [
+    {
+     "id": 6743,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1680,
+   "xpBase": 2750,
+   "xp": null
+  },
+  "1013": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6335,
+     "count": 1
+    },
+    {
+     "id": 4534,
+     "count": 1
+    },
+    {
+     "id": 270030,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1260,
+   "xpBase": 2100,
+   "guessed": [
+    270030
+   ],
+   "xp": null
+  },
+  "1014": {
+   "items": [
+    {
+     "id": 6414,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "spells": [
+    1460
+   ],
+   "xp": null
+  },
+  "1048": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6802,
+     "count": 1
+    },
+    {
+     "id": 6803,
+     "count": 1
+    },
+    {
+     "id": 10711,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5150,
+   "xp": null
+  },
+  "1049": {
+   "items": [],
+   "choice": [
+    {
+     "id": 7747,
+     "count": 1
+    },
+    {
+     "id": 17508,
+     "count": 1
+    },
+    {
+     "id": 7749,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3550,
+   "xp": null
+  },
+  "1050": {
+   "items": [
+    {
+     "id": 7746,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3550,
+   "xp": null
+  },
+  "1051": {
+   "items": [
+    {
+     "id": 7751,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 7750,
+     "count": 1
+    },
+    {
+     "id": 4643,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "1052": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 960,
+   "xpBase": 1550,
+   "xp": null
+  },
+  "1053": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6829,
+     "count": 1
+    },
+    {
+     "id": 6830,
+     "count": 1
+    },
+    {
+     "id": 6831,
+     "count": 1
+    },
+    {
+     "id": 11262,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2820,
+   "xpBase": 4700,
+   "xp": null
+  },
+  "1098": {
+   "items": [],
+   "choice": [
+    {
+     "id": 3324,
+     "count": 1
+    },
+    {
+     "id": 270023,
+     "count": 1
+    },
+    {
+     "id": 270024,
+     "count": 1
+    }
+   ],
+   "money": 1800,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1200,
+   "xpBase": 2000,
+   "guessed": [
+    270023,
+    270024
+   ],
+   "xp": null
+  },
+  "1100": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 840,
+   "xpBase": 1350,
+   "xp": null
+  },
+  "1101": {
+   "items": [
+    {
+     "id": 3041,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 4197,
+     "count": 1
+    },
+    {
+     "id": 6742,
+     "count": 1
+    },
+    {
+     "id": 6725,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2040,
+   "xpBase": 3350,
+   "xp": null
+  },
+  "1102": {
+   "items": [],
+   "choice": [
+    {
+     "id": 4197,
+     "count": 1
+    },
+    {
+     "id": 6742,
+     "count": 1
+    },
+    {
+     "id": 6725,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2460,
+   "xpBase": 4050,
+   "xp": null
+  },
+  "1109": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "1113": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "1139": {
+   "items": [
+    {
+     "id": 6723,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 13000,
+   "src": "vmangos",
+   "moneyAtCap": 3450,
+   "xpBase": 5850,
+   "xp": null
+  },
+  "1142": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6751,
+     "count": 1
+    },
+    {
+     "id": 6752,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1860,
+   "xpBase": 3050,
+   "xp": null
+  },
+  "1144": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6748,
+     "count": 1
+    },
+    {
+     "id": 6750,
+     "count": 1
+    },
+    {
+     "id": 6749,
+     "count": 1
+    },
+    {
+     "id": 274078,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1860,
+   "xpBase": 3050,
+   "guessed": [
+    274078
+   ],
+   "xp": null
+  },
+  "1149": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 660,
+   "xpBase": 1050,
+   "xp": null
+  },
+  "1150": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "1151": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1860,
+   "xpBase": 3050,
+   "xp": null
+  },
+  "1152": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1200,
+   "xp": null
+  },
+  "1154": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1140,
+   "xpBase": 1850,
+   "xp": null
+  },
+  "1159": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1200,
+   "xp": null
+  },
+  "1160": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1260,
+   "xpBase": 2100,
+   "xp": null
+  },
+  "1198": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1440,
+   "xpBase": 2400,
+   "xp": null
+  },
+  "1199": {
+   "items": [
+    {
+     "id": 6998,
+     "count": 1
+    },
+    {
+     "id": 7000,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 270025,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1560,
+   "xpBase": 2550,
+   "guessed": [
+    270025
+   ],
+   "xp": null
+  },
+  "1200": {
+   "items": [],
+   "choice": [
+    {
+     "id": 7001,
+     "count": 1
+    },
+    {
+     "id": 7002,
+     "count": 1
+    },
+    {
+     "id": 270031,
+     "count": 1
+    },
+    {
+     "id": 270032,
+     "count": 1
+    }
+   ],
+   "money": 6500,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "guessed": [
+    270031,
+    270032
+   ],
+   "xp": null
+  },
+  "1221": {
+   "items": [
+    {
+     "id": 6755,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1260,
+   "xpBase": 2100,
+   "xp": null
+  },
+  "1275": {
+   "items": [],
+   "choice": [
+    {
+     "id": 7003,
+     "count": 1
+    },
+    {
+     "id": 7004,
+     "count": 1
+    }
+   ],
+   "money": 3500,
+   "src": "vmangos",
+   "moneyAtCap": 1440,
+   "xpBase": 2400,
+   "xp": null
+  },
+  "1318": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18366,
+     "count": 1
+    },
+    {
+     "id": 18367,
+     "count": 1
+    },
+    {
+     "id": 18368,
+     "count": 1
+    },
+    {
+     "id": 18369,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "1360": {
+   "items": [],
+   "choice": [],
+   "money": 6000,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3600,
+   "xp": null
+  },
+  "1424": {
+   "items": [],
+   "choice": [],
+   "money": 12000,
+   "src": "vmangos",
+   "moneyAtCap": 2700,
+   "xpBase": 4450,
+   "xp": null
+  },
+  "1429": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2280,
+   "xpBase": 3750,
+   "xp": null
+  },
+  "1444": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2280,
+   "xpBase": 3750,
+   "xp": null
+  },
+  "1445": {
+   "items": [
+    {
+     "id": 1490,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3600,
+   "xpBase": 5900,
+   "xp": null
+  },
+  "1446": {
+   "items": [],
+   "choice": [
+    {
+     "id": 11123,
+     "count": 1
+    },
+    {
+     "id": 11124,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 23700,
+   "xpBase": 6550,
+   "xp": null
+  },
+  "1448": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3600,
+   "xp": null
+  },
+  "1449": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1080,
+   "xpBase": 1800,
+   "xp": null
+  },
+  "1450": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 540,
+   "xpBase": 890,
+   "xp": null
+  },
+  "1451": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1080,
+   "xpBase": 1800,
+   "xp": null
+  },
+  "1452": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3600,
+   "xp": null
+  },
+  "1469": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2700,
+   "xp": null
+  },
+  "1475": {
+   "items": [
+    {
+     "id": 1490,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 4200,
+   "xpBase": 7100,
+   "xp": null
+  },
+  "1486": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6480,
+     "count": 1
+    },
+    {
+     "id": 918,
+     "count": 1
+    }
+   ],
+   "money": 1800,
+   "src": "vmangos",
+   "moneyAtCap": 960,
+   "xpBase": 1600,
+   "xp": null
+  },
+  "1487": {
+   "items": [],
+   "choice": [
+    {
+     "id": 6476,
+     "count": 1
+    },
+    {
+     "id": 8071,
+     "count": 1
+    },
+    {
+     "id": 6481,
+     "count": 1
+    }
+   ],
+   "money": 2500,
+   "src": "vmangos",
+   "moneyAtCap": 1260,
+   "xpBase": 2050,
+   "xp": null
+  },
+  "1489": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 180,
+   "xpBase": 290,
+   "xp": null
+  },
+  "1490": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 60,
+   "xpBase": 115,
+   "xp": null
+  },
+  "1491": {
+   "items": [],
+   "choice": [],
+   "money": 1000,
+   "src": "vmangos",
+   "moneyAtCap": 840,
+   "xpBase": 1350,
+   "xp": null
+  },
+  "2040": {
+   "items": [],
+   "choice": [
+    {
+     "id": 7606,
+     "count": 1
+    },
+    {
+     "id": 7607,
+     "count": 1
+    },
+    {
+     "id": 270015,
+     "count": 1
+    },
+    {
+     "id": 270016,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 960,
+   "xpBase": 1550,
+   "guessed": [
+    270015,
+    270016
+   ],
+   "xp": null
+  },
+  "2198": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "2199": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2200": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1560,
+   "xpBase": 2550,
+   "xp": null
+  },
+  "2201": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3600,
+   "xp": null
+  },
+  "2202": {
+   "items": [
+    {
+     "id": 9030,
+     "count": 5
+    }
+   ],
+   "choice": [],
+   "money": 5500,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "2204": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 570,
+   "xpBase": 930,
+   "xp": null
+  },
+  "2240": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9626,
+     "count": 1
+    },
+    {
+     "id": 9627,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2340,
+   "xpBase": 3900,
+   "xp": null
+  },
+  "2258": {
+   "items": [],
+   "choice": [],
+   "money": 4500,
+   "src": "vmangos",
+   "moneyAtCap": 1800,
+   "xpBase": 3000,
+   "xp": null
+  },
+  "2278": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2520,
+   "xpBase": 4200,
+   "xp": null
+  },
+  "2279": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "2280": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 5250,
+   "xpBase": 5250
+  },
+  "2283": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2284": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2318": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "2338": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 210,
+   "xpBase": 345,
+   "xp": null
+  },
+  "2339": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2280,
+   "xpBase": 3750,
+   "xp": null
+  },
+  "2340": {
+   "items": [],
+   "choice": [],
+   "money": 12500,
+   "src": "vmangos",
+   "moneyAtCap": 1140,
+   "xpBase": 1850,
+   "xp": null
+  },
+  "2341": {
+   "items": [
+    {
+     "id": 7888,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3300,
+   "xpBase": 5600,
+   "xp": null
+  },
+  "2342": {
+   "items": [],
+   "choice": [],
+   "money": 6000,
+   "src": "wowhead-forever",
+   "xp": 7000,
+   "xpBase": 3600
+  },
+  "2361": {
+   "items": [
+    {
+     "id": 7673,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3300,
+   "xpBase": 5600,
+   "xp": null
+  },
+  "2398": {
+   "items": [],
+   "choice": [],
+   "money": 500,
+   "src": "vmangos",
+   "moneyAtCap": 180,
+   "xpBase": 315,
+   "xp": null
+  },
+  "2418": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9522,
+     "count": 1
+    },
+    {
+     "id": 10358,
+     "count": 1
+    },
+    {
+     "id": 10359,
+     "count": 1
+    },
+    {
+     "id": 270055,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 2100,
+   "xpBase": 3500,
+   "guessed": [
+    270055
+   ],
+   "xp": null
+  },
+  "2439": {
+   "items": [
+    {
+     "id": 9587,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 3928,
+     "count": 5
+    },
+    {
+     "id": 6149,
+     "count": 5
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 240,
+   "xpBase": 420,
+   "xp": null
+  },
+  "2440": {
+   "items": [
+    {
+     "id": 9587,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 3928,
+     "count": 5
+    },
+    {
+     "id": 6149,
+     "count": 5
+    }
+   ],
+   "money": 0,
+   "src": "wowhead-forever",
+   "xp": 420,
+   "xpBase": 420
+  },
+  "2500": {
+   "items": [],
+   "choice": [],
+   "money": 4500,
+   "src": "vmangos",
+   "moneyAtCap": 1800,
+   "xpBase": 3000,
+   "xp": null
+  },
+  "2768": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9533,
+     "count": 1
+    },
+    {
+     "id": 9534,
+     "count": 1
+    },
+    {
+     "id": 270099,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 3750,
+   "xpBase": 6300,
+   "guessed": [
+    270099
+   ],
+   "xp": null
+  },
+  "2770": {
+   "items": [
+    {
+     "id": 11122,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 7500,
+   "src": "vmangos",
+   "moneyAtCap": 4200,
+   "xpBase": 7100,
+   "xp": null
+  },
+  "2841": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9623,
+     "count": 1
+    },
+    {
+     "id": 9624,
+     "count": 1
+    },
+    {
+     "id": 9625,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1680,
+   "xpBase": 2750,
+   "xp": null
+  },
+  "2842": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 150,
+   "xpBase": 275,
+   "xp": null
+  },
+  "2843": {
+   "items": [
+    {
+     "id": 9173,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "2846": {
+   "items": [
+    {
+     "id": 9527,
+     "count": 1
+    },
+    {
+     "id": 9531,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 6500,
+   "src": "vmangos",
+   "moneyAtCap": 3600,
+   "xpBase": 6050,
+   "xp": null
+  },
+  "2861": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 240,
+   "xpBase": 405,
+   "xp": null
+  },
+  "2864": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 240,
+   "xpBase": 390,
+   "xp": null
+  },
+  "2865": {
+   "items": [],
+   "choice": [],
+   "money": 6500,
+   "src": "vmangos",
+   "moneyAtCap": 2340,
+   "xpBase": 3900,
+   "xp": null
+  },
+  "2904": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9535,
+     "count": 1
+    },
+    {
+     "id": 9536,
+     "count": 1
+    },
+    {
+     "id": 270042,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "guessed": [
+    270042
+   ],
+   "xp": null
+  },
+  "2922": {
+   "items": [],
+   "choice": [],
+   "money": 2000,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2650,
+   "xp": null
+  },
+  "2923": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 120,
+   "xpBase": 210,
+   "xp": null
+  },
+  "2924": {
+   "items": [],
+   "choice": [],
+   "money": 5500,
+   "src": "vmangos",
+   "moneyAtCap": 1860,
+   "xpBase": 3050,
+   "xp": null
+  },
+  "2925": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 150,
+   "xpBase": 245,
+   "xp": null
+  },
+  "2926": {
+   "items": [],
+   "choice": [],
+   "money": 2200,
+   "src": "vmangos",
+   "moneyAtCap": 1320,
+   "xpBase": 2200,
+   "xp": null
+  },
+  "2927": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 120,
+   "xpBase": 220,
+   "xp": null
+  },
+  "2928": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9608,
+     "count": 1
+    },
+    {
+     "id": 9609,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2929": {
+   "items": [],
+   "choice": [
+    {
+     "id": 9623,
+     "count": 1
+    },
+    {
+     "id": 9624,
+     "count": 1
+    },
+    {
+     "id": 9625,
+     "count": 1
+    }
+   ],
+   "money": 3500,
+   "src": "vmangos",
+   "moneyAtCap": 1680,
+   "xpBase": 2750,
+   "xp": null
+  },
+  "2930": {
+   "items": [
+    {
+     "id": 9605,
+     "count": 1
+    },
+    {
+     "id": 9604,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 2500,
+   "src": "vmangos",
+   "moneyAtCap": 2220,
+   "xpBase": 3650,
+   "xp": null
+  },
+  "2931": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 150,
+   "xpBase": 230,
+   "xp": null
+  },
+  "2933": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2160,
+   "xpBase": 3600,
+   "xp": null
+  },
+  "2934": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2340,
+   "xpBase": 3900,
+   "xp": null
+  },
+  "2935": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1740,
+   "xpBase": 2900,
+   "xp": null
+  },
+  "2936": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2940,
+   "xpBase": 4850,
+   "xp": null
+  },
+  "2945": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 2700,
+   "xp": null
+  },
+  "2947": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2700,
+   "xp": null
+  },
+  "2949": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2700,
+   "xp": null
+  },
+  "2951": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "2952": {
+   "items": [
+    {
+     "id": 9363,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2962": {
+   "items": [],
+   "choice": [],
+   "money": 2500,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "2988": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2340,
+   "xpBase": 3900,
+   "xp": null
+  },
+  "2989": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2640,
+   "xpBase": 4400,
+   "xp": null
+  },
+  "2990": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1260,
+   "xpBase": 2100,
+   "xp": null
+  },
+  "2991": {
+   "items": [],
+   "choice": [],
+   "money": 7000,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "3042": {
+   "items": [],
+   "choice": [],
+   "money": 19500,
+   "src": "vmangos",
+   "moneyAtCap": 2340,
+   "xpBase": 3900,
+   "xp": null
+  },
+  "3341": {
+   "items": [
+    {
+     "id": 10823,
+     "count": 1
+    },
+    {
+     "id": 10824,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 270081,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 2580,
+   "xpBase": 4300,
+   "guessed": [
+    270081
+   ],
+   "xp": null
+  },
+  "3373": {
+   "items": [
+    {
+     "id": 10455,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 16800,
+   "xpBase": 2800,
+   "xp": null
+  },
+  "3380": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 4350,
+   "xpBase": 3650,
+   "xp": null
+  },
+  "3441": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 440,
+   "xp": null
+  },
+  "3442": {
+   "items": [],
+   "choice": [],
+   "money": 14000,
+   "src": "vmangos",
+   "moneyAtCap": 2640,
+   "xpBase": 4400,
+   "xp": null
+  },
+  "3443": {
+   "items": [],
+   "choice": [],
+   "money": 14000,
+   "src": "vmangos",
+   "moneyAtCap": 2640,
+   "xpBase": 4400,
+   "xp": null
+  },
+  "3444": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5850,
+   "xpBase": 4900,
+   "xp": null
+  },
+  "3445": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 4350,
+   "xpBase": 3650,
+   "xp": null
+  },
+  "3446": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5850,
+   "xpBase": 4900,
+   "xp": null
+  },
+  "3447": {
+   "items": [
+    {
+     "id": 10773,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 7200,
+   "xpBase": 6100,
+   "xp": null
+  },
+  "3452": {
+   "items": [],
+   "choice": [],
+   "money": 7500,
+   "src": "vmangos",
+   "moneyAtCap": 2820,
+   "xpBase": 4700,
+   "xp": null
+  },
+  "3453": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 470,
+   "xp": null
+  },
+  "3454": {
+   "items": [
+    {
+     "id": 10515,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2820,
+   "xpBase": 4700,
+   "xp": null
+  },
+  "3462": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 470,
+   "xp": null
+  },
+  "3463": {
+   "items": [],
+   "choice": [
+    {
+     "id": 10742,
+     "count": 1
+    },
+    {
+     "id": 10743,
+     "count": 1
+    },
+    {
+     "id": 10744,
+     "count": 1
+    }
+   ],
+   "money": 23000,
+   "src": "vmangos",
+   "moneyAtCap": 18300,
+   "xpBase": 7600,
+   "xp": null
+  },
+  "3481": {
+   "items": [
+    {
+     "id": 10569,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 470,
+   "xp": null
+  },
+  "3520": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2280,
+   "xpBase": 3750,
+   "xp": null
+  },
+  "3523": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 180,
+   "xpBase": 285,
+   "xp": null
+  },
+  "3525": {
+   "items": [
+    {
+     "id": 10710,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 4250,
+   "xp": null
+  },
+  "3527": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "3528": {
+   "items": [],
+   "choice": [
+    {
+     "id": 10749,
+     "count": 1
+    },
+    {
+     "id": 10750,
+     "count": 1
+    },
+    {
+     "id": 10751,
+     "count": 1
+    }
+   ],
+   "money": 24000,
+   "src": "vmangos",
+   "moneyAtCap": 28500,
+   "xpBase": 7900,
+   "xp": null
+  },
+  "3636": {
+   "items": [
+    {
+     "id": 10823,
+     "count": 1
+    },
+    {
+     "id": 10824,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 270081,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 2580,
+   "xpBase": 4300,
+   "spells": [
+    2791
+   ],
+   "guessed": [
+    270081
+   ],
+   "xp": null
+  },
+  "3701": {
+   "items": [
+    {
+     "id": 12102,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 16500,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "3702": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 540,
+   "xp": null
+  },
+  "3801": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1200,
+   "xpBase": 510,
+   "xp": null
+  },
+  "3802": {
+   "items": [
+    {
+     "id": 11000,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 23000,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "3906": {
+   "items": [],
+   "choice": [],
+   "money": 15500,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "3907": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12113,
+     "count": 1
+    },
+    {
+     "id": 12114,
+     "count": 1
+    },
+    {
+     "id": 12112,
+     "count": 1
+    },
+    {
+     "id": 12115,
+     "count": 1
+    }
+   ],
+   "money": 25500,
+   "src": "vmangos",
+   "moneyAtCap": 43800,
+   "xpBase": 7300,
+   "xp": null
+  },
+  "3981": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "3982": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4001": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 32700,
+   "xpBase": 6800,
+   "xp": null
+  },
+  "4002": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 540,
+   "xp": null
+  },
+  "4003": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 48300,
+   "xpBase": 8050,
+   "xp": null
+  },
+  "4004": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12544,
+     "count": 1
+    },
+    {
+     "id": 12545,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4022": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4023": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4024": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12066,
+     "count": 1
+    },
+    {
+     "id": 12082,
+     "count": 1
+    },
+    {
+     "id": 12083,
+     "count": 1
+    }
+   ],
+   "money": 26500,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "4061": {
+   "items": [],
+   "choice": [],
+   "money": 16500,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4062": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 6600,
+   "xpBase": 1350,
+   "xp": null
+  },
+  "4063": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12109,
+     "count": 1
+    },
+    {
+     "id": 12110,
+     "count": 1
+    },
+    {
+     "id": 12108,
+     "count": 1
+    },
+    {
+     "id": 12111,
+     "count": 1
+    }
+   ],
+   "money": 26500,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "4081": {
+   "items": [],
+   "choice": [],
+   "money": 15500,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "4082": {
+   "items": [],
+   "choice": [],
+   "money": 16500,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4083": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 33900,
+   "xpBase": 5650,
+   "xp": null
+  },
+  "4121": {
+   "items": [],
+   "choice": [],
+   "money": 26500,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "4122": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "4123": {
+   "items": [],
+   "choice": [],
+   "money": 8500,
+   "src": "vmangos",
+   "moneyAtCap": 33900,
+   "xpBase": 5650,
+   "xp": null
+  },
+  "4126": {
+   "items": [
+    {
+     "id": 12003,
+     "count": 10
+    }
+   ],
+   "choice": [
+    {
+     "id": 11964,
+     "count": 1
+    },
+    {
+     "id": 12000,
+     "count": 1
+    }
+   ],
+   "money": 16500,
+   "src": "vmangos",
+   "moneyAtCap": 42300,
+   "xpBase": 7050,
+   "xp": null
+  },
+  "4128": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3300,
+   "xpBase": 560,
+   "xp": null
+  },
+  "4132": {
+   "items": [
+    {
+     "id": 12059,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 26500,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "4133": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3300,
+   "xpBase": 560,
+   "xp": null
+  },
+  "4134": {
+   "items": [
+    {
+     "id": 3928,
+     "count": 5
+    },
+    {
+     "id": 6149,
+     "count": 5
+    }
+   ],
+   "choice": [
+    {
+     "id": 11964,
+     "count": 1
+    },
+    {
+     "id": 12000,
+     "count": 1
+    }
+   ],
+   "money": 8500,
+   "src": "vmangos",
+   "moneyAtCap": 33900,
+   "xpBase": 5650,
+   "xp": null
+  },
+  "4136": {
+   "items": [],
+   "choice": [
+    {
+     "id": 11865,
+     "count": 1
+    },
+    {
+     "id": 11963,
+     "count": 1
+    },
+    {
+     "id": 12049,
+     "count": 1
+    }
+   ],
+   "money": 6000,
+   "src": "vmangos",
+   "moneyAtCap": 9600,
+   "xpBase": 2650,
+   "xp": null
+  },
+  "4182": {
+   "items": [],
+   "choice": [],
+   "money": 16500,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4183": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 19800,
+   "xpBase": 4100,
+   "xp": null
+  },
+  "4184": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 19800,
+   "xpBase": 4100,
+   "xp": null
+  },
+  "4185": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 540,
+   "xp": null
+  },
+  "4186": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4201": {
+   "items": [],
+   "choice": [
+    {
+     "id": 11962,
+     "count": 1
+    },
+    {
+     "id": 11866,
+     "count": 1
+    }
+   ],
+   "money": 8000,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4223": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 540,
+   "xp": null
+  },
+  "4224": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2580,
+   "xpBase": 540,
+   "xp": null
+  },
+  "4241": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4242": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12018,
+     "count": 1
+    },
+    {
+     "id": 12021,
+     "count": 1
+    },
+    {
+     "id": 12041,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4262": {
+   "items": [],
+   "choice": [],
+   "money": 15500,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "4263": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12113,
+     "count": 1
+    },
+    {
+     "id": 12114,
+     "count": 1
+    },
+    {
+     "id": 12112,
+     "count": 1
+    },
+    {
+     "id": 12115,
+     "count": 1
+    }
+   ],
+   "money": 8500,
+   "src": "vmangos",
+   "moneyAtCap": 34800,
+   "xpBase": 5800,
+   "xp": null
+  },
+  "4264": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "4282": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "4286": {
+   "items": [
+    {
+     "id": 11883,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 8500,
+   "src": "vmangos",
+   "moneyAtCap": 34800,
+   "xpBase": 5800,
+   "xp": null
+  },
+  "4322": {
+   "items": [
+    {
+     "id": 12065,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 12061,
+     "count": 1
+    },
+    {
+     "id": 12062,
+     "count": 1
+    }
+   ],
+   "money": 17500,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "4324": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "4341": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4342": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9600,
+   "xpBase": 1600,
+   "xp": null
+  },
+  "4361": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4362": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 48300,
+   "xpBase": 8050,
+   "xp": null
+  },
+  "4363": {
+   "items": [],
+   "choice": [
+    {
+     "id": 12548,
+     "count": 1
+    },
+    {
+     "id": 12543,
+     "count": 1
+    }
+   ],
+   "money": 26500,
+   "src": "vmangos",
+   "moneyAtCap": 57900,
+   "xpBase": 9650,
+   "xp": null
+  },
+  "4601": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "4602": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "4605": {
+   "items": [
+    {
+     "id": 9363,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "4606": {
+   "items": [
+    {
+     "id": 9363,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1500,
+   "xpBase": 2450,
+   "xp": null
+  },
+  "4701": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15824,
+     "count": 1
+    },
+    {
+     "id": 15825,
+     "count": 1
+    },
+    {
+     "id": 15827,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4724": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15824,
+     "count": 1
+    },
+    {
+     "id": 15825,
+     "count": 1
+    },
+    {
+     "id": 15827,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4726": {
+   "items": [],
+   "choice": [],
+   "money": 7500,
+   "src": "vmangos",
+   "moneyAtCap": 12300,
+   "xpBase": 5100,
+   "xp": null
+  },
+  "4729": {
+   "items": [
+    {
+     "id": 12264,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4734": {
+   "items": [
+    {
+     "id": 12144,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "4735": {
+   "items": [],
+   "choice": [],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4742": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "4743": {
+   "items": [
+    {
+     "id": 12344,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4764": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9900,
+   "xpBase": 1650,
+   "xp": null
+  },
+  "4765": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15861,
+     "count": 1
+    },
+    {
+     "id": 15860,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "4766": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "4768": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15861,
+     "count": 1
+    },
+    {
+     "id": 15860,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "4769": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "4771": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15853,
+     "count": 1
+    },
+    {
+     "id": 15854,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4787": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3600,
+   "xpBase": 5900,
+   "xp": null
+  },
+  "4788": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "4808": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 12900,
+   "xpBase": 2700,
+   "xp": null
+  },
+  "4809": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "4810": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15862,
+     "count": 1
+    },
+    {
+     "id": 15863,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 12900,
+   "xpBase": 2700,
+   "xp": null
+  },
+  "4862": {
+   "items": [
+    {
+     "id": 12529,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4866": {
+   "items": [
+    {
+     "id": 15873,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4867": {
+   "items": [
+    {
+     "id": 15867,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4903": {
+   "items": [],
+   "choice": [
+    {
+     "id": 13958,
+     "count": 1
+    },
+    {
+     "id": 13959,
+     "count": 1
+    },
+    {
+     "id": 13961,
+     "count": 1
+    },
+    {
+     "id": 13962,
+     "count": 1
+    },
+    {
+     "id": 13963,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "4907": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "4941": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "4974": {
+   "items": [],
+   "choice": [
+    {
+     "id": 13966,
+     "count": 1
+    },
+    {
+     "id": 13968,
+     "count": 1
+    },
+    {
+     "id": 13965,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "4981": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4982": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "4983": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15858,
+     "count": 1
+    },
+    {
+     "id": 15859,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "5001": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "5002": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 38400,
+   "xpBase": 6400,
+   "xp": null
+  },
+  "5047": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5065": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "5081": {
+   "items": [],
+   "choice": [
+    {
+     "id": 13958,
+     "count": 1
+    },
+    {
+     "id": 13959,
+     "count": 1
+    },
+    {
+     "id": 13961,
+     "count": 1
+    },
+    {
+     "id": 13962,
+     "count": 1
+    },
+    {
+     "id": 13963,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5089": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5102": {
+   "items": [],
+   "choice": [
+    {
+     "id": 13966,
+     "count": 1
+    },
+    {
+     "id": 13968,
+     "count": 1
+    },
+    {
+     "id": 13965,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "5122": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "5125": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17044,
+     "count": 1
+    },
+    {
+     "id": 17045,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "5126": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "5127": {
+   "items": [
+    {
+     "id": 12696,
+     "count": 1
+    },
+    {
+     "id": 9224,
+     "count": 5
+    },
+    {
+     "id": 12849,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5160": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5212": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5213": {
+   "items": [],
+   "choice": [
+    {
+     "id": 13209,
+     "count": 1
+    },
+    {
+     "id": 19812,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5214": {
+   "items": [
+    {
+     "id": 13171,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5243": {
+   "items": [
+    {
+     "id": 3928,
+     "count": 5
+    },
+    {
+     "id": 6149,
+     "count": 5
+    }
+   ],
+   "choice": [
+    {
+     "id": 13216,
+     "count": 1
+    },
+    {
+     "id": 13217,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5251": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5262": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5263": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5281": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5282": {
+   "items": [
+    {
+     "id": 13315,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5341": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5343": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5382": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5384": {
+   "items": [
+    {
+     "id": 13544,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 15805,
+     "count": 1
+    },
+    {
+     "id": 15806,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5461": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5462": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "5463": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5464": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "5465": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "5466": {
+   "items": [
+    {
+     "id": 14002,
+     "count": 1
+    }
+   ],
+   "choice": [
+    {
+     "id": 13982,
+     "count": 1
+    },
+    {
+     "id": 13986,
+     "count": 1
+    },
+    {
+     "id": 13984,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "5515": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5518": {
+   "items": [
+    {
+     "id": 18258,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5522": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "5525": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "5528": {
+   "items": [
+    {
+     "id": 18269,
+     "count": 5
+    },
+    {
+     "id": 18284,
+     "count": 5
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "5529": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "5531": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9900,
+   "xpBase": 1650,
+   "xp": null
+  },
+  "5542": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 34800,
+   "xpBase": 5800,
+   "xp": null
+  },
+  "5543": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 34800,
+   "xpBase": 5800,
+   "xp": null
+  },
+  "5544": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 34800,
+   "xpBase": 5800,
+   "xp": null
+  },
+  "5722": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 540,
+   "xpBase": 880,
+   "xp": null
+  },
+  "5723": {
+   "items": [],
+   "choice": [],
+   "money": 700,
+   "src": "vmangos",
+   "moneyAtCap": 660,
+   "xpBase": 1050,
+   "xp": null
+  },
+  "5724": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15452,
+     "count": 1
+    },
+    {
+     "id": 15453,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 900,
+   "xpBase": 1450,
+   "xp": null
+  },
+  "5725": {
+   "items": [],
+   "choice": [
+    {
+     "id": 15449,
+     "count": 1
+    },
+    {
+     "id": 15450,
+     "count": 1
+    },
+    {
+     "id": 15451,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 900,
+   "xpBase": 1450,
+   "xp": null
+  },
+  "5726": {
+   "items": [],
+   "choice": [],
+   "money": 250,
+   "src": "vmangos",
+   "moneyAtCap": 540,
+   "xpBase": 910,
+   "xp": null
+  },
+  "5727": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 455,
+   "xp": null
+  },
+  "5728": {
+   "items": [],
+   "choice": [],
+   "money": 800,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1150,
+   "xp": null
+  },
+  "5729": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 60,
+   "xpBase": 105,
+   "xp": null
+  },
+  "5742": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3450,
+   "xpBase": 580,
+   "xp": null
+  },
+  "5761": {
+   "items": [],
+   "choice": [],
+   "money": 800,
+   "src": "vmangos",
+   "moneyAtCap": 720,
+   "xpBase": 1150,
+   "xp": null
+  },
+  "5781": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 36000,
+   "xpBase": 6000,
+   "xp": null
+  },
+  "5845": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "5846": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "5848": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6022": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "6042": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 37200,
+   "xpBase": 6200,
+   "xp": null
+  },
+  "6133": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6135": {
+   "items": [],
+   "choice": [
+    {
+     "id": 16994,
+     "count": 1
+    },
+    {
+     "id": 16995,
+     "count": 1
+    }
+   ],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6136": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17002,
+     "count": 1
+    },
+    {
+     "id": 17003,
+     "count": 1
+    },
+    {
+     "id": 17004,
+     "count": 1
+    }
+   ],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6163": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18022,
+     "count": 1
+    },
+    {
+     "id": 17001,
+     "count": 1
+    }
+   ],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6402": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "6403": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "6501": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6502": {
+   "items": [
+    {
+     "id": 16309,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "6521": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17039,
+     "count": 1
+    },
+    {
+     "id": 17042,
+     "count": 1
+    },
+    {
+     "id": 17043,
+     "count": 1
+    }
+   ],
+   "money": 2000,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3500,
+   "xp": null
+  },
+  "6522": {
+   "items": [],
+   "choice": [],
+   "money": 4000,
+   "src": "vmangos",
+   "moneyAtCap": 1680,
+   "xpBase": 2800,
+   "xp": null
+  },
+  "6561": {
+   "items": [],
+   "choice": [
+    {
+     "id": 7001,
+     "count": 1
+    },
+    {
+     "id": 7002,
+     "count": 1
+    },
+    {
+     "id": 270031,
+     "count": 1
+    },
+    {
+     "id": 270032,
+     "count": 1
+    }
+   ],
+   "money": 6500,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1980,
+   "xpBase": 3300,
+   "guessed": [
+    270031,
+    270032
+   ],
+   "xp": null
+  },
+  "6562": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 270,
+   "xpBase": 435,
+   "xp": null
+  },
+  "6563": {
+   "items": [],
+   "choice": [],
+   "money": 1400,
+   "src": "vmangos",
+   "moneyAtCap": 1080,
+   "xpBase": 1750,
+   "xp": null
+  },
+  "6564": {
+   "items": [],
+   "choice": [],
+   "money": 1100,
+   "src": "vmangos",
+   "moneyAtCap": 780,
+   "xpBase": 1300,
+   "xp": null
+  },
+  "6565": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17694,
+     "count": 1
+    },
+    {
+     "id": 17695,
+     "count": 1
+    }
+   ],
+   "money": 4000,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2650,
+   "xp": null
+  },
+  "6566": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "6567": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 19800,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "6568": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "6569": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6570": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "6582": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6583": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6584": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6585": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "6601": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 29700,
+   "xpBase": 4950,
+   "xp": null
+  },
+  "6602": {
+   "items": [
+    {
+     "id": 16309,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "6626": {
+   "items": [],
+   "choice": [],
+   "money": 7500,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "6627": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 150,
+   "xpBase": 245,
+   "xp": null
+  },
+  "6628": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 150,
+   "xpBase": 245,
+   "xp": null
+  },
+  "6921": {
+   "items": [],
+   "choice": [],
+   "money": 4500,
+   "src": "vmangos",
+   "moneyAtCap": 1680,
+   "xpBase": 2750,
+   "xp": null
+  },
+  "6922": {
+   "items": [],
+   "choice": [
+    {
+     "id": 16886,
+     "count": 1
+    },
+    {
+     "id": 16887,
+     "count": 1
+    },
+    {
+     "id": 270043,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 1860,
+   "xpBase": 3050,
+   "guessed": [
+    270043
+   ],
+   "xp": null
+  },
+  "6981": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 1620,
+   "xpBase": 2650,
+   "xp": null
+  },
+  "7028": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17775,
+     "count": 1
+    },
+    {
+     "id": 17776,
+     "count": 1
+    },
+    {
+     "id": 17777,
+     "count": 1
+    },
+    {
+     "id": 17779,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "7029": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17768,
+     "count": 1
+    },
+    {
+     "id": 17778,
+     "count": 1
+    },
+    {
+     "id": 17770,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "7041": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17768,
+     "count": 1
+    },
+    {
+     "id": 17778,
+     "count": 1
+    },
+    {
+     "id": 17770,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3150,
+   "xpBase": 5250,
+   "xp": null
+  },
+  "7044": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2040,
+   "xpBase": 3400,
+   "xp": null
+  },
+  "7046": {
+   "items": [
+    {
+     "id": 17191,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3450,
+   "xpBase": 5700,
+   "xp": null
+  },
+  "7064": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17705,
+     "count": 1
+    },
+    {
+     "id": 17743,
+     "count": 1
+    },
+    {
+     "id": 17753,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 7200,
+   "xpBase": 6100,
+   "xp": null
+  },
+  "7065": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17705,
+     "count": 1
+    },
+    {
+     "id": 17743,
+     "count": 1
+    },
+    {
+     "id": 17753,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 7200,
+   "xpBase": 6100,
+   "xp": null
+  },
+  "7066": {
+   "items": [],
+   "choice": [],
+   "money": 15000,
+   "src": "vmangos",
+   "moneyAtCap": 7200,
+   "xpBase": 6100,
+   "xp": null
+  },
+  "7067": {
+   "items": [
+    {
+     "id": 17774,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 14000,
+   "src": "vmangos",
+   "moneyAtCap": 3300,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "7068": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17772,
+     "count": 1
+    },
+    {
+     "id": 17773,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "7070": {
+   "items": [],
+   "choice": [
+    {
+     "id": 17772,
+     "count": 1
+    },
+    {
+     "id": 17773,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 2100,
+   "xpBase": 3450,
+   "xp": null
+  },
+  "7201": {
+   "items": [
+    {
+     "id": 12038,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 24500,
+   "src": "vmangos",
+   "moneyAtCap": 26100,
+   "xpBase": 5450,
+   "xp": null
+  },
+  "7441": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18411,
+     "count": 1
+    },
+    {
+     "id": 18410,
+     "count": 1
+    }
+   ],
+   "money": 17500,
+   "src": "vmangos",
+   "moneyAtCap": 46500,
+   "xpBase": 7750,
+   "xp": null
+  },
+  "7461": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "7462": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18420,
+     "count": 1
+    },
+    {
+     "id": 18421,
+     "count": 1
+    },
+    {
+     "id": 18424,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "7481": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "7482": {
+   "items": [],
+   "choice": [],
+   "money": 18000,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "7488": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18491,
+     "count": 1
+    },
+    {
+     "id": 270125,
+     "count": 1
+    }
+   ],
+   "money": 17000,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 45300,
+   "xpBase": 7550,
+   "guessed": [
+    270125
+   ],
+   "xp": null
+  },
+  "7489": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18491,
+     "count": 1
+    },
+    {
+     "id": 270125,
+     "count": 1
+    }
+   ],
+   "money": 17000,
+   "src": "vmangos+timesaver",
+   "moneyAtCap": 45300,
+   "xpBase": 7550,
+   "guessed": [
+    270125
+   ],
+   "xp": null
+  },
+  "7492": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9000,
+   "xpBase": 1500,
+   "xp": null
+  },
+  "7494": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9000,
+   "xpBase": 1500,
+   "xp": null
+  },
+  "7498": {
+   "items": [
+    {
+     "id": 18465,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7499": {
+   "items": [
+    {
+     "id": 18466,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7500": {
+   "items": [
+    {
+     "id": 18468,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7501": {
+   "items": [
+    {
+     "id": 18472,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7502": {
+   "items": [
+    {
+     "id": 18467,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7503": {
+   "items": [
+    {
+     "id": 18473,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7504": {
+   "items": [
+    {
+     "id": 18469,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7505": {
+   "items": [
+    {
+     "id": 18471,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7506": {
+   "items": [
+    {
+     "id": 18470,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7507": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "spells": [
+    22925
+   ],
+   "xp": null
+  },
+  "7508": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "7604": {
+   "items": [
+    {
+     "id": 18592,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7703": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18366,
+     "count": 1
+    },
+    {
+     "id": 18367,
+     "count": 1
+    },
+    {
+     "id": 18368,
+     "count": 1
+    },
+    {
+     "id": 18369,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "7761": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "7877": {
+   "items": [],
+   "choice": [
+    {
+     "id": 18420,
+     "count": 1
+    },
+    {
+     "id": 18421,
+     "count": 1
+    },
+    {
+     "id": 18424,
+     "count": 1
+    }
+   ],
+   "money": 27000,
+   "src": "vmangos",
+   "moneyAtCap": 3900,
+   "xpBase": 660,
+   "xp": null
+  },
+  "8286": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8288": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8301": {
+   "items": [
+    {
+     "id": 20403,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8303": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xp": null
+  },
+  "8305": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3960,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8519": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3960,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8555": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 390,
+   "xpBase": 650,
+   "xp": null
+  },
+  "8733": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8905": {
+   "items": [
+    {
+     "id": 22108,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8906": {
+   "items": [
+    {
+     "id": 22011,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8907": {
+   "items": [
+    {
+     "id": 22063,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8908": {
+   "items": [
+    {
+     "id": 22088,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8909": {
+   "items": [
+    {
+     "id": 22079,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8910": {
+   "items": [
+    {
+     "id": 22004,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8911": {
+   "items": [
+    {
+     "id": 22071,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8912": {
+   "items": [
+    {
+     "id": 21996,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8913": {
+   "items": [
+    {
+     "id": 22108,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8914": {
+   "items": [
+    {
+     "id": 22011,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8915": {
+   "items": [
+    {
+     "id": 22063,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8916": {
+   "items": [
+    {
+     "id": 22079,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8917": {
+   "items": [
+    {
+     "id": 22004,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8918": {
+   "items": [
+    {
+     "id": 22095,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8919": {
+   "items": [
+    {
+     "id": 22071,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8920": {
+   "items": [
+    {
+     "id": 21996,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8921": {
+   "items": [
+    {
+     "id": 22320,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8922": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8923": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8924": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8925": {
+   "items": [],
+   "choice": [],
+   "money": 9000,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8926": {
+   "items": [
+    {
+     "id": 22106,
+     "count": 1
+    },
+    {
+     "id": 22110,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8927": {
+   "items": [
+    {
+     "id": 22106,
+     "count": 1
+    },
+    {
+     "id": 22110,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8928": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 19800,
+   "xpBase": 3300,
+   "xp": null
+  },
+  "8929": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8930": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8931": {
+   "items": [
+    {
+     "id": 22010,
+     "count": 1
+    },
+    {
+     "id": 22015,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8932": {
+   "items": [
+    {
+     "id": 22062,
+     "count": 1
+    },
+    {
+     "id": 22066,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8933": {
+   "items": [
+    {
+     "id": 22086,
+     "count": 1
+    },
+    {
+     "id": 22090,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8934": {
+   "items": [
+    {
+     "id": 22078,
+     "count": 1
+    },
+    {
+     "id": 22081,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8935": {
+   "items": [
+    {
+     "id": 22002,
+     "count": 1
+    },
+    {
+     "id": 22006,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8936": {
+   "items": [
+    {
+     "id": 22070,
+     "count": 1
+    },
+    {
+     "id": 22077,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8937": {
+   "items": [
+    {
+     "id": 21994,
+     "count": 1
+    },
+    {
+     "id": 21998,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8938": {
+   "items": [
+    {
+     "id": 22010,
+     "count": 1
+    },
+    {
+     "id": 22015,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8939": {
+   "items": [
+    {
+     "id": 22062,
+     "count": 1
+    },
+    {
+     "id": 22066,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8940": {
+   "items": [
+    {
+     "id": 22078,
+     "count": 1
+    },
+    {
+     "id": 22081,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8941": {
+   "items": [
+    {
+     "id": 22006,
+     "count": 1
+    },
+    {
+     "id": 22002,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8942": {
+   "items": [
+    {
+     "id": 22098,
+     "count": 1
+    },
+    {
+     "id": 22099,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8943": {
+   "items": [
+    {
+     "id": 22070,
+     "count": 1
+    },
+    {
+     "id": 22077,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8944": {
+   "items": [
+    {
+     "id": 21994,
+     "count": 1
+    },
+    {
+     "id": 21998,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8945": {
+   "items": [
+    {
+     "id": 22137,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "spells": [
+    27290
+   ],
+   "xp": null
+  },
+  "8946": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8947": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8948": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8949": {
+   "items": [],
+   "choice": [
+    {
+     "id": 22150,
+     "count": 1
+    },
+    {
+     "id": 22149,
+     "count": 1
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8950": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8951": {
+   "items": [
+    {
+     "id": 22107,
+     "count": 1
+    },
+    {
+     "id": 22111,
+     "count": 1
+    },
+    {
+     "id": 22112,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8952": {
+   "items": [
+    {
+     "id": 22061,
+     "count": 1
+    },
+    {
+     "id": 22017,
+     "count": 1
+    },
+    {
+     "id": 22016,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8953": {
+   "items": [
+    {
+     "id": 22064,
+     "count": 1
+    },
+    {
+     "id": 22067,
+     "count": 1
+    },
+    {
+     "id": 22068,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8954": {
+   "items": [
+    {
+     "id": 22087,
+     "count": 1
+    },
+    {
+     "id": 22092,
+     "count": 1
+    },
+    {
+     "id": 22093,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8955": {
+   "items": [
+    {
+     "id": 22084,
+     "count": 1
+    },
+    {
+     "id": 22085,
+     "count": 1
+    },
+    {
+     "id": 22082,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8956": {
+   "items": [
+    {
+     "id": 22003,
+     "count": 1
+    },
+    {
+     "id": 22007,
+     "count": 1
+    },
+    {
+     "id": 22008,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8957": {
+   "items": [
+    {
+     "id": 22096,
+     "count": 1
+    },
+    {
+     "id": 22100,
+     "count": 1
+    },
+    {
+     "id": 22101,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8958": {
+   "items": [
+    {
+     "id": 22076,
+     "count": 1
+    },
+    {
+     "id": 22072,
+     "count": 1
+    },
+    {
+     "id": 22073,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8959": {
+   "items": [
+    {
+     "id": 21995,
+     "count": 1
+    },
+    {
+     "id": 22000,
+     "count": 1
+    },
+    {
+     "id": 22001,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "8960": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9900,
+   "xpBase": 1650,
+   "xp": null
+  },
+  "8961": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8962": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8963": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3960,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8964": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8965": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8966": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8967": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8968": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8969": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8970": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "spells": [
+    5017
+   ],
+   "xp": null
+  },
+  "8977": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8978": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8985": {
+   "items": [],
+   "choice": [
+    {
+     "id": 22192,
+     "count": 3
+    },
+    {
+     "id": 22193,
+     "count": 3
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8986": {
+   "items": [],
+   "choice": [
+    {
+     "id": 22192,
+     "count": 3
+    },
+    {
+     "id": 22193,
+     "count": 3
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3960,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8987": {
+   "items": [],
+   "choice": [
+    {
+     "id": 22192,
+     "count": 3
+    },
+    {
+     "id": 22193,
+     "count": 3
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 3960,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8988": {
+   "items": [],
+   "choice": [
+    {
+     "id": 22192,
+     "count": 3
+    },
+    {
+     "id": 22193,
+     "count": 3
+    }
+   ],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8989": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8990": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8991": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8992": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 49800,
+   "xpBase": 8300,
+   "xp": null
+  },
+  "8994": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "8995": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9015": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 39600,
+   "xpBase": 6600,
+   "xp": null
+  },
+  "9016": {
+   "items": [
+    {
+     "id": 22107,
+     "count": 1
+    },
+    {
+     "id": 22111,
+     "count": 1
+    },
+    {
+     "id": 22112,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9017": {
+   "items": [
+    {
+     "id": 22061,
+     "count": 1
+    },
+    {
+     "id": 22017,
+     "count": 1
+    },
+    {
+     "id": 22016,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 5970,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9018": {
+   "items": [
+    {
+     "id": 22064,
+     "count": 1
+    },
+    {
+     "id": 22067,
+     "count": 1
+    },
+    {
+     "id": 22068,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9019": {
+   "items": [
+    {
+     "id": 22084,
+     "count": 1
+    },
+    {
+     "id": 22085,
+     "count": 1
+    },
+    {
+     "id": 22082,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9020": {
+   "items": [
+    {
+     "id": 22003,
+     "count": 1
+    },
+    {
+     "id": 22007,
+     "count": 1
+    },
+    {
+     "id": 22008,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9021": {
+   "items": [
+    {
+     "id": 22076,
+     "count": 1
+    },
+    {
+     "id": 22072,
+     "count": 1
+    },
+    {
+     "id": 22073,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9022": {
+   "items": [
+    {
+     "id": 21995,
+     "count": 1
+    },
+    {
+     "id": 22000,
+     "count": 1
+    },
+    {
+     "id": 22001,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 59700,
+   "xpBase": 9950,
+   "xp": null
+  },
+  "9032": {
+   "items": [],
+   "choice": [],
+   "money": 0,
+   "src": "vmangos",
+   "moneyAtCap": 9900,
+   "xpBase": 1650,
+   "xp": null
+  },
+  "92065": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92401": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92415": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92421": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92422": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92456": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92457": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92458": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92489": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "92742": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 455,
+   "xp": null
+  },
+  "92744": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 455,
+   "xp": null
+  },
+  "92745": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 490,
+   "xp": null
+  },
+  "92747": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 800,
+   "xp": null
+  },
+  "92748": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 580,
+   "xp": null
+  },
+  "92749": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 580,
+   "xp": null
+  },
+  "92750": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 115,
+   "xp": null
+  },
+  "92751": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 115,
+   "xp": null
+  },
+  "92752": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 580,
+   "xp": null
+  },
+  "92753": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "93786": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 2800,
+   "xp": null
+  },
+  "93787": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 2800,
+   "xp": null
+  },
+  "94483": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3000,
+   "xp": null
+  },
+  "94672": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3300,
+   "xp": null
+  },
+  "94680": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 2450,
+   "xp": null
+  },
+  "94727": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 315,
+   "xp": null
+  },
+  "94744": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 360,
+   "xp": null
+  },
+  "94745": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3750,
+   "xp": null
+  },
+  "94748": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3750,
+   "xp": null
+  },
+  "94768": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 5050,
+   "xp": null
+  },
+  "94879": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3150,
+   "xp": null
+  },
+  "94886": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 375,
+   "xp": null
+  },
+  "94888": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3750,
+   "xp": null
+  },
+  "94889": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3750,
+   "xp": null
+  },
+  "94890": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 5050,
+   "xp": null
+  },
+  "94968": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "94969": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "94973": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3300,
+   "xp": null
+  },
+  "94980": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3300,
+   "xp": null
+  },
+  "94982": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "94983": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95161": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 175,
+   "xp": null
+  },
+  "95189": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95194": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95195": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95196": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95198": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95204": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95216": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95250": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95262": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95263": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95264": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279833,
+     "count": 1
+    },
+    {
+     "id": 279831,
+     "count": 1
+    },
+    {
+     "id": 279474,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279833,
+    279831,
+    279474
+   ],
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95278": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 390,
+   "xp": null
+  },
+  "95283": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95284": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95285": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1300,
+   "xp": null
+  },
+  "95309": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95417": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 315,
+   "xp": null
+  },
+  "95418": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 315,
+   "xp": null
+  },
+  "95420": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 315,
+   "xp": null
+  },
+  "95424": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3300,
+   "xp": null
+  },
+  "95425": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3450,
+   "xp": null
+  },
+  "95427": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3300,
+   "xp": null
+  },
+  "95428": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 330,
+   "xp": null
+  },
+  "95454": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95483": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279831,
+     "count": 1
+    },
+    {
+     "id": 279833,
+     "count": 1
+    },
+    {
+     "id": 279474,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279831,
+    279833,
+    279474
+   ],
+   "xp": null
+  },
+  "95601": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3150,
+   "xp": null
+  },
+  "95602": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3150,
+   "xp": null
+  },
+  "95646": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95647": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95663": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95664": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95682": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95697": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95737": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1250,
+   "xp": null
+  },
+  "95748": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3150,
+   "xp": null
+  },
+  "95770": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 3150,
+   "xp": null
+  },
+  "95772": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95773": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 2850,
+   "xp": null
+  },
+  "95776": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95789": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95790": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279931,
+     "count": 1
+    },
+    {
+     "id": 279901,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279931,
+    279901
+   ],
+   "xp": null
+  },
+  "95791": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95795": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95809": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "95810": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1250,
+   "xp": null
+  },
+  "95924": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279903,
+     "count": 1
+    },
+    {
+     "id": 279905,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279903,
+    279905
+   ],
+   "xp": null
+  },
+  "95925": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279908,
+     "count": 1
+    },
+    {
+     "id": 279910,
+     "count": 1
+    },
+    {
+     "id": 279912,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279908,
+    279910,
+    279912
+   ],
+   "xp": null
+  },
+  "95926": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279908,
+     "count": 1
+    },
+    {
+     "id": 279910,
+     "count": 1
+    },
+    {
+     "id": 279912,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279908,
+    279910,
+    279912
+   ],
+   "xp": null
+  },
+  "95928": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279904,
+     "count": 1
+    },
+    {
+     "id": 279906,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279904,
+    279906
+   ],
+   "xp": null
+  },
+  "96332": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279824,
+     "count": 1
+    },
+    {
+     "id": 279826,
+     "count": 1
+    },
+    {
+     "id": 279829,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279824,
+    279826,
+    279829
+   ],
+   "xp": null
+  },
+  "96334": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279448,
+     "count": 1
+    },
+    {
+     "id": 279473,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279448,
+    279473
+   ],
+   "xp": null
+  },
+  "96335": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96337": {
+   "items": [
+    {
+     "id": 274041,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    274041
+   ],
+   "xp": null
+  },
+  "96369": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96376": {
+   "items": [
+    {
+     "id": 279450,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279450
+   ],
+   "xp": null
+  },
+  "96377": {
+   "items": [
+    {
+     "id": 279450,
+     "count": 1
+    }
+   ],
+   "choice": [],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279450
+   ],
+   "xp": null
+  },
+  "96379": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "forever-quests.json",
+   "xp": null
+  },
+  "96381": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279825,
+     "count": 1
+    },
+    {
+     "id": 279826,
+     "count": 1
+    },
+    {
+     "id": 279829,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279825,
+    279826,
+    279829
+   ],
+   "xp": null
+  },
+  "96391": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1050,
+   "xp": null
+  },
+  "96393": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96394": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96403": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96603": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96772": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96774": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96800": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96984": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96986": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96987": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "96988": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "97049": {
+   "items": [],
+   "choice": [
+    {
+     "id": 279932,
+     "count": 1
+    },
+    {
+     "id": 279902,
+     "count": 1
+    }
+   ],
+   "money": null,
+   "src": "forever-quests.json",
+   "guessed": [
+    279932,
+    279902
+   ],
+   "xp": null
+  },
+  "97130": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "97173": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "97288": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "97289": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1650,
+   "xp": null
+  },
+  "97291": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1650,
+   "xp": null
+  },
+  "97292": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1650,
+   "xp": null
+  },
+  "98477": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "98815": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xpBase": 1150,
+   "xp": null
+  },
+  "98823": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  },
+  "98824": {
+   "items": [],
+   "choice": [],
+   "money": null,
+   "src": "none",
+   "xp": null
+  }
+ },
+ "items": {
+  "918": {
+   "en": "Deviate Hide Pack",
+   "ru": "Сума из искаженной шкуры",
+   "quality": 1,
+   "icon": "inv_misc_bag_07_black",
+   "level": 25,
+   "reqLevel": null,
+   "slot": "Bag",
+   "type": "Container"
+  },
+  "1264": {
+   "en": "Headbasher",
+   "ru": "Головокрушитель",
+   "quality": 2,
+   "icon": "inv_mace_07",
+   "level": 26,
+   "reqLevel": 22,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "1317": {
+   "en": "Hardened Root Staff",
+   "ru": "Упрочненный посох из корня",
+   "quality": 2,
+   "icon": "inv_staff_16",
+   "level": 25,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "1490": {
+   "en": "Guardian Talisman",
+   "ru": "Талисман-хранитель",
+   "quality": 2,
+   "icon": "inv_jewelry_talisman_05",
+   "level": 50,
+   "reqLevel": 38,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "1529": {
+   "en": "Jade",
+   "ru": "Нефрит",
+   "quality": 2,
+   "icon": "inv_misc_gem_stone_01",
+   "level": 35,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Trade Goods"
+  },
+  "1893": {
+   "en": "Miner's Revenge",
+   "ru": "Месть горняка",
+   "quality": 2,
+   "icon": "inv_pick_03",
+   "level": 20,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Axe"
+  },
+  "2033": {
+   "en": "Ambassador's Boots",
+   "ru": "Сапоги посла",
+   "quality": 2,
+   "icon": "inv_boots_08",
+   "level": 25,
+   "reqLevel": 22,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "2036": {
+   "en": "Dusty Mining Gloves",
+   "ru": "Пыльные шахтерские перчатки",
+   "quality": 2,
+   "icon": "inv_gauntlets_05",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "2037": {
+   "en": "Tunneler's Boots",
+   "ru": "Сапоги проходчика",
+   "quality": 2,
+   "icon": "inv_boots_01",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Mail"
+  },
+  "2041": {
+   "en": "Tunic of Westfall",
+   "ru": "Мундир Западного Края",
+   "quality": 3,
+   "icon": "inv_chest_leather_07",
+   "level": 24,
+   "reqLevel": 14,
+   "slot": "Chest",
+   "type": "Leather"
+  },
+  "2042": {
+   "en": "Staff of Westfall",
+   "ru": "Посох Западного Края",
+   "quality": 3,
+   "icon": "inv_staff_10",
+   "level": 24,
+   "reqLevel": 14,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "2074": {
+   "en": "Solid Shortblade",
+   "ru": "Твердый клинок",
+   "quality": 2,
+   "icon": "inv_sword_23",
+   "level": 18,
+   "reqLevel": 14,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "2089": {
+   "en": "Scrimshaw Dagger",
+   "ru": "Резной кинжал",
+   "quality": 2,
+   "icon": "inv_weapon_shortblade_01",
+   "level": 18,
+   "reqLevel": 14,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "2776": {
+   "en": "Gold Ore",
+   "ru": "Золотая руда",
+   "quality": 2,
+   "icon": "inv_ore_copper_01",
+   "level": 25,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Trade Goods"
+  },
+  "2906": {
+   "en": "Darkshire Mail Leggings",
+   "ru": "Кольчужные поножи Темнолесья",
+   "quality": 2,
+   "icon": "inv_pants_03",
+   "level": 26,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "3041": {
+   "en": "\"Mage-Eye\" Blunderbuss",
+   "ru": "Мушкетон \"Глаз мага\"",
+   "quality": 2,
+   "icon": "inv_weapon_rifle_05",
+   "level": 31,
+   "reqLevel": 26,
+   "slot": "Ranged",
+   "type": "Gun"
+  },
+  "3324": {
+   "en": "Ghostly Mantle",
+   "ru": "Призрачное оплечье",
+   "quality": 2,
+   "icon": "inv_shoulder_09",
+   "level": 28,
+   "reqLevel": 18,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "3400": {
+   "en": "Lucine Longsword",
+   "ru": "Длинный меч Люцина",
+   "quality": 2,
+   "icon": "inv_sword_20",
+   "level": 25,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Sword"
+  },
+  "3562": {
+   "en": "Belt of Vindication",
+   "ru": "Пояс Опоры",
+   "quality": 2,
+   "icon": "inv_belt_05",
+   "level": 27,
+   "reqLevel": 22,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "3928": {
+   "en": "Superior Healing Potion",
+   "ru": "Наилучшее лечебное зелье",
+   "quality": 1,
+   "icon": "inv_potion_53",
+   "level": 45,
+   "reqLevel": 35,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "4197": {
+   "en": "Berylline Pads",
+   "ru": "Берилловое оплечье",
+   "quality": 3,
+   "icon": "inv_shoulder_05",
+   "level": 36,
+   "reqLevel": 29,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "4534": {
+   "en": "Steel-clasped Bracers",
+   "ru": "Наручи со стальными застежками",
+   "quality": 2,
+   "icon": "inv_bracer_06",
+   "level": 29,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "4643": {
+   "en": "Grimsteel Cape",
+   "ru": "Накидка Неумолимой стали",
+   "quality": 2,
+   "icon": "inv_misc_cape_02",
+   "level": 33,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "4746": {
+   "en": "Doomsayer's Robe",
+   "ru": "Одеяние Вестника рока",
+   "quality": 2,
+   "icon": "inv_chest_cloth_19",
+   "level": 40,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Cloth"
+  },
+  "4980": {
+   "en": "Prospector Gloves",
+   "ru": "Перчатки геолога",
+   "quality": 2,
+   "icon": "inv_gauntlets_04",
+   "level": 37,
+   "reqLevel": 30,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "4982": {
+   "en": "Ripped Prospector Belt",
+   "ru": "Драный пояс геолога",
+   "quality": 0,
+   "icon": "inv_belt_06",
+   "level": 38,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "4983": {
+   "en": "Rock Pulverizer",
+   "ru": "Каменный распылитель",
+   "quality": 2,
+   "icon": "inv_hammer_17",
+   "level": 42,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "4987": {
+   "en": "Dwarf Captain's Sword",
+   "ru": "Меч дворфийского капитана",
+   "quality": 2,
+   "icon": "inv_sword_25",
+   "level": 45,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "5342": {
+   "en": "Raptor Punch",
+   "ru": "Пунш Ящера",
+   "quality": 1,
+   "icon": "inv_drink_04",
+   "level": 18,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "5343": {
+   "en": "Barkeeper's Cloak",
+   "ru": "Плащ бармена",
+   "quality": 2,
+   "icon": "inv_misc_cape_03",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "6087": {
+   "en": "Chausses of Westfall",
+   "ru": "Шоссы Западного Края",
+   "quality": 3,
+   "icon": "inv_pants_03",
+   "level": 24,
+   "reqLevel": 14,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "6094": {
+   "en": "Piercing Axe",
+   "ru": "Пронзающий топор",
+   "quality": 2,
+   "icon": "inv_throwingaxe_01",
+   "level": 18,
+   "reqLevel": 14,
+   "slot": "Two-Hand",
+   "type": "Axe"
+  },
+  "6149": {
+   "en": "Greater Mana Potion",
+   "ru": "Сильное зелье маны",
+   "quality": 1,
+   "icon": "inv_potion_73",
+   "level": 41,
+   "reqLevel": 31,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "6335": {
+   "en": "Grizzled Boots",
+   "ru": "Серые сапоги",
+   "quality": 2,
+   "icon": "inv_boots_03",
+   "level": 29,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "6414": {
+   "en": "Seal of Sylvanas",
+   "ru": "Печать Сильваны",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_15",
+   "level": 29,
+   "reqLevel": 18,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "6476": {
+   "en": "Pattern: Deviate Scale Belt",
+   "ru": "Выкройка: пояс из искаженной чешуи",
+   "quality": 2,
+   "icon": "inv_scroll_06",
+   "level": 23,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Recipe"
+  },
+  "6480": {
+   "en": "Slick Deviate Leggings",
+   "ru": "Поножи из искаженной чешуи",
+   "quality": 2,
+   "icon": "inv_pants_02",
+   "level": 20,
+   "reqLevel": 13,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "6481": {
+   "en": "Dagmire Gauntlets",
+   "ru": "Рукавицы Грязнотопи",
+   "quality": 2,
+   "icon": "inv_gauntlets_05",
+   "level": 23,
+   "reqLevel": 15,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "6504": {
+   "en": "Wingblade",
+   "ru": "Крыло-клинок",
+   "quality": 3,
+   "icon": "inv_sword_16",
+   "level": 24,
+   "reqLevel": 10,
+   "slot": "Main Hand",
+   "type": "Sword"
+  },
+  "6505": {
+   "en": "Crescent Staff",
+   "ru": "Посох Полумесяца",
+   "quality": 3,
+   "icon": "inv_staff_04",
+   "level": 24,
+   "reqLevel": 10,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "6723": {
+   "en": "Medal of Courage",
+   "ru": "Медаль за отвагу",
+   "quality": 2,
+   "icon": "inv_jewelry_amulet_03",
+   "level": 45,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "6725": {
+   "en": "Marbled Buckler",
+   "ru": "Украшенный мрамором кулачный щит",
+   "quality": 3,
+   "icon": "inv_shield_10",
+   "level": 36,
+   "reqLevel": 29,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "6742": {
+   "en": "Stonefist Girdle",
+   "ru": "Ремень Каменного Кулака",
+   "quality": 3,
+   "icon": "inv_belt_35",
+   "level": 36,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Mail"
+  },
+  "6743": {
+   "en": "Sustaining Ring",
+   "ru": "Кольцо воодушевления",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_08",
+   "level": 25,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "6748": {
+   "en": "Monkey Ring",
+   "ru": "Кольцо Обезьяны",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_14",
+   "level": 31,
+   "reqLevel": 22,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "6749": {
+   "en": "Tiger Band",
+   "ru": "Кольцо Тигра",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_13",
+   "level": 31,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "6750": {
+   "en": "Snake Hoop",
+   "ru": "Кольцо Змеи",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_06",
+   "level": 31,
+   "reqLevel": 22,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "6751": {
+   "en": "Mourning Shawl",
+   "ru": "Траурная шаль",
+   "quality": 2,
+   "icon": "inv_misc_cape_11",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "6752": {
+   "en": "Lancer Boots",
+   "ru": "Уланские сапоги",
+   "quality": 2,
+   "icon": "inv_boots_03",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "6755": {
+   "en": "A Small Container of Gems",
+   "ru": "Маленькая шкатулка с самоцветами",
+   "quality": 1,
+   "icon": "inv_misc_ornatebox",
+   "level": 25,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "6802": {
+   "en": "Sword of Omen",
+   "ru": "Меч Омена",
+   "quality": 3,
+   "icon": "inv_sword_19",
+   "level": 44,
+   "reqLevel": 33,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "6803": {
+   "en": "Prophetic Cane",
+   "ru": "Пророческая палка",
+   "quality": 3,
+   "icon": "inv_staff_01",
+   "level": 44,
+   "reqLevel": 33,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "6829": {
+   "en": "Sword of Serenity",
+   "ru": "Меч безмятежности",
+   "quality": 3,
+   "icon": "inv_sword_27",
+   "level": 44,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "6830": {
+   "en": "Bonebiter",
+   "ru": "Костекус",
+   "quality": 3,
+   "icon": "inv_axe_04",
+   "level": 44,
+   "reqLevel": 34,
+   "slot": "Two-Hand",
+   "type": "Axe"
+  },
+  "6831": {
+   "en": "Black Menace",
+   "ru": "Черная угроза",
+   "quality": 3,
+   "icon": "inv_sword_13",
+   "level": 44,
+   "reqLevel": 34,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "6998": {
+   "en": "Nimbus Boots",
+   "ru": "Ореольные сапоги",
+   "quality": 2,
+   "icon": "inv_boots_05",
+   "level": 25,
+   "reqLevel": 20,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "7000": {
+   "en": "Heartwood Girdle",
+   "ru": "Ремень Сердца Древа",
+   "quality": 2,
+   "icon": "inv_belt_04",
+   "level": 25,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "7001": {
+   "en": "Gravestone Scepter",
+   "ru": "Надгробный скипетр",
+   "quality": 3,
+   "icon": "inv_wand_04",
+   "level": 29,
+   "reqLevel": 18,
+   "slot": "Ranged",
+   "type": "Wand"
+  },
+  "7002": {
+   "en": "Arctic Buckler",
+   "ru": "Арктический кулачный щит",
+   "quality": 3,
+   "icon": "inv_shield_02",
+   "level": 29,
+   "reqLevel": 18,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "7003": {
+   "en": "Beetle Clasps",
+   "ru": "Жучиные застежки",
+   "quality": 2,
+   "icon": "inv_bracer_06",
+   "level": 27,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "7004": {
+   "en": "Prelacy Cape",
+   "ru": "Накидка прелата",
+   "quality": 2,
+   "icon": "inv_misc_cape_18",
+   "level": 27,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "7606": {
+   "en": "Polar Gauntlets",
+   "ru": "Снежные рукавицы",
+   "quality": 2,
+   "icon": "inv_gauntlets_04",
+   "level": 22,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "7607": {
+   "en": "Sable Wand",
+   "ru": "Соболий жезл",
+   "quality": 2,
+   "icon": "inv_staff_02",
+   "level": 22,
+   "reqLevel": null,
+   "slot": "Ranged",
+   "type": "Wand"
+  },
+  "7673": {
+   "en": "Talvash's Enhancing Necklace",
+   "ru": "Ожерелье Усиления Талваш",
+   "quality": 3,
+   "icon": "inv_jewelry_necklace_02",
+   "level": 47,
+   "reqLevel": 37,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "7746": {
+   "en": "Explorers' League Commendation",
+   "ru": "Амулет Лиги Исследователей",
+   "quality": 2,
+   "icon": "inv_jewelry_talisman_01",
+   "level": 41,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "7747": {
+   "en": "Vile Protector",
+   "ru": "Погибельная защита",
+   "quality": 2,
+   "icon": "inv_shield_02",
+   "level": 41,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "7749": {
+   "en": "Omega Orb",
+   "ru": "Сфера Омеги",
+   "quality": 2,
+   "icon": "inv_misc_orb_03",
+   "level": 41,
+   "reqLevel": null,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "7750": {
+   "en": "Mantle of Woe",
+   "ru": "Оплечье горя",
+   "quality": 2,
+   "icon": "inv_shoulder_23",
+   "level": 33,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "7751": {
+   "en": "Vorrel's Boots",
+   "ru": "Сапоги Воррела",
+   "quality": 2,
+   "icon": "inv_boots_03",
+   "level": 30,
+   "reqLevel": 25,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "7888": {
+   "en": "Jarkal's Enhancing Necklace",
+   "ru": "Ожерелье Усиления Джаркала",
+   "quality": 3,
+   "icon": "inv_jewelry_necklace_02",
+   "level": 47,
+   "reqLevel": 37,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "8071": {
+   "en": "Sizzle Stick",
+   "ru": "Шипящее древко",
+   "quality": 2,
+   "icon": "inv_staff_02",
+   "level": 23,
+   "reqLevel": 15,
+   "slot": "Ranged",
+   "type": "Wand"
+  },
+  "9030": {
+   "en": "Restorative Potion",
+   "ru": "Приводящее в сознание зелье",
+   "quality": 1,
+   "icon": "inv_potion_01",
+   "level": 42,
+   "reqLevel": 32,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "9173": {
+   "en": "Goblin Transponder",
+   "ru": "Гоблинский импульсный повторитель",
+   "quality": 1,
+   "icon": "inv_battery_01",
+   "level": 1,
+   "reqLevel": 1,
+   "slot": null,
+   "type": "Quest"
+  },
+  "9224": {
+   "en": "Elixir of Demonslaying",
+   "ru": "Эликсир убийства демонов",
+   "quality": 1,
+   "icon": "inv_potion_27",
+   "level": 50,
+   "reqLevel": 40,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "9363": {
+   "en": "Sparklematic-Wrapped Box",
+   "ru": "Коробка, упакованная \"Чистером\"",
+   "quality": 1,
+   "icon": "inv_misc_gift_01",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "9522": {
+   "en": "Energized Stone Circle",
+   "ru": "Энергетический каменный обруч",
+   "quality": 2,
+   "icon": "inv_shield_10",
+   "level": 36,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "9527": {
+   "en": "Spellshifter Rod",
+   "ru": "Жезл Смены заклятий",
+   "quality": 2,
+   "icon": "inv_wand_11",
+   "level": 46,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "9531": {
+   "en": "Gemshale Pauldrons",
+   "ru": "Наплечье Драгоценной скорлупы",
+   "quality": 2,
+   "icon": "inv_shoulder_23",
+   "level": 46,
+   "reqLevel": 40,
+   "slot": "Shoulder",
+   "type": "Plate"
+  },
+  "9533": {
+   "en": "Masons Fraternity Ring",
+   "ru": "Кольцо Масонского братства",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_03",
+   "level": 47,
+   "reqLevel": 40,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "9534": {
+   "en": "Engineer's Guild Headpiece",
+   "ru": "Головной убор Гильдий",
+   "quality": 3,
+   "icon": "inv_helmet_33",
+   "level": 47,
+   "reqLevel": 40,
+   "slot": "Head",
+   "type": "Leather"
+  },
+  "9535": {
+   "en": "Fire-welded Bracers",
+   "ru": "Огнесварные наручи",
+   "quality": 2,
+   "icon": "inv_bracer_02",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "9536": {
+   "en": "Fairywing Mantle",
+   "ru": "Волшебнокрылое оплечье",
+   "quality": 2,
+   "icon": "inv_shoulder_02",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "9587": {
+   "en": "Thawpelt Sack",
+   "ru": "Сума из мягкой кожи",
+   "quality": 1,
+   "icon": "inv_misc_bag_17",
+   "level": 45,
+   "reqLevel": null,
+   "slot": "Bag",
+   "type": "Container"
+  },
+  "9604": {
+   "en": "Mechanic's Pipehammer",
+   "ru": "Трубомолот махника",
+   "quality": 2,
+   "icon": "inv_mace_04",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "9605": {
+   "en": "Repairman's Cape",
+   "ru": "Накидка ремонтника",
+   "quality": 2,
+   "icon": "inv_misc_cape_06",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "9608": {
+   "en": "Shoni's Disarming Tool",
+   "ru": "Обезоруживающий инструмент Шони",
+   "quality": 2,
+   "icon": "inv_misc_wrench_01",
+   "level": 31,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Axe"
+  },
+  "9609": {
+   "en": "Shilly Mitts",
+   "ru": "Полуперчатки Нерешительности",
+   "quality": 2,
+   "icon": "inv_gauntlets_27",
+   "level": 31,
+   "reqLevel": 20,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "9623": {
+   "en": "Civinad Robes",
+   "ru": "Одеяния Сивинада",
+   "quality": 3,
+   "icon": "inv_chest_cloth_18",
+   "level": 37,
+   "reqLevel": 25,
+   "slot": "Chest",
+   "type": "Cloth"
+  },
+  "9624": {
+   "en": "Triprunner Dungarees",
+   "ru": "Шаровары бегуна",
+   "quality": 3,
+   "icon": "inv_pants_08",
+   "level": 37,
+   "reqLevel": 25,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "9625": {
+   "en": "Dual Reinforced Leggings",
+   "ru": "Двойные усиленные поножи",
+   "quality": 3,
+   "icon": "inv_pants_03",
+   "level": 37,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "9626": {
+   "en": "Dwarven Charge",
+   "ru": "Дворфийский натиск",
+   "quality": 2,
+   "icon": "inv_axe_09",
+   "level": 42,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Axe"
+  },
+  "9627": {
+   "en": "Explorer's League Lodestar",
+   "ru": "Путеводная звезда Лиги исследователей",
+   "quality": 2,
+   "icon": "inv_misc_lantern_01",
+   "level": 42,
+   "reqLevel": null,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "10358": {
+   "en": "Duracin Bracers",
+   "ru": "Дюрациновые наручи",
+   "quality": 2,
+   "icon": "inv_bracer_04",
+   "level": 36,
+   "reqLevel": 30,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "10359": {
+   "en": "Everlast Boots",
+   "ru": "Долговечные сапоги",
+   "quality": 2,
+   "icon": "inv_boots_07",
+   "level": 36,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "10455": {
+   "en": "Chained Essence of Eranikus",
+   "ru": "Скованная Сущность Эраникуса",
+   "quality": 2,
+   "icon": "inv_stone_03",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "10515": {
+   "en": "Torch of Retribution",
+   "ru": "Факел Воздаяния",
+   "quality": 1,
+   "icon": "inv_wand_04",
+   "level": 1,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Miscellaneous"
+  },
+  "10569": {
+   "en": "Hoard of the Black Dragonflight",
+   "ru": "Сокровищница черных драконов",
+   "quality": 1,
+   "icon": "inv_box_02",
+   "level": 50,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "10710": {
+   "en": "Dragonclaw Ring",
+   "ru": "Кольцо Драконьего когтя",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_04",
+   "level": 38,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "10711": {
+   "en": "Dragon's Blood Necklace",
+   "ru": "Ожерелье Драконьей Крови",
+   "quality": 3,
+   "icon": "inv_jewelry_necklace_02",
+   "level": 44,
+   "reqLevel": 33,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "10742": {
+   "en": "Dragonflight Leggings",
+   "ru": "Драконьи поножи",
+   "quality": 2,
+   "icon": "inv_pants_05",
+   "level": 51,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "10743": {
+   "en": "Drakefire Headguard",
+   "ru": "Шлем Пламени дракона",
+   "quality": 2,
+   "icon": "inv_helmet_17",
+   "level": 51,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Mail"
+  },
+  "10744": {
+   "en": "Axe of the Ebon Drake",
+   "ru": "Топор Эбенового дракона",
+   "quality": 2,
+   "icon": "inv_axe_12",
+   "level": 51,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Axe"
+  },
+  "10749": {
+   "en": "Avenguard Helm",
+   "ru": "Шлем Авангарда",
+   "quality": 3,
+   "icon": "inv_helmet_22",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Plate"
+  },
+  "10750": {
+   "en": "Lifeforce Dirk",
+   "ru": "Кортик Жизнесилы",
+   "quality": 3,
+   "icon": "inv_sword_21",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "10751": {
+   "en": "Gemburst Circlet",
+   "ru": "Драгоценный венец",
+   "quality": 3,
+   "icon": "inv_crown_01",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Cloth"
+  },
+  "10773": {
+   "en": "Hakkari Urn",
+   "ru": "Урна Хаккари",
+   "quality": 2,
+   "icon": "inv_box_01",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "10823": {
+   "en": "Vanquisher's Sword",
+   "ru": "Меч Покорителя",
+   "quality": 3,
+   "icon": "inv_sword_35",
+   "level": 44,
+   "reqLevel": 39,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "10824": {
+   "en": "Amberglow Talisman",
+   "ru": "Талисман Янтарного света",
+   "quality": 3,
+   "icon": "inv_jewelry_necklace_07",
+   "level": 44,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "10919": {
+   "en": "Apothecary Gloves",
+   "ru": "Перчатки аптекаря",
+   "quality": 2,
+   "icon": "inv_gauntlets_06",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "11000": {
+   "en": "Shadowforge Key",
+   "ru": "Ключ Кузни Теней",
+   "quality": 1,
+   "icon": "inv_misc_key_08",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Key"
+  },
+  "11122": {
+   "en": "Carrot on a Stick",
+   "ru": "Морковка на палочке",
+   "quality": 2,
+   "icon": "inv_misc_food_54",
+   "level": 50,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "11123": {
+   "en": "Rainstrider Leggings",
+   "ru": "Поножи Странника дождя",
+   "quality": 3,
+   "icon": "inv_pants_08",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "11124": {
+   "en": "Helm of Exile",
+   "ru": "Шлем Изгнания",
+   "quality": 3,
+   "icon": "inv_helmet_21",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Mail"
+  },
+  "11262": {
+   "en": "Orb of Lorica",
+   "ru": "Сфера Лорики",
+   "quality": 3,
+   "icon": "inv_misc_orb_01",
+   "level": 44,
+   "reqLevel": 34,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "11865": {
+   "en": "Rancor Boots",
+   "ru": "Сапоги Озлобления",
+   "quality": 2,
+   "icon": "inv_boots_02",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "11866": {
+   "en": "Nagmara's Whipping Belt",
+   "ru": "Пояс-хлыст Нагмары",
+   "quality": 3,
+   "icon": "inv_belt_11",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "11883": {
+   "en": "A Dingy Fanny Pack",
+   "ru": "Закопченная сума-жестянка",
+   "quality": 1,
+   "icon": "inv_misc_bag_09_black",
+   "level": 56,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "11962": {
+   "en": "Manacle Cuffs",
+   "ru": "Кандалы",
+   "quality": 3,
+   "icon": "inv_bracer_13",
+   "level": 55,
+   "reqLevel": 50,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "11963": {
+   "en": "Penance Spaulders",
+   "ru": "Наплеч кары",
+   "quality": 2,
+   "icon": "inv_shoulder_25",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "11964": {
+   "en": "Swiftstrike Cudgel",
+   "ru": "Палка молниеносного удара",
+   "quality": 2,
+   "icon": "inv_mace_08",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Mace"
+  },
+  "12000": {
+   "en": "Limb Cleaver",
+   "ru": "Колун конечностей",
+   "quality": 2,
+   "icon": "inv_axe_02",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Axe"
+  },
+  "12003": {
+   "en": "Dark Dwarven Lager",
+   "ru": "Темное дворфийское пиво",
+   "quality": 1,
+   "icon": "inv_drink_05",
+   "level": 55,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "12018": {
+   "en": "Conservator Helm",
+   "ru": "Шлем Охранителя",
+   "quality": 2,
+   "icon": "inv_helmet_01",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Mail"
+  },
+  "12021": {
+   "en": "Shieldplate Sabatons",
+   "ru": "Щитолатные башмаки",
+   "quality": 2,
+   "icon": "inv_boots_plate_01",
+   "level": 54,
+   "reqLevel": 48,
+   "slot": "Feet",
+   "type": "Plate"
+  },
+  "12038": {
+   "en": "Lagrave's Seal",
+   "ru": "Печать Лаграва",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_03",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12041": {
+   "en": "Windshear Leggings",
+   "ru": "Поножи Ветрорезов",
+   "quality": 2,
+   "icon": "inv_pants_13",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "12049": {
+   "en": "Splintsteel Armor",
+   "ru": "Стальноосколочная броня",
+   "quality": 2,
+   "icon": "inv_chest_chain_16",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Mail"
+  },
+  "12059": {
+   "en": "Conqueror's Medallion",
+   "ru": "Медальон Завоевателя",
+   "quality": 3,
+   "icon": "inv_jewelry_amulet_03",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "12061": {
+   "en": "Blade of Reckoning",
+   "ru": "Клинок Расчетов",
+   "quality": 2,
+   "icon": "inv_sword_26",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "12062": {
+   "en": "Skilled Fighting Blade",
+   "ru": "Квалифицированный боевой клинок",
+   "quality": 2,
+   "icon": "inv_sword_21",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "12065": {
+   "en": "Ward of the Elements",
+   "ru": "Оберег Стихий",
+   "quality": 2,
+   "icon": "inv_jewelry_talisman_02",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "12066": {
+   "en": "Shaleskin Cape",
+   "ru": "Накидка Глинистой кожи",
+   "quality": 2,
+   "icon": "inv_misc_cape_02",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "12082": {
+   "en": "Wyrmhide Spaulders",
+   "ru": "Наплеч из шкуры змея",
+   "quality": 2,
+   "icon": "inv_shoulder_16",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "12083": {
+   "en": "Valconian Sash",
+   "ru": "Вальконийский кушак",
+   "quality": 2,
+   "icon": "inv_belt_11",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "12102": {
+   "en": "Ring of the Aristocrat",
+   "ru": "Кольцо Аристократа",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_15",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12108": {
+   "en": "Basaltscale Armor",
+   "ru": "Базальтовая чешуйчатая броня",
+   "quality": 2,
+   "icon": "inv_chest_chain_16",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Mail"
+  },
+  "12109": {
+   "en": "Azure Moon Amice",
+   "ru": "Лазурный лунный нарамник",
+   "quality": 2,
+   "icon": "inv_shoulder_02",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "12110": {
+   "en": "Raincaster Drape",
+   "ru": "Пелерина Заклинателя Дождя",
+   "quality": 2,
+   "icon": "inv_misc_cape_16",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "12111": {
+   "en": "Lavaplate Gauntlets",
+   "ru": "Лавовые рукавицы",
+   "quality": 2,
+   "icon": "inv_gauntlets_26",
+   "level": 58,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "12112": {
+   "en": "Crypt Demon Bracers",
+   "ru": "Наручи склепного демона",
+   "quality": 2,
+   "icon": "inv_bracer_17",
+   "level": 56,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "12113": {
+   "en": "Sunborne Cape",
+   "ru": "Солнечная накидка",
+   "quality": 2,
+   "icon": "inv_misc_cape_08",
+   "level": 56,
+   "reqLevel": null,
+   "slot": "Back",
+   "type": "Cloth"
+  },
+  "12114": {
+   "en": "Nightfall Gloves",
+   "ru": "Сумрачные перчатки",
+   "quality": 2,
+   "icon": "inv_gauntlets_17",
+   "level": 56,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "12115": {
+   "en": "Stalwart Clutch",
+   "ru": "Стойкий поясок",
+   "quality": 2,
+   "icon": "inv_belt_34",
+   "level": 56,
+   "reqLevel": 48,
+   "slot": "Waist",
+   "type": "Plate"
+  },
+  "12144": {
+   "en": "Eggscilloscope",
+   "ru": "Яйцехладоскоп",
+   "quality": 1,
+   "icon": "inv_gizmo_09",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Key"
+  },
+  "12264": {
+   "en": "Worg Carrier",
+   "ru": "Переноска для ворга",
+   "quality": 1,
+   "icon": "inv_box_petcarrier_01",
+   "level": 59,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "12344": {
+   "en": "Seal of Ascension",
+   "ru": "Печать Вознесения",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_01",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12529": {
+   "en": "Smolderweb Carrier",
+   "ru": "Клетка Огнепаутинки",
+   "quality": 1,
+   "icon": "inv_box_birdcage_01",
+   "level": 59,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "12543": {
+   "en": "Songstone of Ironforge",
+   "ru": "Поющий камень Стальгорна",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12544": {
+   "en": "Thrall's Resolve",
+   "ru": "Решимость Тралла",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12545": {
+   "en": "Eye of Orgrimmar",
+   "ru": "Око Оргриммара",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12548": {
+   "en": "Magni's Will",
+   "ru": "Воля Магни",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "12696": {
+   "en": "Plans: Demon Forged Breastplate",
+   "ru": "Чертеж: выкованная демоном кираса",
+   "quality": 3,
+   "icon": "inv_scroll_03",
+   "level": 57,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Recipe"
+  },
+  "12849": {
+   "en": "Demon Kissed Sack",
+   "ru": "Сумка Поцелуя демона",
+   "quality": 2,
+   "icon": "inv_misc_bag_13",
+   "level": 61,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Quest"
+  },
+  "13171": {
+   "en": "Smokey's Lighter",
+   "ru": "Воспламенитель Дымка",
+   "quality": 2,
+   "icon": "spell_fire_searingtotem",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13209": {
+   "en": "Seal of the Dawn",
+   "ru": "Печать Рассвета",
+   "quality": 3,
+   "icon": "inv_misc_armorkit_18",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13216": {
+   "en": "Crown of the Penitent",
+   "ru": "Корона Покаяния",
+   "quality": 2,
+   "icon": "inv_helmet_06",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Cloth"
+  },
+  "13217": {
+   "en": "Band of the Penitent",
+   "ru": "Кольцо Покаяния",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_30",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "13315": {
+   "en": "Testament of Hope",
+   "ru": "Завещание надежды",
+   "quality": 2,
+   "icon": "inv_misc_book_06",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "13544": {
+   "en": "Spectral Essence",
+   "ru": "Сущность привидения",
+   "quality": 2,
+   "icon": "inv_misc_orb_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13958": {
+   "en": "Wyrmthalak's Shackles",
+   "ru": "Оковы Вурмталака",
+   "quality": 3,
+   "icon": "inv_bracer_04",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "13959": {
+   "en": "Omokk's Girth Restrainer",
+   "ru": "Тесьма-фиксатор Омокка",
+   "quality": 3,
+   "icon": "inv_belt_13",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Plate"
+  },
+  "13961": {
+   "en": "Halycon's Muzzle",
+   "ru": "Намордник Халикон",
+   "quality": 3,
+   "icon": "inv_shoulder_24",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "13962": {
+   "en": "Vosh'gajin's Strand",
+   "ru": "Пояс Вос'гаджин",
+   "quality": 3,
+   "icon": "inv_belt_15",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "13963": {
+   "en": "Voone's Vice Grips",
+   "ru": "Поганые захваты Вуна",
+   "quality": 3,
+   "icon": "inv_gauntlets_15",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "13965": {
+   "en": "Blackhand's Breadth",
+   "ru": "Пластита Чернорука",
+   "quality": 3,
+   "icon": "inv_misc_armorkit_09",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13966": {
+   "en": "Mark of Tyranny",
+   "ru": "Знак Тирании",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_09",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13968": {
+   "en": "Eye of the Beast",
+   "ru": "Глаз Зверя",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_08",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "13982": {
+   "en": "Warblade of Caer Darrow",
+   "ru": "Боевой клинок Каэр Дарроу",
+   "quality": 3,
+   "icon": "inv_sword_39",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Sword"
+  },
+  "13984": {
+   "en": "Darrowspike",
+   "ru": "Пика Дэрроу",
+   "quality": 3,
+   "icon": "inv_weapon_shortblade_21",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "13986": {
+   "en": "Crown of Caer Darrow",
+   "ru": "Корона Каэр Дарроу",
+   "quality": 3,
+   "icon": "inv_crown_01",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Cloth"
+  },
+  "14002": {
+   "en": "Darrowshire Strongguard",
+   "ru": "Сильностраж Дарроушира",
+   "quality": 3,
+   "icon": "inv_shield_05",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "15449": {
+   "en": "Ghastly Trousers",
+   "ru": "Мертвенные брюки",
+   "quality": 2,
+   "icon": "inv_pants_14",
+   "level": 18,
+   "reqLevel": 9,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "15450": {
+   "en": "Dredgemire Leggings",
+   "ru": "Поножи болотного черпателя",
+   "quality": 2,
+   "icon": "inv_pants_07",
+   "level": 18,
+   "reqLevel": 9,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "15451": {
+   "en": "Gargoyle Leggings",
+   "ru": "Поножи горгульи",
+   "quality": 2,
+   "icon": "inv_pants_03",
+   "level": 18,
+   "reqLevel": 9,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "15452": {
+   "en": "Featherbead Bracers",
+   "ru": "Перобисерные наручи",
+   "quality": 2,
+   "icon": "inv_bracer_08",
+   "level": 18,
+   "reqLevel": 9,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "15453": {
+   "en": "Savannah Bracers",
+   "ru": "Наручи Саванны",
+   "quality": 2,
+   "icon": "inv_bracer_07",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "15805": {
+   "en": "Penelope's Rose",
+   "ru": "Роза Пенелопы",
+   "quality": 3,
+   "icon": "inv_misc_flower_04",
+   "level": 61,
+   "reqLevel": 55,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "15806": {
+   "en": "Mirah's Song",
+   "ru": "Песня Мираха",
+   "quality": 3,
+   "icon": "inv_sword_34",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "15824": {
+   "en": "Astoria Robes",
+   "ru": "Асторийские одеяния",
+   "quality": 2,
+   "icon": "inv_chest_cloth_07",
+   "level": 59,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Cloth"
+  },
+  "15825": {
+   "en": "Traphook Jerkin",
+   "ru": "Звероловецкий жакет",
+   "quality": 2,
+   "icon": "inv_chest_plate06",
+   "level": 59,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Leather"
+  },
+  "15827": {
+   "en": "Jadescale Breastplate",
+   "ru": "Кираса из нефритовой чешуи",
+   "quality": 2,
+   "icon": "inv_chest_chain_04",
+   "level": 59,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Mail"
+  },
+  "15853": {
+   "en": "Windreaper",
+   "ru": "Ветрожнец",
+   "quality": 3,
+   "icon": "inv_axe_08",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Axe"
+  },
+  "15854": {
+   "en": "Dancing Sliver",
+   "ru": "Танцующее серебро",
+   "quality": 3,
+   "icon": "inv_staff_07",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "15858": {
+   "en": "Freewind Gloves",
+   "ru": "Перчатки Вольного ветра",
+   "quality": 2,
+   "icon": "inv_gauntlets_16",
+   "level": 59,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "15859": {
+   "en": "Seapost Girdle",
+   "ru": "Ремень морской заставы",
+   "quality": 2,
+   "icon": "inv_belt_23",
+   "level": 59,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Mail"
+  },
+  "15860": {
+   "en": "Blinkstrike Armguards",
+   "ru": "Боевые наручи мгновенного удара",
+   "quality": 2,
+   "icon": "inv_bracer_17",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Plate"
+  },
+  "15861": {
+   "en": "Swiftfoot Treads",
+   "ru": "Быстроступные ботфорты",
+   "quality": 2,
+   "icon": "inv_boots_07",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "15862": {
+   "en": "Blitzcleaver",
+   "ru": "Молниеносный колун",
+   "quality": 2,
+   "icon": "inv_weapon_halberd_06",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Axe"
+  },
+  "15863": {
+   "en": "Grave Scepter",
+   "ru": "Могильный скипетр",
+   "quality": 2,
+   "icon": "inv_mace_07",
+   "level": 54,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Mace"
+  },
+  "15867": {
+   "en": "Prismcharm",
+   "ru": "Оберег-призма",
+   "quality": 2,
+   "icon": "inv_misc_gem_variety_02",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "15873": {
+   "en": "Ragged John's Neverending Cup",
+   "ru": "Неупиваемая чаша Джона-Оборванца",
+   "quality": 3,
+   "icon": "inv_drink_03",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "16309": {
+   "en": "Drakefire Amulet",
+   "ru": "Амулет Пламени дракона",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_11",
+   "level": 63,
+   "reqLevel": 50,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "16886": {
+   "en": "Outlaw Sabre",
+   "ru": "Сабля беззаконника",
+   "quality": 3,
+   "icon": "inv_sword_33",
+   "level": 30,
+   "reqLevel": 25,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "16887": {
+   "en": "Witch's Finger",
+   "ru": "Ведьмин палец",
+   "quality": 3,
+   "icon": "inv_wand_12",
+   "level": 30,
+   "reqLevel": null,
+   "slot": "Held In Off-hand",
+   "type": "Miscellaneous"
+  },
+  "16994": {
+   "en": "Duskwing Gloves",
+   "ru": "Перчатки Тенекрыла",
+   "quality": 2,
+   "icon": "inv_gauntlets_02",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "16995": {
+   "en": "Duskwing Mantle",
+   "ru": "Тенекрылые оплечье",
+   "quality": 2,
+   "icon": "inv_shoulder_19",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "17001": {
+   "en": "Elemental Circle",
+   "ru": "Обруч Стихий",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_29",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "17002": {
+   "en": "Ichor Spitter",
+   "ru": "Разбрызгиватель лимфы",
+   "quality": 2,
+   "icon": "inv_weapon_halberd_05",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Axe"
+  },
+  "17003": {
+   "en": "Skullstone Hammer",
+   "ru": "Молот Каменного черепа",
+   "quality": 2,
+   "icon": "inv_misc_bone_orcskull_01",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Mace"
+  },
+  "17004": {
+   "en": "Sarah's Guide",
+   "ru": "Руководство Сары",
+   "quality": 2,
+   "icon": "inv_staff_10",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "17039": {
+   "en": "Skullbreaker",
+   "ru": "Пробиватель черепов",
+   "quality": 2,
+   "icon": "inv_misc_bone_dwarfskull_01",
+   "level": 36,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Mace"
+  },
+  "17042": {
+   "en": "Nail Spitter",
+   "ru": "Гвоздомет",
+   "quality": 2,
+   "icon": "inv_weapon_rifle_01",
+   "level": 36,
+   "reqLevel": null,
+   "slot": "Ranged",
+   "type": "Gun"
+  },
+  "17043": {
+   "en": "Zealot's Robe",
+   "ru": "Одеяние фанатика",
+   "quality": 2,
+   "icon": "inv_chest_cloth_06",
+   "level": 36,
+   "reqLevel": 28,
+   "slot": "Chest",
+   "type": "Cloth"
+  },
+  "17044": {
+   "en": "Will of the Martyr",
+   "ru": "Воля Мученика",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_07",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "17045": {
+   "en": "Blood of the Martyr",
+   "ru": "Кровь Мученика",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_25",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "17191": {
+   "en": "Scepter of Celebras",
+   "ru": "Скипетр Келебраса",
+   "quality": 3,
+   "icon": "inv_staff_16",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Quest"
+  },
+  "17508": {
+   "en": "Forcestone Buckler",
+   "ru": "Кулачный щит Камнесилы",
+   "quality": 2,
+   "icon": "inv_shield_02",
+   "level": 41,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "17694": {
+   "en": "Band of the Fist",
+   "ru": "Кольцо Кулака",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_02",
+   "level": 25,
+   "reqLevel": 17,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "17695": {
+   "en": "Chestnut Mantle",
+   "ru": "Оплечье Гнедого",
+   "quality": 2,
+   "icon": "inv_shoulder_09",
+   "level": 26,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "17705": {
+   "en": "Thrash Blade",
+   "ru": "Молотящий клинок",
+   "quality": 3,
+   "icon": "inv_sword_36",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Sword"
+  },
+  "17743": {
+   "en": "Resurgence Rod",
+   "ru": "Жезл Возрождения",
+   "quality": 3,
+   "icon": "inv_staff_goldfeathered_01",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Staff"
+  },
+  "17753": {
+   "en": "Verdant Keeper's Aim",
+   "ru": "Цель Зеленого хранителя",
+   "quality": 3,
+   "icon": "inv_weapon_bow_03",
+   "level": 53,
+   "reqLevel": null,
+   "slot": "Ranged",
+   "type": "Bow"
+  },
+  "17768": {
+   "en": "Woodseed Hoop",
+   "ru": "Кольцо Лесных Семян",
+   "quality": 2,
+   "icon": "inv_jewelry_ring_18",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "17770": {
+   "en": "Branchclaw Gauntlets",
+   "ru": "Рукавицы Когтистой ветви",
+   "quality": 2,
+   "icon": "inv_gauntlets_30",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "17772": {
+   "en": "Zealous Shadowshard Pendant",
+   "ru": "Могучая подвеска Осколков Сумрака",
+   "quality": 2,
+   "icon": "inv_jewelry_necklace_06",
+   "level": 42,
+   "reqLevel": 39,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "17773": {
+   "en": "Prodigious Shadowshard Pendant",
+   "ru": "Чудесная подвеска Осколков Сумрака",
+   "quality": 2,
+   "icon": "inv_jewelry_necklace_06",
+   "level": 42,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "17774": {
+   "en": "Mark of the Chosen",
+   "ru": "Знак Избранного",
+   "quality": 2,
+   "icon": "inv_jewelry_talisman_08",
+   "level": 48,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "17775": {
+   "en": "Acumen Robes",
+   "ru": "Проницательные одеяния",
+   "quality": 2,
+   "icon": "inv_chest_cloth_49",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Chest",
+   "type": "Cloth"
+  },
+  "17776": {
+   "en": "Sprightring Helm",
+   "ru": "Шлем Кольца духов",
+   "quality": 2,
+   "icon": "inv_helmet_35",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Head",
+   "type": "Leather"
+  },
+  "17777": {
+   "en": "Relentless Chain",
+   "ru": "Беспощадная кольчуга",
+   "quality": 2,
+   "icon": "inv_chest_chain_07",
+   "level": 47,
+   "reqLevel": null,
+   "slot": "Chest",
+   "type": "Mail"
+  },
+  "17778": {
+   "en": "Sagebrush Girdle",
+   "ru": "Полынный ремень",
+   "quality": 2,
+   "icon": "inv_belt_25",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "17779": {
+   "en": "Hulkstone Pauldrons",
+   "ru": "Наплечье мегакамня",
+   "quality": 2,
+   "icon": "inv_shoulder_23",
+   "level": 47,
+   "reqLevel": 41,
+   "slot": "Shoulder",
+   "type": "Plate"
+  },
+  "18022": {
+   "en": "Royal Seal of Alexis",
+   "ru": "Королевская печать Алексиса",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_30",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Finger",
+   "type": "Miscellaneous"
+  },
+  "18258": {
+   "en": "Gordok Ogre Suit",
+   "ru": "Броня огров Гордока",
+   "quality": 2,
+   "icon": "inv_chest_chain_14",
+   "level": 55,
+   "reqLevel": 55,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "18269": {
+   "en": "Gordok Green Grog",
+   "ru": "Зеленый грог Гордока",
+   "quality": 2,
+   "icon": "inv_drink_03",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "18284": {
+   "en": "Kreeg's Stout Beatdown",
+   "ru": "Убойное пойло Крига",
+   "quality": 2,
+   "icon": "inv_drink_05",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "18366": {
+   "en": "Gordok's Handguards",
+   "ru": "Боевые рукавицы Гордока",
+   "quality": 3,
+   "icon": "inv_gauntlets_09",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "18367": {
+   "en": "Gordok's Gauntlets",
+   "ru": "Рукавицы Гордока",
+   "quality": 3,
+   "icon": "inv_gauntlets_09",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "18368": {
+   "en": "Gordok's Gloves",
+   "ru": "Перчатки Гордока",
+   "quality": 3,
+   "icon": "inv_gauntlets_01",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "18369": {
+   "en": "Gordok's Handwraps",
+   "ru": "Повязки Гордока",
+   "quality": 3,
+   "icon": "inv_gauntlets_06",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "18410": {
+   "en": "Sprinter's Sword",
+   "ru": "Меч спринтера",
+   "quality": 2,
+   "icon": "inv_sword_28",
+   "level": 57,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Sword"
+  },
+  "18411": {
+   "en": "Spry Boots",
+   "ru": "Подвижные сапоги",
+   "quality": 2,
+   "icon": "inv_boots_06",
+   "level": 57,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "18420": {
+   "en": "Bonecrusher",
+   "ru": "Костекрушитель",
+   "quality": 3,
+   "icon": "inv_mace_02",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "18421": {
+   "en": "Backwood Helm",
+   "ru": "Шлем Заднелеса",
+   "quality": 3,
+   "icon": "inv_helmet_19",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Mail"
+  },
+  "18424": {
+   "en": "Sedge Boots",
+   "ru": "Осоковые сапоги",
+   "quality": 3,
+   "icon": "inv_boots_05",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "18465": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": 54,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18466": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18467": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18468": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": 54,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18469": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": 54,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18470": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": 54,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18471": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18472": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": 54,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18473": {
+   "en": "Royal Seal of Eldre'Thalas",
+   "ru": "Королевская печать Эльдре'Таласа",
+   "quality": 3,
+   "icon": "inv_jewelry_talisman_10",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "18491": {
+   "en": "Lorespinner",
+   "ru": "Мастер-прядильщик",
+   "quality": 3,
+   "icon": "inv_weapon_shortblade_21",
+   "level": 57,
+   "reqLevel": null,
+   "slot": "Main Hand",
+   "type": "Dagger"
+  },
+  "18592": {
+   "en": "Plans: Sulfuron Hammer",
+   "ru": "Чертеж: сульфуронский молот",
+   "quality": 4,
+   "icon": "inv_scroll_03",
+   "level": 63,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Recipe"
+  },
+  "19812": {
+   "en": "Rune of the Dawn",
+   "ru": "Руна Рассвета",
+   "quality": 3,
+   "icon": "inv_misc_rune_06",
+   "level": 61,
+   "reqLevel": null,
+   "slot": "Trinket",
+   "type": "Miscellaneous"
+  },
+  "20403": {
+   "en": "Proxy of Nozdormu",
+   "ru": "Доверенный Ноздорму",
+   "quality": 2,
+   "icon": "spell_holy_sealofwrath",
+   "level": 60,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "21994": {
+   "en": "Belt of Heroism",
+   "ru": "Пояс Героизма",
+   "quality": 3,
+   "icon": "inv_belt_34",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Plate"
+  },
+  "21995": {
+   "en": "Boots of Heroism",
+   "ru": "Сапоги Героизма",
+   "quality": 4,
+   "icon": "inv_boots_plate_03",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Plate"
+  },
+  "21996": {
+   "en": "Bracers of Heroism",
+   "ru": "Наручи Героизма",
+   "quality": 3,
+   "icon": "inv_bracer_18",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Plate"
+  },
+  "21998": {
+   "en": "Gauntlets of Heroism",
+   "ru": "Рукавицы Героизма",
+   "quality": 4,
+   "icon": "inv_gauntlets_26",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "22000": {
+   "en": "Legplates of Heroism",
+   "ru": "Ножные латы Героизма",
+   "quality": 3,
+   "icon": "inv_pants_04",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Plate"
+  },
+  "22001": {
+   "en": "Spaulders of Heroism",
+   "ru": "Наплеч Героизма",
+   "quality": 3,
+   "icon": "inv_shoulder_30",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Plate"
+  },
+  "22002": {
+   "en": "Darkmantle Belt",
+   "ru": "Пояс Покрова Тьмы",
+   "quality": 3,
+   "icon": "inv_belt_03",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "22003": {
+   "en": "Darkmantle Boots",
+   "ru": "Сапоги Покрова Тьмы",
+   "quality": 4,
+   "icon": "inv_boots_08",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "22004": {
+   "en": "Darkmantle Bracers",
+   "ru": "Наручи Покрова тьмы",
+   "quality": 3,
+   "icon": "inv_bracer_07",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "22006": {
+   "en": "Darkmantle Gloves",
+   "ru": "Перчатки Покрова Тьмы",
+   "quality": 4,
+   "icon": "inv_gauntlets_24",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "22007": {
+   "en": "Darkmantle Pants",
+   "ru": "Штаны Покрова Тьмы",
+   "quality": 3,
+   "icon": "inv_pants_02",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "22008": {
+   "en": "Darkmantle Spaulders",
+   "ru": "Наплеч Покрова Тьмы",
+   "quality": 3,
+   "icon": "inv_shoulder_07",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "22010": {
+   "en": "Beastmaster's Belt",
+   "ru": "Пояс Повелителя Зверей",
+   "quality": 3,
+   "icon": "inv_belt_28",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Mail"
+  },
+  "22011": {
+   "en": "Beastmaster's Bindings",
+   "ru": "Наручники Повелителя Зверей",
+   "quality": 3,
+   "icon": "inv_bracer_17",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "22015": {
+   "en": "Beastmaster's Gloves",
+   "ru": "Перчатки Повелителя Зверей",
+   "quality": 4,
+   "icon": "inv_gauntlets_10",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "22016": {
+   "en": "Beastmaster's Mantle",
+   "ru": "Оплечье Повелителя Зверей",
+   "quality": 3,
+   "icon": "inv_shoulder_10",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "22017": {
+   "en": "Beastmaster's Pants",
+   "ru": "Штаны Повелителя Зверей",
+   "quality": 3,
+   "icon": "inv_pants_03",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "22061": {
+   "en": "Beastmaster's Boots",
+   "ru": "Сапоги Повелителя Зверей",
+   "quality": 4,
+   "icon": "inv_boots_plate_07",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Mail"
+  },
+  "22062": {
+   "en": "Sorcerer's Belt",
+   "ru": "Пояс мага",
+   "quality": 3,
+   "icon": "inv_belt_08",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "22063": {
+   "en": "Sorcerer's Bindings",
+   "ru": "Наручники волшебника",
+   "quality": 3,
+   "icon": "inv_jewelry_ring_23",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "22064": {
+   "en": "Sorcerer's Boots",
+   "ru": "Сапоги волшебника",
+   "quality": 4,
+   "icon": "inv_boots_02",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "22066": {
+   "en": "Sorcerer's Gloves",
+   "ru": "Перчатки волшебника",
+   "quality": 4,
+   "icon": "inv_gauntlets_17",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "22067": {
+   "en": "Sorcerer's Leggings",
+   "ru": "Поножи волшебника",
+   "quality": 3,
+   "icon": "inv_pants_06",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "22068": {
+   "en": "Sorcerer's Mantle",
+   "ru": "Мантия волшебника",
+   "quality": 3,
+   "icon": "inv_shoulder_23",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "22070": {
+   "en": "Deathmist Belt",
+   "ru": "Пояс Тумана смерти",
+   "quality": 3,
+   "icon": "inv_belt_12",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "22071": {
+   "en": "Deathmist Bracers",
+   "ru": "Наручи Тумана смерти",
+   "quality": 3,
+   "icon": "inv_bracer_13",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "22072": {
+   "en": "Deathmist Leggings",
+   "ru": "Поножи Тумана смерти",
+   "quality": 3,
+   "icon": "inv_pants_08",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "22073": {
+   "en": "Deathmist Mantle",
+   "ru": "Оплечье Тумана смерти",
+   "quality": 3,
+   "icon": "inv_misc_bone_taurenskull_01",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "22076": {
+   "en": "Deathmist Sandals",
+   "ru": "Сандалии Тумана смерти",
+   "quality": 4,
+   "icon": "inv_boots_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "22077": {
+   "en": "Deathmist Wraps",
+   "ru": "Повязки Тумана смерти",
+   "quality": 4,
+   "icon": "inv_gauntlets_32",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "22078": {
+   "en": "Virtuous Belt",
+   "ru": "Пояс Добродетели",
+   "quality": 3,
+   "icon": "inv_belt_10",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "22079": {
+   "en": "Virtuous Bracers",
+   "ru": "Наручи Добродетели",
+   "quality": 3,
+   "icon": "inv_belt_31",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Cloth"
+  },
+  "22081": {
+   "en": "Virtuous Gloves",
+   "ru": "Перчатки Добродетели",
+   "quality": 4,
+   "icon": "inv_gauntlets_14",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "22082": {
+   "en": "Virtuous Mantle",
+   "ru": "Оплечье Добродетели",
+   "quality": 3,
+   "icon": "inv_shoulder_02",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Cloth"
+  },
+  "22084": {
+   "en": "Virtuous Sandals",
+   "ru": "Сандалии Добродетели",
+   "quality": 4,
+   "icon": "inv_boots_05",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Cloth"
+  },
+  "22085": {
+   "en": "Virtuous Skirt",
+   "ru": "Юбка Добродетели",
+   "quality": 3,
+   "icon": "inv_pants_08",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "22086": {
+   "en": "Soulforge Belt",
+   "ru": "Пояс Закаленного духа",
+   "quality": 3,
+   "icon": "inv_belt_11",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Plate"
+  },
+  "22087": {
+   "en": "Soulforge Boots",
+   "ru": "Сапоги Закаленного духа",
+   "quality": 4,
+   "icon": "inv_boots_plate_03",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Plate"
+  },
+  "22088": {
+   "en": "Soulforge Bracers",
+   "ru": "Наручи Закаленного духа",
+   "quality": 3,
+   "icon": "inv_bracer_14",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Plate"
+  },
+  "22090": {
+   "en": "Soulforge Gauntlets",
+   "ru": "Рукавицы Закаленного духа",
+   "quality": 4,
+   "icon": "inv_gauntlets_19",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "22092": {
+   "en": "Soulforge Legplates",
+   "ru": "Ножные латы Закаленного духа",
+   "quality": 3,
+   "icon": "inv_pants_04",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Plate"
+  },
+  "22093": {
+   "en": "Soulforge Spaulders",
+   "ru": "Наплеч Закаленного духа",
+   "quality": 3,
+   "icon": "inv_shoulder_10",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Plate"
+  },
+  "22095": {
+   "en": "Bindings of The Five Thunders",
+   "ru": "Наручники Пяти Громов",
+   "quality": 3,
+   "icon": "inv_bracer_02",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "22096": {
+   "en": "Boots of The Five Thunders",
+   "ru": "Сапоги Пяти Громов",
+   "quality": 4,
+   "icon": "inv_boots_wolf",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Mail"
+  },
+  "22098": {
+   "en": "Cord of The Five Thunders",
+   "ru": "Шнурованный ремень Пяти Громов",
+   "quality": 3,
+   "icon": "inv_belt_16",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Mail"
+  },
+  "22099": {
+   "en": "Gauntlets of The Five Thunders",
+   "ru": "Рукавицы Пяти Громов",
+   "quality": 4,
+   "icon": "inv_gauntlets_11",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "22100": {
+   "en": "Kilt of The Five Thunders",
+   "ru": "Килт Пяти Громов",
+   "quality": 3,
+   "icon": "inv_pants_03",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Mail"
+  },
+  "22101": {
+   "en": "Pauldrons of The Five Thunders",
+   "ru": "Наплечье Пяти Громов",
+   "quality": 3,
+   "icon": "inv_shoulder_29",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "22106": {
+   "en": "Feralheart Belt",
+   "ru": "Пояс Жестокого сердца",
+   "quality": 3,
+   "icon": "inv_belt_15",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Leather"
+  },
+  "22107": {
+   "en": "Feralheart Boots",
+   "ru": "Сапоги Жестокого сердца",
+   "quality": 4,
+   "icon": "inv_boots_08",
+   "level": 60,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "22108": {
+   "en": "Feralheart Bracers",
+   "ru": "Наручи Жестокого сердца",
+   "quality": 3,
+   "icon": "inv_bracer_09",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "22110": {
+   "en": "Feralheart Gloves",
+   "ru": "Перчатки Жестокого сердца",
+   "quality": 4,
+   "icon": "inv_gauntlets_17",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Leather"
+  },
+  "22111": {
+   "en": "Feralheart Kilt",
+   "ru": "Килт Жестокого сердца",
+   "quality": 3,
+   "icon": "inv_pants_08",
+   "level": 66,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "22112": {
+   "en": "Feralheart Spaulders",
+   "ru": "Наплеч Жестокого сердца",
+   "quality": 3,
+   "icon": "inv_shoulder_01",
+   "level": 65,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "22137": {
+   "en": "Ysida's Satchel",
+   "ru": "Сумка Исиды",
+   "quality": 1,
+   "icon": "inv_misc_bag_20",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "22149": {
+   "en": "Beads of Ogre Mojo",
+   "ru": "Бусы Огрского Колдовства",
+   "quality": 3,
+   "icon": "inv_jewelry_amulet_05",
+   "level": 63,
+   "reqLevel": null,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "22150": {
+   "en": "Beads of Ogre Might",
+   "ru": "Бусы Огрской Мощи",
+   "quality": 3,
+   "icon": "inv_jewelry_amulet_05",
+   "level": 63,
+   "reqLevel": 58,
+   "slot": "Neck",
+   "type": "Miscellaneous"
+  },
+  "22192": {
+   "en": "Bloodkelp Elixir of Dodging",
+   "ru": "Эликсир наложения чар",
+   "quality": 1,
+   "icon": "inv_potion_52",
+   "level": 60,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "22193": {
+   "en": "Bloodkelp Elixir of Resistance",
+   "ru": "Эликсир устойчивости",
+   "quality": 1,
+   "icon": "inv_potion_21",
+   "level": 60,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Consumable"
+  },
+  "22320": {
+   "en": "Mux's Quality Goods",
+   "ru": "Качественные товары Мукса",
+   "quality": 1,
+   "icon": "inv_misc_bag_12",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": "Miscellaneous"
+  },
+  "250947": {
+   "en": "Greater Mender's Potion",
+   "ru": "Сильное зелье целителя",
+   "quality": 1,
+   "icon": "inv_potionf_3",
+   "level": 25,
+   "reqLevel": null,
+   "slot": null,
+   "type": null
+  },
+  "270005": {
+   "en": "Monastic Hammer",
+   "ru": "Молот монаха",
+   "quality": 2,
+   "icon": "inv_hammer_11",
+   "level": 19,
+   "reqLevel": 14,
+   "slot": "Main Hand",
+   "type": "Mace"
+  },
+  "270007": {
+   "en": "Worn Miner's Waistcord",
+   "ru": "Потертый шнурованный ремень шахтера",
+   "quality": 2,
+   "icon": "inv_belt_22",
+   "level": 18,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "270012": {
+   "en": "Miner's Workgloves",
+   "ru": "Рабочие перчатки горняка",
+   "quality": 2,
+   "icon": "inv_gauntlets_16",
+   "level": 20,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "270013": {
+   "en": "Miner's Workboots",
+   "ru": "Рабочие ботинки горняка",
+   "quality": 2,
+   "icon": "inv_boots_05",
+   "level": 20,
+   "reqLevel": 15,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "270015": {
+   "en": "Bravo's Armbands",
+   "ru": "Поручи головореза",
+   "quality": 2,
+   "icon": "inv_bracer_07",
+   "level": 22,
+   "reqLevel": 15,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "270016": {
+   "en": "Dreamer's Leggings",
+   "ru": "Поножи дремлющего",
+   "quality": 2,
+   "icon": "inv_pants_06",
+   "level": 22,
+   "reqLevel": 15,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "270018": {
+   "en": "Hammerbone",
+   "ru": "Костемолот",
+   "quality": 3,
+   "icon": "inv_hammer_15",
+   "level": 24,
+   "reqLevel": 10,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "270023": {
+   "en": "Tanned Shoulderpads",
+   "ru": "Дубленые наплечные пластины",
+   "quality": 2,
+   "icon": "inv_shoulder_27",
+   "level": 27,
+   "reqLevel": 18,
+   "slot": "Shoulder",
+   "type": "Leather"
+  },
+  "270024": {
+   "en": "Bronzed Shoulderguards",
+   "ru": "Отделанные бронзой наплечные щитки",
+   "quality": 2,
+   "icon": "inv_shoulder_27",
+   "level": 27,
+   "reqLevel": 18,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "270025": {
+   "en": "Silvered Gauntlets",
+   "ru": "Посеребренные рукавицы",
+   "quality": 2,
+   "icon": "inv_gauntlets_21",
+   "level": 27,
+   "reqLevel": 20,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "270027": {
+   "en": "Ursine Hammer",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_hammer_16",
+   "level": 27,
+   "reqLevel": null,
+   "slot": "Two-Hand",
+   "type": "Mace"
+  },
+  "270029": {
+   "en": "Town Clerk's Mittens",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_27",
+   "level": 28,
+   "reqLevel": 22,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "270030": {
+   "en": "Tattered Mittens",
+   "ru": "Рваные полуперчатки",
+   "quality": 2,
+   "icon": "inv_gauntlets_27",
+   "level": 28,
+   "reqLevel": 16,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "270031": {
+   "en": "Dark Ritual Leggings",
+   "ru": "Поножи темного ритуала",
+   "quality": 3,
+   "icon": "inv_pants_02",
+   "level": 29,
+   "reqLevel": 18,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "270032": {
+   "en": "Cultist's Armguards",
+   "ru": "Боевые наручи сектанта",
+   "quality": 3,
+   "icon": "inv_bracer_12",
+   "level": 29,
+   "reqLevel": 18,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "270036": {
+   "en": "Magistrate's Pantaloons",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_pants_14",
+   "level": 29,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "270042": {
+   "en": "Technician's Bracers",
+   "ru": "Наручи техника",
+   "quality": 2,
+   "icon": "inv_bracer_02",
+   "level": 32,
+   "reqLevel": 20,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "270043": {
+   "en": "Dreamer's Chestguard",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_chest_leather_01",
+   "level": 32,
+   "reqLevel": 21,
+   "slot": "Chest",
+   "type": "Leather"
+  },
+  "270055": {
+   "en": "Charged Leather Bracers",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_bracer_08",
+   "level": 38,
+   "reqLevel": 30,
+   "slot": "Wrist",
+   "type": "Leather"
+  },
+  "270059": {
+   "en": "Restorer's Fine Gloves",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_21",
+   "level": 40,
+   "reqLevel": 30,
+   "slot": "Hands",
+   "type": "Cloth"
+  },
+  "270060": {
+   "en": "Excavator Gauntlets",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_28",
+   "level": 40,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "270074": {
+   "en": "Doomcaller's Pants",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_pants_14",
+   "level": 42,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Leather"
+  },
+  "270075": {
+   "en": "Fists of Impending Doom",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_12",
+   "level": 42,
+   "reqLevel": 30,
+   "slot": "Hands",
+   "type": "Mail"
+  },
+  "270081": {
+   "en": "Purified Ring",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_jewelry_ring_01",
+   "level": 44,
+   "reqLevel": 39,
+   "slot": "Finger",
+   "type": null
+  },
+  "270099": {
+   "en": "Magister Cowl",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_helmet_13",
+   "level": 49,
+   "reqLevel": 40,
+   "slot": "Head",
+   "type": "Cloth"
+  },
+  "270125": {
+   "en": "Satyrhide Armbands",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_bracer_18",
+   "level": 57,
+   "reqLevel": 54,
+   "slot": "Wrist",
+   "type": "Mail"
+  },
+  "274041": {
+   "en": "Document Box",
+   "ru": "Ящик с документами",
+   "quality": 1,
+   "icon": "inv_misc_treasurechest01b",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": null
+  },
+  "274078": {
+   "en": "Boar Signet",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_jewelry_ring_26",
+   "level": 32,
+   "reqLevel": 22,
+   "slot": "Finger",
+   "type": null
+  },
+  "279448": {
+   "en": "Bloodsplattered Bandana",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_misc_bandana_03",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Leather"
+  },
+  "279450": {
+   "en": "Fractured Insignia",
+   "ru": "Расколотый знак различия",
+   "quality": 2,
+   "icon": "inv_misc_armorkit_04",
+   "level": 1,
+   "reqLevel": null,
+   "slot": null,
+   "type": null
+  },
+  "279473": {
+   "en": "Makeshift Belt",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_misc_clothscrap_02",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Waist",
+   "type": "Cloth"
+  },
+  "279474": {
+   "en": "Dustwallow Dirk",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_sword_13",
+   "level": 55,
+   "reqLevel": 48,
+   "slot": "One-Hand",
+   "type": "Dagger"
+  },
+  "279824": {
+   "en": "Kor'kron Battle Gauntlets",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_03",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "279825": {
+   "en": "Theramore Defender's Gauntlets",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_gauntlets_03",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Hands",
+   "type": "Plate"
+  },
+  "279826": {
+   "en": "Marshdweller's Pants",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_pants_10",
+   "level": 55,
+   "reqLevel": 48,
+   "slot": "Legs",
+   "type": "Cloth"
+  },
+  "279829": {
+   "en": "Naga Scale Spaulders",
+   "ru": null,
+   "quality": 2,
+   "icon": "inv_shoulder_07",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "279831": {
+   "en": "Fatebound Buckler",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_shield_02",
+   "level": 55,
+   "reqLevel": null,
+   "slot": "Off Hand",
+   "type": "Shield"
+  },
+  "279833": {
+   "en": "Courier's Clasp",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_jewelry_necklace_15",
+   "level": 55,
+   "reqLevel": 48,
+   "slot": "Neck",
+   "type": null
+  },
+  "279901": {
+   "en": "Expeditionary Legplates",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_pants_04",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Plate"
+  },
+  "279902": {
+   "en": "Reinforced Muck Protectors",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_pants_04",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Legs",
+   "type": "Plate"
+  },
+  "279903": {
+   "en": "Diemetradon Scale Spaulders",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_shoulder_28",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "279904": {
+   "en": "Crystalline Pauldrons",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_shoulder_26",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Shoulder",
+   "type": "Mail"
+  },
+  "279905": {
+   "en": "Ravasaur Hide Footpads",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_boots_05",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "279906": {
+   "en": "Potent Treads",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_boots_05",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Feet",
+   "type": "Leather"
+  },
+  "279908": {
+   "en": "Crystal-Infused Cleaver",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_axe_21",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "One-Hand",
+   "type": "Axe"
+  },
+  "279910": {
+   "en": "Beastslayer's Trident",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_spear_04",
+   "level": 62,
+   "reqLevel": 55,
+   "slot": "Two-Hand",
+   "type": "Polearm"
+  },
+  "279912": {
+   "en": "Faintly Glowing Orb",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_misc_orb_01",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Held In Off-hand",
+   "type": null
+  },
+  "279931": {
+   "en": "Lost Researcher's Hood",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_helmet_29",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Cloth"
+  },
+  "279932": {
+   "en": "Slime-Resistant Shroud",
+   "ru": null,
+   "quality": 3,
+   "icon": "inv_helmet_29",
+   "level": 62,
+   "reqLevel": null,
+   "slot": "Head",
+   "type": "Cloth"
+  }
+ }
+}
