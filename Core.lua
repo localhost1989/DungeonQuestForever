@@ -1272,6 +1272,7 @@ local EN = {
     [", перелётом быстрее"] = ", faster by flight",
     [" через проход"] = " via the pass",
     ["за морем"] = "overseas",
+    ["Цели выполнены. Стрелка ведёт сдавать: "] = "Goals done. The arrow leads to hand it in: ",
     ["Цель выполнена. Стрелка ведёт дальше: "] = "Goal done. The arrow leads on to: ",
     ["В журнале %d  •  Сдано %d  •  Всего %d"] = "In log %d  •  Turned in %d  •  Total %d",
     ["\nЗадания для входа готовы"] = "\nEntrance quests ready",

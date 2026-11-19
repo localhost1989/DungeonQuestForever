@@ -406,8 +406,36 @@ end
 -- The arrow follows the quest log, not the feet: a step to take a quest is over when
 -- the quest is in the log, a step to hand it in when it is handed in. Standing next to
 -- the giver settles nothing.
+-- The goals of the quest the arrow led to are met, the quest still in the log: the arrow
+-- goes on to whom it is handed in. (The owner in Riverglades, 19.11.2026, the priests and
+-- scouts of "Show Them How It's Done" killed: the arrow was taken off the goal and nothing
+-- put in its place, and the empty arrow was sent to the door of Krol'dok.) Not in a fight:
+-- the arrow is set when it is over.
+local function say(message)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffedc36f" .. title .. "|r • " .. message)
+end
+
+local handInNext
+local function leadToHandIn(id)
+    if not (id and P.Mark and atlas.QuestPlaces) then return end
+    if not (P.IsActive(id) and C_QuestLog.IsComplete(id)) then handInNext = nil return end
+    if InCombatLockdown and InCombatLockdown() then handInNext = id return end
+    handInNext = nil
+    local ok, list = pcall(atlas.QuestPlaces, id, "ends")
+    if not (ok and type(list) == "table") then return end
+    for _, place in ipairs(list) do
+        if place.mapID and place.x and place.y and not place.inside then
+            local name = atlas.PlaceName(place) or P.Title(id)
+            P.Mark(place, name, "end", id)
+            say(L"Цели выполнены. Стрелка ведёт сдавать: " .. name .. " • «" .. P.Title(id) .. "»")
+            return true
+        end
+    end
+end
+
 local function settleMark()
     local target = atlas.Target and atlas.Target()
+    if handInNext and not target then leadToHandIn(handInNext) return end
     if not target or not atlas.RemoveMarker then return end
     local id, kind = target.questID, target.kind
     local over
@@ -423,6 +451,7 @@ local function settleMark()
     if over then
         atlas.RemoveMarker(target)
         if db then db.goal = nil end
+        if id and kind == "objective" then leadToHandIn(id) end
     end
 end
 
@@ -433,10 +462,6 @@ local function shelf(row)
     if row.levelLocked or row.unknown then return "later" end
     if row.zone == "inside" then return "inside" end
     return "before"
-end
-
-local function say(message)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffedc36f" .. title .. "|r • " .. message)
 end
 
 -- One goal of a quest done and others left (the owner in the Badlands, 15.11.2026: the
@@ -4675,8 +4700,16 @@ function P.Refresh()
                 -- group does not keep him outside: it is asked for on the same plate.)
                 local nearOnly = true
                 local byTheWay, asking = {}, {}
+                -- A quest to hand in or finish out here, not at the very door: "by the dungeon"
+                -- reaches 1500 yards, and a new dungeon of Forever stands in the middle of a
+                -- quest zone (Krol'dok in Riverglades). The arrow is not sent to the door unasked
+                -- while there is one (the owner, 19.11.2026: "why did it start pointing at the
+                -- entrance").
+                local errandOut = false
                 for _, row in ipairs(errands) do
                     if row.stage == 1 then nearOnly = false end
+                    if (row.handin or row.working or row.stepActive)
+                        and not (row.fromDungeon and row.fromDungeon >= 0 and row.fromDungeon <= 600) then errandOut = true end
                     if row.stage == 3 and #byTheWay < 3 then
                         local verb = row.handin and (L"сдать") or row.working and (L"доделать") or (L"взять")
                         byTheWay[#byTheWay+1] = verb .. " «" .. P.Title(row.step or row.id) .. "»"
@@ -4889,7 +4922,7 @@ function P.Refresh()
                 -- (Been inside, and quests of it still in the log: the way in is still the next
                 -- thing - the owner, 15.11.2026: "all the quests are taken: send me inside".)
                 local leftInside = #(shelves.taken or {}) + #doing > 0
-                local moment = (ghost or (clear and (not beenInside or leftInside))) and (selected.key .. (ghost and ":ghost" or "")) or nil
+                local moment = (ghost or (clear and not errandOut and not handInNext and (not beenInside or leftInside))) and (selected.key .. (ghost and ":ghost" or "")) or nil
                 if not moment then
                     led = nil
                 elseif led ~= moment and P.Door(selected) and not (atlas.Target and atlas.Target()) then

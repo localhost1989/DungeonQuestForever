@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.51.1
+- When the goals of the quest the arrow leads to are met, the arrow goes on to whom the quest is handed in (in a fight, as soon as it is over). Before, it was left empty and could be sent to the dungeon door.
+- The arrow no longer goes to the dungeon door by itself while a quest is still to be handed in or finished out there, farther than 600 yards from the way in. A new Forever dungeon stands in the middle of a quest zone (Krol'dok Stronghold in Riverglades), and the quests around it counted as "by the dungeon".
+
 ## 3.51.0
 - The way to every boss: inside a dungeon the game shows no map and no position, so under the next boss a line or two say how to walk to him from the last one. 164 bosses of the 18 classic dungeons have them.
 - Where a goal is inside: a quest you have taken says where in the dungeon its goal lies ("near boss ...", "outside, before the portal", "all over the dungeon"), and with Dungeon Quest Atlas installed the spot is shown on its floor plan.
