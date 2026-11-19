@@ -2060,11 +2060,37 @@ end
 
 -- How to find it, where the arrow alone is not enough (P.QuestHints, BossRoute.lua): a
 -- line in light blue under the quest while it is to be done out here.
+-- The owner, 19.11.2026, after "The Purple Ones" (find the ogres in the caves beneath
+-- Sunnyglade): "I did not understand at all that I had to go down here." A quest with
+-- nothing to count is done the moment it is taken, so the tracker said only "hand in -
+-- Twilight Mauler" and the arrow pointed at the ground. Such a quest keeps its hint while
+-- it is in the log, and without a written one its own words say where: "in the caves
+-- beneath Sunnyglade".
+local function nothingToCount(id)
+    if not (P.QuestDB and P.QuestDB.Get) then return false end
+    local ok, goals = pcall(P.QuestDB.Get, id, "objectives")
+    if not ok or type(goals) ~= "table" then return false end
+    for _, list in pairs(goals) do
+        if type(list) == "table" and next(list) then return false end
+    end
+    return true
+end
+function P.QuestHint(id)
+    if not id then return nil end
+    local bare = nothingToCount(id)
+    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) and not bare then return nil end
+    local hint = P.QuestHints and P.QuestHints[id]
+    if hint then return hint end
+    if not bare then return nil end
+    local ok, text = pcall(P.QuestDB.Get, id, "objectivesText")
+    if type(text) == "table" then text = text[1] end
+    return ok and type(text) == "string" and text ~= "" and text or nil
+end
 local function hintLine(block, entry)
     local id = entry.step or entry.id
-    local hint = P.QuestHints and P.QuestHints[id]
-    if not hint or not (entry.working or entry.stepActive or entry.state == "active") then return end
-    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) then return end
+    if not (entry.working or entry.stepActive or entry.state == "active") then return end
+    local hint = P.QuestHint(id)
+    if not hint then return end
     -- (Not blue and not under every card: the owner, "all blue, it looks wretched". In the
     -- unfolded card only, labelled like "куда:", and in the tip of the quest.)
     addLine(block, "hint", "|cffffd34d" .. L"как найти:" .. "|r |cffbcb7ab" .. hint .. "|r")
@@ -3865,8 +3891,7 @@ local function attach()
                 tip(block.HeaderButton, e.secret.kind, #e.secret > 1 and (L"Нажми на строку, чтобы увидеть следующий шаг.") or e.action)
             else
                 local chain, at, total = chainOf(e.step ~= e.id and e.id or e.leads or e.id)
-                local hint = P.QuestHints and P.QuestHints[e.step or e.id]
-                if hint and C_QuestLog.IsComplete and C_QuestLog.IsComplete(e.step or e.id) then hint = nil end
+                local hint = P.QuestHint(e.step or e.id)
                 tip(block.HeaderButton, P.Title(e.id), (e.detail or e.note or "")
                     .. (hint and ("\n\n|cffffd34d" .. L"Как найти:" .. "|r " .. hint) or "")
                     .. (e.share and e.state == "missing" and (L"\nЗаданием может поделиться участник группы.") or "")

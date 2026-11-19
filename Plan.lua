@@ -1138,13 +1138,35 @@ end
 local function inLog(id)
     return type(id) == "number" and id > 0 and active(id) and true or false
 end
+-- The owner: "in a chain, at handing in the next quest opens at once, and I have to click
+-- it by hand." The next link is often grey for the game. A quest the same giver offers
+-- right after a hand-in is the next link of what the player is doing, grey or not.
+local handedIn
+local function giverNow()
+    if not UnitGUID then return nil end
+    local ok, guid = pcall(UnitGUID, "npc")
+    if not (ok and guid) then ok, guid = pcall(UnitGUID, "questnpc") end
+    return ok and type(guid) == "string" and guid or nil
+end
+function P.HandedIn()
+    handedIn = {at=GetTime and GetTime() or 0, giver=giverNow()}
+end
+local function nextLink()
+    if not handedIn then return false end
+    local now = GetTime and GetTime() or 0
+    if now - handedIn.at > 10 then return false end
+    local giver = giverNow()
+    return not (giver and handedIn.giver and giver ~= handedIn.giver)
+end
 function P.QuestHands(event)
     local db = P.char
     if not db or db.noAuto then return end
     if IsShiftKeyDown and IsShiftKeyDown() then return end
     if event == "QUEST_DETAIL" then
         local id = GetQuestID and GetQuestID()
-        if type(id) == "number" and id > 0 and trivial(id) then return "grey" end
+        local grey = type(id) == "number" and id > 0 and trivial(id)
+        local link = grey and nextLink()
+        if grey and not link then return "grey" end
         if QuestGetAutoAccept and QuestGetAutoAccept() then
             -- Given already by the game itself: the window is only to be closed.
             if AcknowledgeAutoAcceptQuest then AcknowledgeAutoAcceptQuest() end
@@ -1152,7 +1174,7 @@ function P.QuestHands(event)
             AcceptQuest()
         end
         if P.Track then P.Track("AutoAccepted") end
-        return "accept"
+        return link and "accept chain" or "accept"
     elseif event == "QUEST_PROGRESS" then
         local id = GetQuestID and GetQuestID()
         if inLog(id) and IsQuestCompletable and IsQuestCompletable() and CompleteQuest then
@@ -1167,6 +1189,7 @@ function P.QuestHands(event)
         local choices = GetNumQuestChoices and GetNumQuestChoices() or 0
         if choices <= 1 and GetQuestReward then
             GetQuestReward(choices)
+            P.HandedIn()
             return "reward"
         end
         return choices > 1 and "choose" or nil
@@ -1178,8 +1201,10 @@ function P.QuestHands(event)
                 return "pick"
             end
         end
-        for _, quest in ipairs(C_GossipInfo.GetAvailableQuests and C_GossipInfo.GetAvailableQuests() or {}) do
-            if not quest.isTrivial and not quest.repeatable and not trivial(quest.questID, quest.questLevel) and C_GossipInfo.SelectAvailableQuest then
+        local offered = C_GossipInfo.GetAvailableQuests and C_GossipInfo.GetAvailableQuests() or {}
+        local lone = #offered == 1 and nextLink()
+        for _, quest in ipairs(offered) do
+            if not quest.repeatable and (lone or (not quest.isTrivial and not trivial(quest.questID, quest.questLevel))) and C_GossipInfo.SelectAvailableQuest then
                 C_GossipInfo.SelectAvailableQuest(quest.questID)
                 return "pick"
             end
@@ -1192,12 +1217,14 @@ function P.QuestHands(event)
                 return "pick"
             end
         end
-        for i = 1, GetNumAvailableQuests and GetNumAvailableQuests() or 0 do
-            local grey = IsAvailableQuestTrivial and IsAvailableQuestTrivial(i)
+        local count = GetNumAvailableQuests and GetNumAvailableQuests() or 0
+        local lone = count == 1 and nextLink()
+        for i = 1, count do
+            local grey = not lone and IsAvailableQuestTrivial and IsAvailableQuestTrivial(i)
             local again = false
             if GetAvailableQuestInfo then
                 local ok, isTrivial, _, repeatable = pcall(GetAvailableQuestInfo, i)
-                if ok then grey, again = grey or isTrivial, repeatable end
+                if ok then grey, again = grey or (isTrivial and not lone), repeatable end
             end
             if not grey and not again and SelectAvailableQuest then
                 SelectAvailableQuest(i)
@@ -1232,7 +1259,7 @@ function P.QuestHandsEvent(event)
     local ok, did = pcall(P.QuestHands, event)
     note(event, ok and did or nil, not ok and did or nil)
     if not ok or not (C_Timer and C_Timer.After) then return end
-    local again = (did == "accept" and "QuestFrameDetailPanel") or (did == "complete" and "QuestFrameProgressPanel") or (did == "reward" and "QuestFrameRewardPanel")
+    local again = ((did == "accept" or did == "accept chain") and "QuestFrameDetailPanel") or (did == "complete" and "QuestFrameProgressPanel") or (did == "reward" and "QuestFrameRewardPanel")
     if not again then return end
     C_Timer.After(.5, function()
         if not stillUp(again) then return end
@@ -1243,8 +1270,12 @@ end
 
 if CreateFrame and UIParent then
     local hands = CreateFrame("Frame", "DungeonQuestForeverHands", UIParent)
-    for _, event in ipairs({"QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "GOSSIP_SHOW", "QUEST_GREETING"}) do
+    for _, event in ipairs({"QUEST_DETAIL", "QUEST_PROGRESS", "QUEST_COMPLETE", "GOSSIP_SHOW", "QUEST_GREETING", "QUEST_TURNED_IN"}) do
         pcall(hands.RegisterEvent, hands, event)
     end
-    hands:SetScript("OnEvent", function(_, event) P.QuestHandsEvent(event) end)
+    hands:SetScript("OnEvent", function(_, event)
+        -- Handed in by the player's own click too (a reward chosen): the next link follows.
+        if event == "QUEST_TURNED_IN" then P.HandedIn() return end
+        P.QuestHandsEvent(event)
+    end)
 end

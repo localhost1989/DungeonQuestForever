@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.52.0
+- "How to find it" hints for 359 quests: where the cave or mine entrance is, which floor of a tower, which object to click (it is not an NPC), what an item drops from, what has to happen first for someone to appear. Shown under "now" in the quest and in its tip. Gathered from Warcraft Wiki, guides and player comments.
+- A quest with nothing to count (find someone, talk to someone) keeps its hint while it is in your log; with no written hint, its own words say where ("in the caves beneath Sunnyglade").
+- Quest chains: the next quest the same giver offers right after you hand one in is taken by itself, even when the game shows it grey.
+
 ## 3.51.1
 - When the goals of the quest the arrow leads to are met, the arrow goes on to whom the quest is handed in (in a fight, as soon as it is over). Before, it was left empty and could be sent to the dungeon door.
 - The arrow no longer goes to the dungeon door by itself while a quest is still to be handed in or finished out there, farther than 600 yards from the way in. A new Forever dungeon stands in the middle of a quest zone (Krol'dok Stronghold in Riverglades), and the quests around it counted as "by the dungeon".
