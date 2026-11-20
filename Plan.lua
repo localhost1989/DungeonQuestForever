@@ -751,6 +751,12 @@ local function activeObjective(id)
     end
 end
 
+-- The game's own mark for a quest, for P.Replan (Ways.lua) to set right a point kept from before.
+function P.GameObjective(id)
+    local ok, spot = pcall(activeObjective, id)
+    return ok and spot or nil
+end
+
 local dalaranSteps = {
     [96986] = {order=1, boss=1, hint=L"Клоака • победи Атрексиса"},
     [96987] = {order=2, hint=L"Поднимись в город. Святилище Альянса, за ним зал порталов, дальняя стена библиотеки."},
@@ -817,7 +823,7 @@ function P.Route(d,row, automatic, quiet)
         if row.work and row.work.mapID and P.InDungeon(d) then
             if automatic then return end
             local what = row.work.name or title
-            return (row.work.cave and (L"Это снаружи, в пещере перед порталом: ") or (L"Это снаружи: "))
+            return (type(row.work.cave) == "string" and (L"Это снаружи, в пещере перед порталом: ") or (L"Это снаружи: "))
                 .. what .. L". Сделай на выходе.", "outside"
         end
         -- Inside, a goal whose place in here is known: the floor with its spot, and where in
@@ -828,7 +834,20 @@ function P.Route(d,row, automatic, quiet)
             if where or shown then return (where or title), "floor" end
         end
         -- The place where its open goal is done, when the database knows one outside.
-        place = row.work and row.work.mapID and row.work or activeObjective(id)
+        place = row.work and row.work.mapID and row.work or nil
+        -- The game's own mark for the quest (the blue area on the world map) over the
+        -- database when the two part ways: the one spawn the database has for the Twilight
+        -- Mauler lay a long way from where the game shows the quest (the owner, 20.11.2026).
+        local okGame, game = pcall(activeObjective, id)
+        if not okGame then game = nil end
+        if place and game and game.mapID == place.mapID then
+            local far = atlas.Span and atlas.Span(place, game)
+            if far and far > 150 then
+                place = {mapID=game.mapID, x=game.x, y=game.y, name=place.name, cave=place.cave, npcID=place.npcID}
+            end
+        elseif not place then
+            place = game
+        end
         label, kind = row.work and row.work.name or title, "objective"
         if not place then
             local inside = P.InDungeon(d)

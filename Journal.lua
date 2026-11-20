@@ -2078,7 +2078,8 @@ end
 function P.QuestHint(id)
     if not id then return nil end
     local bare = nothingToCount(id)
-    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) and not bare then return nil end
+    -- A hint about who takes the quest in (P.HandInHints) stays when the goals are met.
+    if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) and not bare and not (P.HandInHints and P.HandInHints[id]) then return nil end
     local hint = P.QuestHints and P.QuestHints[id]
     if hint then return hint end
     if not bare then return nil end
@@ -4187,8 +4188,16 @@ local function initialize()
     first = browsing and catalogFirst or 1
 end
 
+local unfoldRestored
 function P.Refresh()
     if not db or not atlas.char then return end
+    -- The unfolded quest outlives a /reload: its "how to find" was gone after one, and
+    -- the owner stood over Chogg'Zac not knowing the way down (20.11.2026).
+    if not unfoldRestored then
+        unfoldRestored = true
+        if unfolded == nil and atlas.char.unfolded ~= nil then unfolded = atlas.char.unfolded end
+    end
+    atlas.char.unfolded = unfolded
     if selected then
         -- Wings of one instance: show the wing the player is actually in.
         if P.InDungeon(selected) then
@@ -4819,7 +4828,7 @@ function P.Refresh()
                     -- before the dungeon: it is done on the way in, best with the group.
                     local outside, atEntrance, inside = {}, {}, {}
                     local function byTheDoor(row)
-                        if row.work and row.work.cave then return true end
+                        if row.work and type(row.work.cave) == "string" then return true end
                         return row.fromDungeon and row.fromDungeon >= 0 and row.fromDungeon <= 600
                     end
                     for _, row in ipairs(have) do

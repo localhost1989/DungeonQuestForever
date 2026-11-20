@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.53.0
+- Caves with no dungeon behind them: the arrow leads to the mouth first and then on inside. This covers the mine under Sunnyglade (the stairs down in the ruined house), Roguefeather Den, the Dor'Danil Barrow Den, Emberstrife's Den, the egg cave of Jintha'Alor, Mazthoril and Skull Rock. In the mine under Sunnyglade the game does not say you are underground, so once you have passed the mouth, the arrow leads straight to the goal and no longer sends you back out.
+- Dead in such a cave: the ghost is led to the mouth first, then to the body.
+- 16 more quests whose goal lies in the tunnels before a dungeon portal (the Deadmines, Wailing Caverns, Blackfathom Deeps, Maraudon, the Sunken Temple, Uldaman, Blackrock Depths) lead to the cave mouth first instead of the grass above.
+- When the database's spot for a quest is far from the area the game itself shows on the map, the arrow goes where the game shows. A point kept over a /reload is moved there by itself.
+- "How to find it" hints for every dungeon quest that needs one: 478 now. Among them are quest givers inside dungeons, ghosts you see only with the scanner, bosses that come out after an event, people on upper floors, and the way into the Drowned City under water. The entrance to Mazthoril is corrected to (59, 59).
+- A hint about who takes the quest in stays while you hand it in.
+- The quest you unfolded in the tracker stays unfolded after a /reload, with its hint.
+
 ## 3.52.0
 - "How to find it" hints for 359 quests: where the cave or mine entrance is, which floor of a tower, which object to click (it is not an NPC), what an item drops from, what has to happen first for someone to appear. Shown under "now" in the quest and in its tip. Gathered from Warcraft Wiki, guides and player comments.
 - A quest with nothing to count (find someone, talk to someone) keeps its hint while it is in your log; with no written hint, its own words say where ("in the caves beneath Sunnyglade").

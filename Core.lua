@@ -2841,6 +2841,8 @@ local function turn(self, elapsed)
     -- The owner, a ghost: "the arrow glitches, no telling where to run." Dead, the run is
     -- to the body: the arrow leads there, straight, and goes back to the goal on rising.
     local ghost = UnitIsGhost and UnitIsGhost("player")
+    -- Alive again: the mouth gone through as a ghost is forgotten (P.CorpseCave).
+    if not ghost and P.CorpseCave then pcall(P.CorpseCave) end
     if ghost and C_DeathInfo and C_DeathInfo.GetCorpseMapPosition then
         local map = C_Map.GetBestMapForUnit and plain(C_Map.GetBestMapForUnit("player"))
         local ok, spot = pcall(C_DeathInfo.GetCorpseMapPosition, map)
@@ -2854,6 +2856,11 @@ local function turn(self, elapsed)
                     self.corpseTarget = kept
                 end
                 target = kept
+                -- Dead in a cave of its own (the mine under Sunnyglade, 20.11.2026: "the
+                -- arrow leads me to my body, not to the entrance"): the way to the body is
+                -- through the mouth.
+                local okCave, mouth = pcall(P.CorpseCave or function() end, kept)
+                if okCave and mouth then target = mouth end
             end
         end
     end

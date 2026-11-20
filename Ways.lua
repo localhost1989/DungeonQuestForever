@@ -1844,17 +1844,49 @@ function P.Plan(place)
     end
     -- A goal in a cave near a dungeon (the Garrett chest in the Uldaman tunnels): outside,
     -- the way leads to the mouth of the cave; in it, straight to the place.
-    if place.cave then
+    -- A cave of its own, not before a dungeon (the mine under Sunnyglade, 20.11.2026: the
+    -- arrow said "4 m" on the grass over Chogg'Zac): its mouth is a point on the same map.
+    local cave = place.cave or (P.NpcCave and P.NpcCave[place.npcID or place.npc or 0])
+    if cave then
         if IsIndoors and IsIndoors() then return end
-        local d = atlas.DungeonByKey and atlas.DungeonByKey[place.cave]
-        local mouth = d and atlas.Entrance and atlas.Entrance(d)
+        local mouth, caveName
+        if type(cave) == "table" then
+            mouth = place.mapID and {mapID=place.mapID, x=cave.x, y=cave.y}
+            caveName = cave.name
+        else
+            local d = atlas.DungeonByKey and atlas.DungeonByKey[cave]
+            mouth = d and atlas.Entrance and atlas.Entrance(d)
+            caveName = d and atlas.DungeonName(d)
+        end
         if not (mouth and mouth.mapID) then return end
         local spot = {mapID=mouth.mapID, x=mouth.x, y=mouth.y}
+        -- Under Sunnyglade the client does not say "indoors" (20.11.2026: the owner went
+        -- down the stairs and the arrow led him back out, "entrance 90 m"). So the mouth
+        -- once reached counts as gone through, until the player is further from it than
+        -- the goal is, and a good way more.
+        if type(cave) == "table" and P.char and atlas.NavigationVector then
+            local key = spot.mapID .. ":" .. spot.x .. ":" .. spot.y
+            local _, _, toMouth = atlas.NavigationVector(spot)
+            local reach = 150
+            if atlas.Yards then
+                local okG, cG, gx, gy = pcall(atlas.Yards, place)
+                local okM, cM, mx, my = pcall(atlas.Yards, spot)
+                if okG and okM and cG and cG == cM and gx and gy and mx and my then
+                    reach = math.max(reach, math.sqrt((gx - mx)^2 + (gy - my)^2) + 60)
+                end
+            end
+            if toMouth and toMouth <= 25 then
+                P.char.inCave = key
+            elseif P.char.inCave == key and toMouth and toMouth > reach then
+                P.char.inCave = nil
+            end
+            if P.char.inCave == key then return end
+        end
         local onward = P.Plan(spot)
         if onward then return onward end
         local _, _, far = atlas.NavigationVector(spot)
         if far and far > 30 then
-            local title = L"Вход в пещеру: " .. atlas.DungeonName(d)
+            local title = L"Вход в пещеру: " .. (caveName or "")
             spot.hint = L"дальше внутри пещеры"
             return {point=spot, title=title, legs={{point=spot, title=title, text=title}}, text=title, onFoot=true, cave=true, others={}}
         end
@@ -2223,6 +2255,36 @@ function P.Mark(place, label, kind, id)
     return plan
 end
 
+-- A ghost bound for a body that lies in a cave of its own: the mouth first, and once the
+-- ghost has been at it, the body. (A table in P.QuestCave or P.NpcCave: its mouth is a
+-- point on the map of the goal.) Gone through is kept for the living too (P.char.inCave),
+-- so that after rising there the arrow does not send the player out again.
+local ghostThrough
+function P.CorpseCave(body)
+    if not (UnitIsGhost and UnitIsGhost("player")) then ghostThrough = nil return end
+    local goal = P.char and P.char.goal
+    local cave = goal and (goal.cave or (P.NpcCave and P.NpcCave[goal.npcID or 0]))
+    if type(cave) ~= "table" or not goal.mapID or not body then return end
+    local spot = {mapID=goal.mapID, x=cave.x, y=cave.y}
+    local key = spot.mapID .. ":" .. spot.x .. ":" .. spot.y
+    if ghostThrough == key then return end
+    -- Only a body near this cave: within 250 yards of its mouth.
+    if not atlas.Yards then return end
+    local okB, cB, bx, by = pcall(atlas.Yards, body)
+    local okM, cM, mx, my = pcall(atlas.Yards, spot)
+    if not (okB and okM and cB and cB == cM and bx and by and mx and my) then return end
+    if (bx - mx)^2 + (by - my)^2 > 250 * 250 then return end
+    local _, _, toMouth = atlas.NavigationVector(spot)
+    if toMouth and toMouth <= 25 then
+        ghostThrough = key
+        P.char.inCave = key
+        return
+    end
+    spot.title = L"Вход в пещеру: " .. (cave.name or "")
+    spot.corpse = true
+    return spot
+end
+
 -- Called as the player moves about: a leg done (a teleport cast, a zeppelin ridden) and
 -- the arrow turns to the next. Returns the name of the goal when only the walk is left.
 function P.Replan()
@@ -2230,6 +2292,19 @@ function P.Replan()
     local target = atlas.Target and atlas.Target()
     -- A goal in a cave set before the cave was known (kept over a /reload): set again, so
     -- that the way leads to the mouth (the owner, 15.11.2026: "the spot is the same as before").
+    -- A point of a quest kept from before (over a /reload) where the game's own mark for the
+    -- quest lies far off: moved there (the owner, 20.11.2026, the Twilight Mauler).
+    if target and target.kind == "objective" and target.questID and P.GameObjective and atlas.Span
+        and not (C_QuestLog.IsComplete and C_QuestLog.IsComplete(target.questID)) then
+        local game = P.GameObjective(target.questID)
+        local far = game and game.mapID == target.mapID and atlas.Span(target, game)
+        if far and far > 150 then
+            local place = {mapID=game.mapID, x=game.x, y=game.y, npcID=target.npcID, name=target.who,
+                cave=P.QuestCave and P.QuestCave[target.questID]}
+            P.Mark(place, target.title, "objective", target.questID)
+            return
+        end
+    end
     local cave = P.QuestCave and target and target.kind == "objective" and target.questID and P.QuestCave[target.questID]
     if cave and not target.cave then
         local place = {mapID=target.mapID, x=target.x, y=target.y, npcID=target.npcID, name=target.who, cave=cave}
