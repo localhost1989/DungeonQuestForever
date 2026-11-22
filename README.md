@@ -18,6 +18,9 @@ dungeon right in the quest tracker.
 - **Best gear.** The Gear button opens a window like the character frame with the best item
   for every slot for your class and talent tree, at your level and the next ones: which boss
   of which dungeon drops it or which quest gives it, and how much better it is than what you wear.
+- **Your group.** After a boss the group is told who is next, what he drops (with the chance,
+  where known) and which classes among you it is best in slot for. A finished quest is told to
+  the group, or yelled when you are alone. Both can be turned off in the settings menu.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
   ones are left to you), and junk quests can be cleared from the log with one button.
 
@@ -40,7 +43,7 @@ Nothing else is needed. Put the `ForeverDungeonPrep` folder into
   hover a boss on it to see what he is and what he drops.
 - The round button on the minimap opens the settings; right-click opens the journal.
 - `/dq` opens the list of dungeons. Other commands: `/dq welcome`, `/dq auto`, `/dq junk`,
-  `/dq dock`, `/dq cards`, `/dq bug`.
+  `/dq dock`, `/dq cards`, `/dq bug`, `/dq bis`, `/dq done`, `/dq run` (a new run).
 
 ## Bugs and ideas
 
@@ -75,6 +78,10 @@ GPL-3.0-or-later, see `LICENSE`.
 - Where the goals of the quests lie inside (`P.InsideSpots`) was computed by
   `dev/make-inside-spots.py` from the spawn points of the [AzerothCore](https://github.com/azerothcore/azerothcore-wotlk)
   world database (GPL-2.0) and the client's map tables served by [wago.tools](https://wago.tools).
+- The drop chances in `Book.lua` (`P.LootChance`) come from the Classic database of
+  [Wowhead](https://www.wowhead.com/classic/); Krol'dok's loot from Wowhead's WoW Forever
+  database and the Krol'dok guide of [Conquest Capped](https://conquestcapped.com/) (checked
+  21 November 2026).
 - The walking directions to the bosses were written for this addon from public dungeon guides.
 - The pointer hand artwork was generated for this addon.
 - If *Dungeon Quest Atlas* is installed, its dungeon maps are used for the small floor
@@ -94,7 +101,9 @@ GPL-3.0-or-later, see `LICENSE`.
   подсвечивается точка, куда лететь. Неоткрытые точки перелёта видны серебром на карте мира
   и на миникарте, даже под туманом войны: щелчок ведёт к распорядителю.
 - **Группа.** Кнопка «Поделиться» раздаёт группе твои задания этого подземелья и просит
-  в чате группы недостающие. У кого стоит аддон, поделятся сами.
+  в чате группы недостающие. У кого стоит аддон, поделятся сами. После каждого босса аддон
+  пишет группе по-английски, кто следующий, что с него падает и какому классу это лучшее
+  в слот, а о выполненном задании — в группу или криком. И то и другое выключается в меню.
 - **Внутри: путь к каждому боссу.** Внутри подземелья игра не показывает ни карты, ни где ты,
   поэтому аддон одной-двумя строками говорит, как дойти от прошлого босса до следующего, во всех
   классических подземельях. Боссы по порядку, что осталось сделать у каждого, их добыча с пометкой
@@ -133,7 +142,7 @@ Players who enable analytics in Wago App can contribute usage statistics. The ad
 
 Click the bug icon next to Close in the quest book, or type `/dq bug`. Copy the link into your browser and choose which diagnostics to include in the GitHub issue.
 
-For maintainers, compare the number of participating sessions at each consecutive `Flow_` step. Open the quest book, read a quest, request directions. `Reached_` flags independent actions, and `Count_` records their frequency. `LastAction` is the last observed action within that UI load. Its codes are 1 = Loaded, 2 = BookOpened, 3 = DungeonChosen, 4 = QuestRead, 5 = BossRead, 6 = RouteRequested, 7 = ReportOpened, 8 = LootOpened, 9 = GearOpened, 10 = ArrowRemoved, 11 = TeleportUsed, 12 = FlightPointClicked, 13 = StepClicked, 14 = SharedWithGroup, 15 = AutoAccepted, 16 = AutoTurnedIn, 17 = JunkRemoved, 18 = FloorPlanOpened, 19 = FloorPlanToggled, 20 = DungeonHidden, 21 = DoorPicked, 22 = SettingsMenuOpened, 23 = DungeonMenuOpened, 24 = WelcomeShown, 25 = Command, 26 = PanelCollapsed, 27 = NewRun, 28 = EnteredDungeon, 29 = BossKilled, 30 = ToldGroup, 31 = MetAddonUser, 32 = RewardClicked, 33 = BookModeSwitched. A session can end normally at any step.
+For maintainers, compare the number of participating sessions at each consecutive `Flow_` step. Open the quest book, read a quest, request directions. `Reached_` flags independent actions, and `Count_` records their frequency. `LastAction` is the last observed action within that UI load. Its codes are 1 = Loaded, 2 = BookOpened, 3 = DungeonChosen, 4 = QuestRead, 5 = BossRead, 6 = RouteRequested, 7 = ReportOpened, 8 = LootOpened, 9 = GearOpened, 10 = ArrowRemoved, 11 = TeleportUsed, 12 = FlightPointClicked, 13 = StepClicked, 14 = SharedWithGroup, 15 = AutoAccepted, 16 = AutoTurnedIn, 17 = JunkRemoved, 18 = FloorPlanOpened, 19 = FloorPlanToggled, 20 = DungeonHidden, 21 = DoorPicked, 22 = SettingsMenuOpened, 23 = DungeonMenuOpened, 24 = WelcomeShown, 25 = Command, 26 = PanelCollapsed, 27 = NewRun, 28 = EnteredDungeon, 29 = BossKilled, 30 = ToldGroup, 31 = MetAddonUser, 32 = RewardClicked, 33 = BookModeSwitched, 34 = ToldBis. A session can end normally at any step.
 
 `Cmd_<word>` counts the `/dq` words and the settings menu, which goes through them (only a fixed list of words). The `Off_` switches (and `On_DarkBack`) are read once a session and tell which settings players have turned off. A `Reached_` flag that stays off everywhere marks a part of the addon nobody uses.
 

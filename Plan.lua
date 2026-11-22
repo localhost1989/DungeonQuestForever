@@ -16,6 +16,43 @@ local function active(id)
     local i = C_QuestLog.GetLogIndexForQuestID(id)
     return i and i > 0
 end
+
+-- A quest with nothing to kill, loot, use or reach: it is done by speaking to the one who
+-- takes it in. The owner, 21.11.2026, at the Monastery with the Test of Lore whose question
+-- Parqual asks in the Undercity: "I came, and now what?" - the page had it as done inside.
+local function talkOnly(id)
+    if P.InsideSpots and P.InsideSpots[id] then return false end
+    if atlas.EndsInside and atlas.EndsInside(id) then return false end
+    local ok, goals = pcall(field, id, "objectives")
+    if not ok or type(goals) ~= "table" or next(goals) ~= nil then return false end
+    -- (Only one asked and answered by the same one: a quest that sends one to somebody
+    -- else, Scooty across the sea, is a road of its own.)
+    local ok2, by = pcall(field, id, "finishedBy")
+    local ok3, from = pcall(field, id, "startedBy")
+    local ender = ok2 and type(by) == "table" and type(by[1]) == "table" and by[1][1]
+    local starter = ok3 and type(from) == "table" and type(from[1]) == "table" and from[1][1]
+    -- (And not one written down as a dungeon's own: Forever's new quests, the serum of the
+    -- Ruins of Lordaeron, have their goals inside with none in the database.)
+    local ok4, zone = pcall(field, id, "zoneOrSort")
+    local dungeons = P.Data and P.Data.dungeons
+    if ok4 and zone and dungeons then
+        if dungeons[zone] then return false end
+        -- (Or one of a dungeon's other areas: "The Spider God" (2936) is written down under
+        -- 978, Zul'Farrak's own ground; its tablet is read inside. The owner, 22.11.2026.)
+        for _, d in pairs(dungeons) do
+            if type(d) == "table" and type(d[2]) == "table" then
+                for _, area in ipairs(d[2]) do if area == zone then return false end end
+            end
+        end
+    end
+    -- (And the game's own word: a quest with a goal in the log is no mere word.)
+    if C_QuestLog and C_QuestLog.GetQuestObjectives then
+        local okG, list = pcall(C_QuestLog.GetQuestObjectives, id)
+        if okG and type(list) == "table" and #list > 0 then return false end
+    end
+    return ender ~= nil and ender == starter
+end
+P.TalkOnly = talkOnly
 P.IsActive = active
 
 local function matchesMask(mask, id)
@@ -43,7 +80,9 @@ local function eligible(id)
     return characterMatches(id) and availableBranch(id)
 end
 
-local sourceDungeon = {[6522]="RFK", [6922]="BFD", [6981]="WC"}
+-- (Krol'dok Moulding, both sides: the mould drops from the ogre smith Tunk inside Krol'dok,
+-- who has no spawn in the database - seen in the game as "take yourself, place unknown".)
+local sourceDungeon = {[6522]="RFK", [6922]="BFD", [6981]="WC", [94973]="KROLDOK", [94980]="KROLDOK"}
 local sourceBoss = {[6522]=4421, [6922]=12876, [6981]=3654}
 local function dropLocation(d,id)
     local npcID = sourceBoss[id]
@@ -396,6 +435,13 @@ function P.Build(d)
                     row.detail = full and (L"Сдать: " .. full)
                     row.short = to
                     row.turnIn = true
+                elseif talkOnly(id) and P.Where(id, "ends") then
+                    local to, full, place = P.Where(id, "ends")
+                    row.place, row.talk = place, true
+                    row.note = L"Поговори: " .. to
+                    row.detail = full and (L"Поговори: " .. full)
+                    row.short = to
+                    row.turnIn = true
                 else
                     row.note = P.Objectives(id) or (L"Цели в подземелье")
                     -- Something of it to do outside, now: say what and where.
@@ -571,6 +617,21 @@ local function few(names)
     return #list > 0 and table.concat(list, ", ") or nil
 end
 
+-- Where a creature that drops a quest's first thing stands, said with it (the owner,
+-- 20.11.2026, inside Krol'dok, the mould: "then make such a hint"). Warcraft Tavern's
+-- and Method's guides: Tunk hammers in a small forge where the road bends left, behind
+-- War Handler Ashka's wolf pen, before Nar'gurk.
+local dropperWhere = {
+    [259256] = L"кузница за загоном с волками Ашки, где дорога сворачивает налево",
+}
+local function whereDrops(itemID)
+    if not (ItemDB and ItemDB.Get) then return end
+    local ok, npcs = pcall(ItemDB.Get, itemID, "npcDrops")
+    for _, id in ipairs(ok and npcs or {}) do
+        if dropperWhere[id] then return dropperWhere[id] end
+    end
+end
+
 local function sources(itemID)
     local names = {}
     if not (ItemDB and ItemDB.Get) then return names end
@@ -579,6 +640,15 @@ local function sources(itemID)
     local fine, npcs = pcall(ItemDB.Get, itemID, "npcDrops")
     for _, id in ipairs(fine and npcs or {}) do names[#names+1] = called(NpcDB, id) end
     return names
+end
+
+-- Who drops the thing a quest starts from (the owner, 20.11.2026: "say it drops inside").
+function P.StartDroppers(id)
+    local start = field(id, "startedBy") or {}
+    local item = start[3] and start[3][1]
+    if not item then return nil end
+    local list, where = few(sources(item)), whereDrops(item)
+    return list and (list .. (where and (" — " .. where) or "")) or nil
 end
 
 function P.InsideHint(row)
@@ -602,7 +672,7 @@ function P.InsideHint(row)
         local start = field(id, "startedBy") or {}
         if start[3] and start[3][1] then
             local list = few(sources(start[3][1]))
-            return (L"начнётся с предмета") .. (list and (L"; падает с: " .. list) or "")
+            return (L"начнётся с предмета") .. (list and (L"; падает с: " .. list) or "") .. (whereDrops(start[3][1]) and (" — " .. whereDrops(start[3][1])) or "")
         end
         local giver = start[1] and start[1][1] and called(NpcDB, start[1][1])
         if giver then return (L"взять у: ") .. giver end
@@ -699,7 +769,11 @@ function P.TaskHint(row)
             return (L"сдать после выхода")
         elseif row.task == L"не взято" then
             local start = field(row.step or row.id, "startedBy") or {}
-            if start[3] and start[3][1] then return (L"начнётся с предмета") end
+            -- (The owner, 20.11.2026, inside Krol'dok: "starts from an item" - and from whom?)
+            if start[3] and start[3][1] then
+                local list = few(sources(start[3][1]))
+                return (L"начнётся с предмета") .. (list and (L"; падает с: " .. list) or "") .. (whereDrops(start[3][1]) and (" — " .. whereDrops(start[3][1])) or "")
+            end
             local giver = start[1] and start[1][1] and called(NpcDB, start[1][1])
             if giver then return (L"выдаёт ") .. giver end
             -- A thing that gives a quest often asks for another thing first: that is
@@ -792,7 +866,10 @@ local function markLibraryApproach(d)
 end
 
 -- Where this faction walks in: the goblin transporter for some, the portal for the rest.
-local function door(d)
+local function door(d, id)
+    -- A quest whose goal lies in one wing: that wing's own door.
+    local wing = id and P.WingDoor and P.WingDoor(d, id)
+    if wing then return wing end
     return P.Door and P.Door(d) or atlas.Entrance(d)
 end
 
@@ -814,7 +891,13 @@ function P.Route(d,row, automatic, quiet)
     if done(row.id) then return (L"Это задание уже сдано.") end
     if row.unknown then return row.note .. " • " .. P.Title(row.id) end
     local title = P.Title(id)
-    local finishing = active(id) and C_QuestLog.IsComplete(id)
+    local finishing = active(id) and (C_QuestLog.IsComplete(id) or talkOnly(id))
+    -- Inside, a quest done by a word outside is said, not pointed at.
+    if finishing and not C_QuestLog.IsComplete(id) and P.InDungeon(d) then
+        if automatic then return end
+        local to = P.Where(id, "ends")
+        if to then return (L"Это делается снаружи, разговором: %s. Сделай на выходе."):format(to), "outside" end
+    end
     local place, label, kind
     if active(id) and not finishing then
         -- Inside, a goal that lies out there (the Tablet of Ryun'eh in the tunnels before the
@@ -859,7 +942,7 @@ function P.Route(d,row, automatic, quiet)
                         if not automatic then atlas.ShowQuestOnDungeonMap(d,id,act) end
                         return step and step.hint or (L"Цель на плане этажа • " .. title), "floor"
                     end
-                    place, label, kind = door(d), L"Вход • " .. title, "entrance"
+                    place, label, kind = door(d, id), L"Вход • " .. title, "entrance"
                     break
                 end
             end
@@ -870,7 +953,9 @@ function P.Route(d,row, automatic, quiet)
         end
         -- A quest of this dungeon with its goals inside: the way leads to the door.
         if not place and not automatic and row.id == id and not P.InDungeon(d) and door(d) then
-            place, label, kind = door(d), P.DoorLabel and P.DoorLabel(d) or (L"Вход • " .. atlas.DungeonName(d)), "entrance"
+            local wing, wingLabel
+            if P.WingDoor then wing, wingLabel = P.WingDoor(d, id) end
+            place, label, kind = wing or door(d), wingLabel or (P.DoorLabel and P.DoorLabel(d)) or (L"Вход • " .. atlas.DungeonName(d)), "entrance"
         end
         if not place then
             if not automatic and not quiet then P.ShowQuest(id) end

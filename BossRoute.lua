@@ -1186,6 +1186,10 @@ function P.InsideGoals(id)
     return #left > 0 and left or goals
 end
 
+-- The wings, by the keys the spots inside are written with.
+local WING_OF = {SM_GY=L"Кладбище", SM_LIB=L"Библиотека", SM_ARM=L"Оружейная", SM_CATH=L"Собор",
+    DM_E=L"Восток", DM_N=L"Север", DM_W=L"Запад", LBRS=L"Нижняя часть", UBRS=L"Верхняя часть",
+    STRAT_LIVE=L"Живая сторона", STRAT_UD=L"Мёртвая сторона"}
 -- "где: ..." for a quest taken, inside; nil when nothing is known.
 function P.WhereInside(row)
     local id = row and (row.step or row.id)
@@ -1195,6 +1199,14 @@ function P.WhereInside(row)
     end
     local goal = P.InsideGoals(id)[1]
     if not goal then return end
+    -- In another wing: said first (the owner in the Cathedral, 21.11.2026, the book of the
+    -- Test of Lore lying in the Library: "I came, and what now?").
+    local d = atlas.CurrentDungeon and atlas.CurrentDungeon()
+    local wingHere = d and P.WingHere and P.WingHere(d)
+    local wingThere = goal.p[1] and WING_OF[goal.p[1][1]]
+    if wingHere and wingThere and wingHere ~= wingThere then
+        return (L"где: в другом крыле — «%s». Выйди и зайди в его вход"):format(wingThere)
+    end
     local here = P.Room and P.Room()
     local rooms, seen = {}, {}
     for _, p in ipairs(goal.p) do

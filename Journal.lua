@@ -23,6 +23,10 @@ local readyWas = {}
 local shareWas = {}
 -- Whether the last refresh found the player inside the dungeon of the page; nil at first.
 local wasInside
+-- The dungeon the player was in at the last refresh, by its key (nil: none).
+local enteredKey
+-- The hall stood in at the last refresh inside: a new one brings the panel back to the dungeon.
+local enteredHall
 
 -- The atlas addon may still be switched on, holding the points this addon gave it before
 -- it stood on its own ground. Its arrow would hang there with "no navigation" to say.
@@ -261,6 +265,10 @@ end
 
 local function included(d, count)
     if db.fullCatalog then return true end
+    -- The one stood in is always there, done or put away: its bosses are worth having inside
+    -- (the owner in Krol'dok, all its quests handed in, 21.11.2026: the panel went back to the
+    -- list, "why did it not see that I am inside?").
+    if P.InDungeon and P.InDungeon(d) then return true end
     -- (Forever's new dungeons are listed though the database has no quests of them yet: the
     -- way in and the level are worth having.)
     return (count.total > 0 or d.forever) and not db.hidden[d.key] and not (db.hideDone and isClosed(count))
@@ -1179,15 +1187,24 @@ local function settingsMenu(owner, menu)
     menu:CreateButton(L"Лучшие вещи для класса", function() if P.ToggleGear then P.ToggleGear() end end)
     if menu.CreateDivider then menu:CreateDivider() end
     if menu.CreateTitle then menu:CreateTitle(L"Настройки") end
+    -- (The owner, 20.11.2026, agreed: the ticks in groups - the quests, the panel, the way,
+    -- the chat, the button - and two captions said plainly.)
+    local function gap() if menu.CreateDivider then menu:CreateDivider() end end
     menu:CreateCheckbox(L"Принимать и сдавать задания самому", function() return not db.noAuto end, slash("auto"))
+    gap()
     menu:CreateCheckbox(L"Панель в колонке заданий", function() return not db.boardFree end, slash("dock"))
     menu:CreateCheckbox(L"Вид как у заданий игры", function() return not db.boardCards end, slash("cards"))
     menu:CreateCheckbox(L"Тёмный фон панели", function() return db.boardBack == true end, slash("back"))
-    menu:CreateCheckbox(L"Сигнал при входе в зал", function() return not db.noPing end, slash("ping"))
-    menu:CreateCheckbox(L"Подсвечивать предметы для заданий", function() return not db.noGlow end, slash("glow"))
-    menu:CreateCheckbox(L"Рассказывать группе и рейду об аддоне", function() return not db.noShare end, slash("share"))
+    gap()
     menu:CreateCheckbox(L"Вести стрелку по дорогам, в обход гор", function() return not db.noPaths end, slash("paths"))
-    menu:CreateCheckbox(L"Метка над нужным персонажем", function() return not db.noSign end, slash("sign"))
+    menu:CreateCheckbox(L"Метка над нужным персонажем (включает полоски имён)", function() return not db.noSign end, slash("sign"))
+    menu:CreateCheckbox(L"Подсвечивать предметы для заданий", function() return not db.noGlow end, slash("glow"))
+    menu:CreateCheckbox(L"Звук при входе в новый зал подземелья", function() return not db.noPing end, slash("ping"))
+    gap()
+    menu:CreateCheckbox(L"Рассказывать группе и рейду об аддоне", function() return not db.noShare end, slash("share"))
+    menu:CreateCheckbox(L"Писать о выполненном задании в группу или криком", function() return not db.noQuestDone end, slash("done"))
+    menu:CreateCheckbox(L"Писать в группу после босса, кто следующий и что с него падает", function() return not db.noBis end, slash("bis"))
+    gap()
     menu:CreateCheckbox(L"Кнопка у миникарты", function() return not db.minimapHidden end, slash("minimap"))
     if menu.CreateDivider then menu:CreateDivider() end
     menu:CreateButton(L"Убрать мусорные задания", slash("junk"))
@@ -1196,11 +1213,50 @@ local function settingsMenu(owner, menu)
 end
 P.SettingsMenu = settingsMenu
 
-local function placeMinimapButton()
+-- The owner, 20.11.2026: "our round button is gone" - the emblem of a battleground queue
+-- had come over it on the rim. So a spot taken by another button on the rim is left: ours
+-- stands at the nearest free one (the angle he chose is kept, and taken again when free).
+local function rimTaken(degrees, radius)
+    local mx, my = Minimap:GetCenter()
+    if not (mx and my) then return false end
+    local scale = Minimap:GetEffectiveScale()
+    local px, py = mx + math.cos(math.rad(degrees)) * radius, my + math.sin(math.rad(degrees)) * radius
+    local function near(parent)
+        if not (parent and parent.GetChildren) then return false end
+        for _, f in ipairs({parent:GetChildren()}) do
+            if f ~= minimapButton and f.IsVisible and f:IsVisible() and f.GetCenter and (not f.GetAlpha or f:GetAlpha() > .1) then
+                local w, h = f:GetWidth(), f:GetHeight()
+                local fx, fy = f:GetCenter()
+                if fx and fy and type(w) == "number" and type(h) == "number" and w >= 12 and w <= 60 and h >= 12 and h <= 60 then
+                    local k = f:GetEffectiveScale() / scale
+                    local dx, dy = fx * k - px, fy * k - py
+                    if dx * dx + dy * dy < 22 * 22 then return true end
+                end
+            end
+        end
+        return false
+    end
+    return near(Minimap) or near(MinimapBackdrop) or near(MinimapCluster)
+end
+
+local function placeMinimapButton(exact)
     if not (minimapButton and Minimap) then return end
-    local angle = math.rad(tonumber(db and db.minimapAngle) or 200)
+    local chosen = tonumber(db and db.minimapAngle) or 200
     local width = Minimap.GetWidth and Minimap:GetWidth() or 140
     local radius = (type(width) == "number" and width or 140) / 2 + 6
+    local angle = chosen
+    if not exact then
+        for step = 0, 10 do
+            local found
+            for _, sign in ipairs(step == 0 and {1} or {1, -1}) do
+                local ok, taken = pcall(rimTaken, chosen + sign * step * 18, radius)
+                if ok and not taken then found = chosen + sign * step * 18 break end
+            end
+            if found then angle = found break end
+        end
+    end
+    minimapButton.angle = angle
+    angle = math.rad(angle)
     minimapButton:ClearAllPoints()
     minimapButton:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * radius, math.sin(angle) * radius)
 end
@@ -1256,10 +1312,14 @@ function P.MinimapButton()
             local scale = Minimap:GetEffectiveScale()
             if not (cx and x and scale) then return end
             db.minimapAngle = math.floor(math.deg(math.atan2 and math.atan2(y / scale - cy, x / scale - cx) or math.atan(y / scale - cy, x / scale - cx)) + .5)
-            placeMinimapButton()
+            placeMinimapButton(true)
         end
-        b:SetScript("OnDragStart", function(self) self:SetScript("OnUpdate", follow) end)
-        b:SetScript("OnDragStop", function(self) self:SetScript("OnUpdate", nil) end)
+        b:SetScript("OnDragStart", function(self) self.dragging = true; self:SetScript("OnUpdate", follow) end)
+        b:SetScript("OnDragStop", function(self) self.dragging = nil; self:SetScript("OnUpdate", nil); placeMinimapButton() end)
+        -- Buttons of the rim come and go (a queue, a mail): looked at again now and then.
+        if C_Timer and C_Timer.NewTicker then
+            C_Timer.NewTicker(3, function() if not b.dragging and b:IsShown() then pcall(placeMinimapButton) end end)
+        end
     end
     placeMinimapButton()
     minimapButton:SetShown(not (db and db.minimapHidden))
@@ -1385,6 +1445,10 @@ function P.LeaveHidden()
     if not (db and db.hidden and selected and db.hidden[selected.key]) then return end
     countsDirty = true
     rebuildList()
+    -- Inside a dungeon, the one stood in (the owner in the Monastery, 21.11.2026, putting
+    -- away the dungeons he would not finish: the panel went to the list, the arrow to the door).
+    local here = atlas.CurrentDungeon and atlas.CurrentDungeon()
+    if here then choose(here) return end
     local level = UnitLevel and UnitLevel("player") or 1
     local best, bestScore
     for _, d in ipairs(visible) do
@@ -2687,8 +2751,13 @@ local function layout(self)
                 elseif entry.begins then
                     -- From whom, with what, or by what it begins in there.
                     local source = P.InsideSource and P.InsideSource(entry)
-                    if source == L"начнётся с предмета" then
-                        act = chain .. DIM .. L"начнётся внутри с найденного предмета|r" .. (goal and (":" .. named) or "")
+                    local itemStart = L"начнётся с предмета"
+                    if source and source:sub(1, #itemStart) == itemStart then
+                        -- (The owner, 20.11.2026: "'place unknown' - unknown to me? Write that it
+                        -- drops inside.") The item drops inside, and from whom when it is known.
+                        local from = P.StartDroppers and P.StartDroppers(entry.step or entry.id)
+                        act = chain .. DIM .. L"предмет падает внутри|r" .. (goal and (":" .. named) or "")
+                            .. (from and (DIM .. " • " .. from .. "|r") or "")
                     else
                         act = chain .. DIM .. L"взять внутри|r" .. named .. (source and (": " .. (source:gsub(L"^выдаёт ", ""))) or "")
                     end
@@ -4198,6 +4267,22 @@ function P.Refresh()
         if unfolded == nil and atlas.char.unfolded ~= nil then unfolded = atlas.char.unfolded end
     end
     atlas.char.unfolded = unfolded
+    -- The dungeon walked into is put on the panel, once on coming in; the list can be
+    -- opened by hand after that (Krol'dok, 21.11.2026).
+    local here = atlas.CurrentDungeon and atlas.CurrentDungeon()
+    -- And when the list or another dungeon was put on the panel inside, the next hall walked
+    -- into brings it back (the owner in the Monastery, 21.11.2026: "in the middle of it the
+    -- arrow went back to the entrance").
+    local hall = here and atlas.PlainText and atlas.PlainText(GetSubZoneText and GetSubZoneText()) or nil
+    local newHall = here and here.key == enteredKey and hall and hall ~= "" and enteredHall and hall ~= enteredHall
+    if here then enteredHall = (hall and hall ~= "") and hall or enteredHall else enteredHall = nil end
+    if here and (here.key ~= enteredKey or newHall) and (browsing or not (selected and P.InDungeon(selected))) then
+        db.browsing = false
+        selected, db.key, browsing, first, history = here, here.key, false, 1, {}
+        routeExpanded, readStep, detailPage, nameRetries = false, {}, nil, 0
+        countsDirty = true
+    end
+    enteredKey = here and here.key or nil
     if selected then
         -- Wings of one instance: show the wing the player is actually in.
         if P.InDungeon(selected) then
@@ -4217,6 +4302,7 @@ function P.Refresh()
             db.ranAt[selected.key] = GetServerTime and GetServerTime() or 0
         end
         if P.WatchNeeds then P.WatchNeeds(result.rows, inDungeon) end
+        if inDungeon and wasInside ~= true and P.ForgetHeld then P.ForgetHeld() end
         if inDungeon and P.InferKills then P.InferKills(selected, result.rows) end
         -- Walking in is the start of a run, unless the last boss fell a moment ago. The
         -- first look after a /reload inside counts the same: old marks do not outlive it.
@@ -4231,7 +4317,7 @@ function P.Refresh()
                     local d = selected
                     for _, delay in ipairs({2, 5}) do
                         C_Timer.After(delay, function()
-                            if P.InDungeon(d) and P.LookForCopy(d) and P.Refresh then P.Refresh() end
+                            if P.InDungeon(d) and (P.EnterRun(d) or P.LookForCopy(d)) and P.Refresh then P.Refresh() end
                         end)
                     end
                 end
@@ -4908,10 +4994,19 @@ function P.Refresh()
                             if who then parts[#parts+1] = who end
                             if zone and zone ~= who then parts[#parts+1] = zone end
                             if far then parts[#parts+1] = far end
+                            -- How it is done, when the goal is no mere place: the owner, 22.11.2026,
+                            -- in Feralas by the "Screecher Spirit" (a spirit is called from a vale
+                            -- screecher's corpse; nobody stands there): "no idea where to run".
+                            local howTo
+                            local hintId = lead.step or lead.id
+                            if P.IsActive and P.IsActive(hintId) and not (C_QuestLog.IsComplete and C_QuestLog.IsComplete(hintId)) then
+                                local hint = P.QuestHint(hintId)
+                                if hint then howTo = "|cffffd34d" .. L"Как найти:" .. "|r " .. hint end
+                            end
                             status = {status=lead.stage == 3 and (L"У входа: " .. (lead.handin and (L"сдать") or lead.working and (L"доделать") or (L"взять")) .. " «" .. P.Title(lead.step or lead.id) .. "»")
                                 or left > 0 and (L"Возьми ещё " .. left .. " " .. plural(left, L"задание", L"задания", L"заданий") .. L" из " .. #prep)
                                 or (L"Доделай снаружи: " .. #work), plate="gold",
-                                lines={L"Начни с: " .. table.concat(parts, " • ")},
+                                lines={L"Начни с: " .. table.concat(parts, " • "), howTo},
                                 goText=L"Путь к первому", goNote=L"Стрелка поведёт к первому делу самым быстрым путём: сначала дальние от подземелья, у входа — последними."}
                         end
                         status.go = function() openRoute(lead) end
@@ -5089,6 +5184,18 @@ local function watchNeeds(rows, inside)
 end
 P.WatchNeeds = watchNeeds
 
+-- A kill learnt by the body or its loot is told of as one the game announced: not every
+-- boss has an encounter (22.11.2026: Theka fell and the party heard nothing of Zum'rah).
+-- A few kills seen at once are one word; P.TellNext itself says each next boss once.
+function P.TellNextSoon(d)
+    if not P.TellNext or P.tellingNext then return end
+    if not (C_Timer and C_Timer.After) then pcall(P.TellNext, d) return end
+    P.tellingNext = true
+    C_Timer.After(5, function()
+        P.tellingNext = nil
+        if atlas.CurrentDungeon and atlas.CurrentDungeon() == d then pcall(P.TellNext, d) end
+    end)
+end
 -- A boss of the run seen dead: by the game's own word, or by its body under the cursor
 -- or in the target frame.
 local function seenDead(unit)
@@ -5104,13 +5211,32 @@ local function seenDead(unit)
     if UnitIsPlayer and UnitIsPlayer(unit) then return false end
     local npc, name = atlas.NpcIDFromGUID(atlas.PlainText(UnitGUID(unit))), UnitName and atlas.PlainText(UnitName(unit))
     if not npc then return false end
-    if P.HasRun and not P.HasRun(d) then return false end
+    -- Where no run is written a body makes no boss; one learnt and met alive again does rise.
+    if gone and P.HasRun and not P.HasRun(d) then return false end
     -- Dead: struck off. Marked dead and standing there alive: the marks are another run's.
-    if gone then return P.Killed(d, npc, name) end
+    if gone then
+        local news = P.Killed(d, npc, name)
+        if news then P.TellNextSoon(d) end
+        return news
+    end
+    -- (Only one to be fought: some stay on, friendly, once beaten.)
+    if UnitCanAttack then
+        local okFoe, foe = pcall(UnitCanAttack, "player", unit)
+        if not okFoe or (issecretvalue and issecretvalue(foe)) or not foe then return false end
+    end
     return P.Revived ~= nil and P.Revived(d, npc, name)
 end
 
 -- A boss came into sight, or went out of it: his room is noted and the page says so.
+if CreateFrame and UIParent then
+    local resets = CreateFrame("Frame", nil, UIParent)
+    if resets and resets.RegisterEvent then
+        pcall(resets.RegisterEvent, resets, "CHAT_MSG_SYSTEM")
+        resets:SetScript("OnEvent", function(_, event, text)
+            if event == "CHAT_MSG_SYSTEM" and P.HeardReset and P.HeardReset(text) and P.Refresh then P.Refresh() end
+        end)
+    end
+end
 atlas.OnSight = function(who)
     local d = atlas.CurrentDungeon and atlas.CurrentDungeon()
     if who and d and P.SawBoss then P.SawBoss(d, who) end
@@ -5144,7 +5270,7 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
                     local guid = GetLootSourceInfo(slot)
                     if P.SeenCopy and P.SeenCopy(d, guid) then news = true end
                     local npc = atlas.NpcIDFromGUID(atlas.PlainText(guid))
-                    if npc and P.Killed(d, npc) then news = true end
+                    if npc and P.Killed(d, npc) then news = true; P.TellNextSoon(d) end
                 end
             end)
             if news and not pending then P.Refresh() end
@@ -5154,9 +5280,14 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
     if event == "BOSS_KILL" or event == "ENCOUNTER_END" then
         local d = db and atlas.CurrentDungeon and atlas.CurrentDungeon()
         local won = event == "BOSS_KILL" or success == 1 or success == true
+        if d and won and P.KilledAgain then P.KilledAgain(d, name) end
         if d and won and P.Killed and type(name) == "string" and P.Killed(d, nil, name) and not pending then P.Refresh() end
         if d and won and P.TellGroup then
             if C_Timer and C_Timer.After then C_Timer.After(3, function() pcall(P.TellGroup) end) else pcall(P.TellGroup) end
+        end
+        -- The next boss and what he drops, a moment after the addon itself is told of.
+        if d and won and P.TellNext then
+            if C_Timer and C_Timer.After then C_Timer.After(5, function() pcall(P.TellNext, d) end) else pcall(P.TellNext, d) end
         end
         return
     end
@@ -5176,6 +5307,7 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
         return
     end
     if event == "PLAYER_REGEN_ENABLED" and seenDead("target") then countsDirty = true end
+    if event == "PLAYER_REGEN_ENABLED" and P.TellNextWaiting then pcall(P.TellNextWaiting) end
     if event == "PLAYER_LOGIN" then initialize() end
     if (event == "QUEST_TURNED_IN" or event == "QUEST_ACCEPTED") and id and selected and result then
         for _, row in ipairs(result.rows) do
@@ -5313,6 +5445,23 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
         db.noShare = not db.noShare or nil
         say(db.noShare and (L"Группе и рейду об аддоне больше не рассказываю.")
             or (L"После первого босса расскажу группе или рейду об аддоне одной строкой — если там есть кто-то без него, и не чаще раза в два часа."))
+        return
+    end
+    if msg and msg:match("^%s*test%s*$") then
+        local d = (atlas.CurrentDungeon and atlas.CurrentDungeon()) or selected or atlas.DungeonByKey.KROLDOK
+        if not (P.TellNext and P.TellNext(d, true)) then say(L"Не нашёл следующего босса для проверки.") end
+        return
+    end
+    if msg and msg:match("^%s*bis%s*$") then
+        db.noBis = not db.noBis or nil
+        say(db.noBis and (L"Что падает с боссов, больше не пишу.")
+            or (L"После каждого босса напишу в группу, кто следующий, что с него падает и кому из вас это лучшая вещь."))
+        return
+    end
+    if msg and msg:match("^%s*done%s*$") then
+        db.noQuestDone = not db.noQuestDone or nil
+        say(db.noQuestDone and (L"О выполненных заданиях больше не пишу.")
+            or (L"Когда задание выполнено, напишу об этом в группу, а без группы — криком."))
         return
     end
     if msg and msg:match("^%s*paths%s*$") then
@@ -5535,19 +5684,25 @@ do
             pcall(C_ChatInfo.SendAddonMessage, PREFIX, "ASK:" .. table.concat(want, ","), channel)
         end
         if #mineIds + #want > 0 then
+            -- The owner, 22.11.2026, layout A: the event under a mark with DQF, what is
+            -- needed on a line of its own. The full name is in the line about the addon
+            -- (P.TellGroup), which this one therefore does not put off.
             local place = selected.nameEn or atlas.DungeonName(selected)
-            local tail = " (Dungeon Quest Forever addon - find it on CurseForge)"
-            local line
-            if #want > 0 then
-                local list = table.concat(names, ", ")
-                local head = (#mineIds > 0 and ("Sharing my " .. place .. " quests - ") or "") .. "please share yours: "
-                if #head + #list + #tail > 250 then list = list:sub(1, 250 - #head - #tail - 3) .. "..." end
-                line = head .. list .. tail
-            else
-                line = "Sharing my " .. place .. " quests - share yours too!" .. tail
+            if type(place) ~= "string" or place:find("[\208\209]") then place = "dungeon" end
+            local lines = {"{rt3} DQF: Share " .. place .. " quests?"}
+            if #names > 0 then
+                local head, tail = "{rt3} Need: ", " \226\128\148 please share"
+                local n, list = 0, ""
+                for i, quest in ipairs(names) do
+                    local more = list .. (i > 1 and ", " or "") .. quest
+                    if #head + #more + #tail + 10 > 255 then break end
+                    list, n = more, i
+                end
+                if n < #names then list = list .. " +" .. (#names - n) .. " more" end
+                lines[2] = head .. list .. tail
             end
-            if SendChatMessage then pcall(SendChatMessage, line, channel) end
-            if db then db.toldAt = GetServerTime and GetServerTime() or 0 end
+            local f = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
+            for _, line in ipairs(lines) do if f then pcall(f, line, channel) end end
         end
         say(L"Поделился с группой: " .. #mineIds .. L", попросил у группы: " .. #want .. ".")
         return #mineIds, #want
@@ -5596,6 +5751,473 @@ do
                 if waiting then pcall(P.TellGroup) end
             elseif C_Timer and C_Timer.After then
                 C_Timer.After(event == "PLAYER_ENTERING_WORLD" and 10 or 3, function() pcall(helloAll) end)
+            end
+        end)
+    end
+end
+
+-- ------------------------------------------
+-- A boss in sight: what he drops, said to the group
+-- ------------------------------------------
+-- The owner, 21.11.2026: "the addon sees the classes in the group, even of those without it;
+-- when a boss drops a best item of one of them, it is put in the chat, good luck." And then:
+-- "after the first boss the addon is told of; before the next one, what may drop from him,
+-- with its chance. The aim is the addon being seen, and people like to read it." The moment
+-- a boss of the run comes into sight (his name bar, the target, the cursor), out of combat,
+-- in English (the groups are of every tongue), once a boss in an hour: from the second boss
+-- on, his three likeliest items with their chances (Wowhead Classic, P.LootChance; Forever's
+-- own items without one); for any boss, whose best item he drops. Alone, nothing: the panel
+-- says it under the boss already. /dq bis, or the menu, stops it.
+do
+    local SIGN = "[Dungeon Quest Forever] "
+    local told, asked = {}, {}
+    local function channel()
+        if not (IsInGroup and IsInGroup()) then return end
+        if IsInGroup(LE_PARTY_CATEGORY_INSTANCE or 2) and not IsInGroup(LE_PARTY_CATEGORY_HOME or 1) then return "INSTANCE_CHAT" end
+        return (IsInRaid and IsInRaid()) and "RAID" or "PARTY"
+    end
+    local function link(id)
+        local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+        local ok, _, got = pcall(info or function() end, id)
+        if ok and type(got) == "string" and got ~= "" and not (issecretvalue and issecretvalue(got)) then return got end
+        local en = P.ItemDB and P.ItemDB.GetEn and P.ItemDB.GetEn(id)
+        local item = P.GearItems and P.GearItems[id]
+        local named = P.LootNames and P.LootNames[id]
+        return "[" .. (type(en) == "string" and en or item and item[4] or named or ("#" .. id)) .. "]"
+    end
+    local function title(word) return word:sub(1, 1):upper() .. word:sub(2):lower() end
+    local function percent(tenths)
+        if tenths >= 100 then return ("%d%%"):format(math.floor(tenths / 10 + .5)) end
+        return ("%.1f%%"):format(tenths / 10)
+    end
+    -- The boss's likeliest items: the ones with a chance first, the likeliest first.
+    function P.LootLine(npcs, boss, head)
+        local list, seen = {}, {}
+        for npc in pairs(npcs) do
+            local chance = {}
+            local known = P.LootChance and P.LootChance[npc] or {}
+            -- (A chance of 0 is one not known: the item is named without it.)
+            for i = 1, #known, 2 do chance[known[i]] = known[i + 1] > 0 and known[i + 1] or nil end
+            local raw = P.Loot and P.Loot[npc] or {}
+            for i = 1, #raw, 3 do
+                local id = raw[i]
+                if not seen[id] then
+                    seen[id] = true
+                    list[#list+1] = {id=id, chance=chance[id]}
+                end
+            end
+            -- Forever's own bosses: their items are known by their chances alone (read off
+            -- Wowhead Forever, 21.11.2026).
+            for i = 1, #known, 2 do
+                local id = known[i]
+                if not seen[id] then
+                    seen[id] = true
+                    list[#list+1] = {id=id, chance=chance[id]}
+                end
+            end
+        end
+        -- Forever's own bosses are not in the loot tables: the items of the gear lists said
+        -- to drop from them, without a chance.
+        if #list == 0 and P.GearItems then
+            for id, item in pairs(P.GearItems) do
+                for i = 6, #item do
+                    local kind, _, from = tostring(item[i]):match("^(%a)|(%a)|(%d+)|")
+                    if kind == "d" and npcs[tonumber(from)] and not seen[id] then
+                        seen[id] = true
+                        list[#list+1] = {id=id}
+                    end
+                end
+            end
+        end
+        table.sort(list, function(a, b)
+            if (a.chance or 0) ~= (b.chance or 0) then return (a.chance or 0) > (b.chance or 0) end
+            return a.id < b.id
+        end)
+        local line, n = SIGN .. (head or ((boss or "This boss") .. " may drop: ")), 0
+        for _, it in ipairs(list) do
+            local part = link(it.id) .. (it.chance and (" " .. percent(it.chance)) or "")
+            if n >= 3 or #line + 2 + #part > 255 then break end
+            line, n = line .. (n > 0 and ", " or "") .. part, n + 1
+        end
+        if n == 0 then return end
+        return line
+    end
+    -- The lines of whose best item a boss drops (his numbers, {[id]=true}); after a line of
+    -- his loot, without his name again.
+    function P.BisLines(npcs, after)
+        if not P.GearBisForGroup then return {} end
+        local list, boss = P.GearBisForGroup(npcs)
+        if #list == 0 then return {} end
+        local parts = {}
+        for _, who in ipairs(list) do
+            local things = {}
+            local branches = P.GearPicks and P.GearPicks[who.class] or {}
+            for _, it in ipairs(who.items) do
+                local some = not who.me and #it.specs > 0 and #it.specs < #branches
+                things[#things+1] = link(it.id) .. (some and (" (" .. table.concat(it.specs, "/") .. ")") or "")
+            end
+            parts[#parts+1] = who.name .. " (" .. title(who.class) .. "): " .. table.concat(things, ", ")
+        end
+        local lines, line = {}, SIGN .. (after and "BiS for " or ((boss or "This boss") .. " drops BiS for "))
+        for i, part in ipairs(parts) do
+            local sep = i == 1 and "" or "; "
+            if #line + #sep + #part > 250 then
+                lines[#lines+1] = line
+                line = SIGN .. part
+            else
+                line = line .. sep .. part
+            end
+        end
+        local tail = ". Good luck!"
+        if #line + #tail > 255 then
+            lines[#lines+1] = line
+            line = SIGN .. "Good luck!"
+        else
+            line = line .. tail
+        end
+        lines[#lines+1] = line
+        while #lines > 3 do table.remove(lines, 3) end
+        return lines
+    end
+    -- All that is said of a boss: his loot from the second boss on, then the best items.
+    function P.BossLines(d, main, npcs)
+        local lines = {}
+        local boss = P.NpcDB and P.NpcDB.GetEn and P.NpcDB.GetEn(main)
+        boss = type(boss) == "string" and boss ~= "" and boss or nil
+        local loot = (P.DeadCount and P.DeadCount(d) > 0) and P.LootLine(npcs, boss) or nil
+        if loot then lines[1] = loot end
+        for _, line in ipairs(P.BisLines(npcs, loot ~= nil)) do lines[#lines+1] = line end
+        if loot and #lines == 1 and #loot + 12 <= 255 then lines[1] = loot .. ". Good luck!" end
+        return lines
+    end
+    -- The owner, 21.11.2026: "the deal was: in a dungeon, after every boss, a line about the
+    -- next boss and what drops from him." Said a few seconds after a boss falls, out of
+    -- combat (or the moment the fight is over): the next boss of the page, his likeliest
+    -- items with their chances, whose best item he drops, good luck. Once a boss in an hour.
+    local waiting
+    -- The owner, 22.11.2026, layout A of ChatGPT's mock-up: the boss under the skull, then
+    -- an item a line under a star, with its chance and whose best it is in the same line.
+    -- Pictures of items the game cuts out of what players write; item links and the raid
+    -- marks ({rt8} and so on, the same in every language) it lets through.
+    local SKULL, STAR = "{rt8}", "{rt1}"
+    local function likelier(a, b)
+        if (a.chance or 0) ~= (b.chance or 0) then return (a.chance or 0) > (b.chance or 0) end
+        return a.id < b.id
+    end
+    local function lootList(npcs)
+        local list, byId = {}, {}
+        local function add(id, chance)
+            if not byId[id] then
+                byId[id] = {id=id, classes={}, byClass={}}
+                list[#list+1] = byId[id]
+            end
+            byId[id].chance = byId[id].chance or chance
+        end
+        for npc in pairs(npcs) do
+            local chance = {}
+            local known = P.LootChance and P.LootChance[npc] or {}
+            for i = 1, #known, 2 do chance[known[i]] = known[i + 1] > 0 and known[i + 1] or nil end
+            local raw = P.Loot and P.Loot[npc] or {}
+            for i = 1, #raw, 3 do add(raw[i], chance[raw[i]]) end
+            for i = 1, #known, 2 do add(known[i], chance[known[i]]) end
+        end
+        if #list == 0 and P.GearItems then
+            for id, item in pairs(P.GearItems) do
+                for i = 6, #item do
+                    local kind, _, from = tostring(item[i]):match("^(%a)|(%a)|(%d+)|")
+                    if kind == "d" and npcs[tonumber(from)] then add(id) end
+                end
+            end
+        end
+        -- Whose best: by class, the branches named only where it is not best for all.
+        for _, who in ipairs(P.GearBisForGroup and P.GearBisForGroup(npcs) or {}) do
+            local branches = P.GearPicks and P.GearPicks[who.class] or {}
+            for _, it in ipairs(who.items) do
+                add(it.id)
+                local entry = byId[it.id]
+                local class = entry.byClass[who.class]
+                if not class then
+                    class = {name=title(who.class), specs={}}
+                    entry.byClass[who.class] = class
+                    entry.classes[#entry.classes+1] = class
+                end
+                if who.me or #it.specs == 0 or #it.specs >= #branches then class.all = true end
+                for _, key in ipairs(it.specs) do
+                    local listed = false
+                    for _, other in ipairs(class.specs) do listed = listed or other == key end
+                    if not listed then class.specs[#class.specs+1] = key end
+                end
+            end
+        end
+        return list
+    end
+    -- Two items, a third only where it too is somebody's best; those that are go first.
+    function P.NextLines(npcs, name)
+        local lines = {SKULL .. " DQF: Next" .. (name and (" \226\128\148 " .. name) or " boss")}
+        local list = next(npcs) and lootList(npcs) or {}
+        table.sort(list, function(a, b)
+            if (#a.classes > 0) ~= (#b.classes > 0) then return #a.classes > 0 end
+            return likelier(a, b)
+        end)
+        local shown = {}
+        for _, it in ipairs(list) do
+            if #shown >= 3 or (#shown >= 2 and #it.classes == 0) then break end
+            shown[#shown+1] = it
+        end
+        table.sort(shown, likelier)
+        for _, it in ipairs(shown) do
+            local line = STAR .. " " .. link(it.id) .. (it.chance and (" " .. percent(it.chance)) or "")
+            for i, class in ipairs(it.classes) do
+                local part = (i == 1 and " BiS: " or ", ") .. class.name
+                    .. (not class.all and (" (" .. table.concat(class.specs, "/") .. ")") or "")
+                if #line + #part > 255 then break end
+                line = line .. part
+            end
+            lines[#lines+1] = line
+        end
+        return lines
+    end
+    -- The marks as the game draws them, for the test shown to the player alone.
+    local ICON = {["{rt8}"]=8, ["{rt1}"]=1}
+    local function drawn(line)
+        return (line:gsub("{rt%d}", function(tag)
+            return ICON[tag] and ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_" .. ICON[tag] .. ":0|t") or tag
+        end))
+    end
+    -- test: /dq test - the same line whispered to the player alone, anywhere, at once
+    -- (the owner, to see it as the group will: "send it to me now").
+    function P.TellNext(d, test)
+        if not (db and d) or (db.noBis and not test) then return end
+        local kind, to = channel(), nil
+        if test then
+            kind = "SELF"
+        else
+            if not kind or not (IsInInstance and IsInInstance()) then return end
+            if InCombatLockdown and InCombatLockdown() then waiting = d return end
+            waiting = nil
+        end
+        local stop
+        local all = P.Run and P.Run(d, {}, "all") or {}
+        for _, entry in ipairs(all) do
+            if entry.next and not entry.dead then stop = entry break end
+        end
+        -- (The test takes the first one alive where no next is known: wings before a kill.)
+        if not stop and test then
+            for _, entry in ipairs(all) do
+                if entry.stop and (entry.npc or entry.written) and not entry.dead then stop = entry break end
+            end
+        end
+        if not stop then return end
+        local main = stop.npc
+        local now = GetServerTime and GetServerTime() or 0
+        local key = d.key .. ":" .. tostring(main or stop.name) .. ":" .. tostring(P.runSerial or 0)
+        if not test then
+            if told[key] and now - told[key] < 3600 then return end
+            told[key] = now
+        end
+        local npcs = {}
+        if main then
+            npcs[main] = true
+            for id, of in pairs((P.RunBosses and P.RunBosses(d) or {ids={}}).ids) do if of == main then npcs[id] = true end end
+        end
+        -- His name in English: the database's, else the one written here put in English.
+        local function latin(s) return type(s) == "string" and s ~= "" and not s:find("[\208\209]") and s or nil end
+        local name = latin(main and P.NpcDB and P.NpcDB.GetEn and P.NpcDB.GetEn(main))
+            or latin(stop.written and P.InEnglish and P.InEnglish(stop.written)) or latin(stop.name)
+        -- The owner: "items you can hover in the chat, not just text." A real link is made by
+        -- the game only for an item it has loaded: the items are asked for first, and the
+        -- line goes when they are in, or after three seconds with what there is.
+        local function say()
+            local lines = P.NextLines(npcs, name)
+            local f = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
+            -- (The test, in the player's own chat as the party will see it, icons drawn: a
+            -- whisper to oneself shows the marks as their words.)
+            local frame = kind == "SELF" and DEFAULT_CHAT_FRAME
+            local color = ChatTypeInfo and ChatTypeInfo.PARTY or {r=.67, g=.67, b=1}
+            local me = UnitName and UnitName("player") or "?"
+            for _, line in ipairs(lines) do
+                if frame then
+                    frame:AddMessage("[" .. (PARTY or "Party") .. "] [" .. me .. "]: " .. drawn(line), color.r, color.g, color.b)
+                elseif f and kind ~= "SELF" then pcall(f, line, kind, nil, to) end
+            end
+            if #lines > 0 and P.Track and not test then P.Track("ToldBis") end
+            return lines
+        end
+        local ids = {}
+        for npc in pairs(npcs) do
+            local known = P.LootChance and P.LootChance[npc] or {}
+            for i = 1, #known, 2 do ids[#ids+1] = known[i] end
+            local raw = P.Loot and P.Loot[npc] or {}
+            for i = 1, #raw, 3 do ids[#ids+1] = raw[i] end
+        end
+        if P.GearBisForGroup then
+            for _, who in ipairs((P.GearBisForGroup(npcs))) do
+                for _, it in ipairs(who.items) do ids[#ids+1] = it.id end
+            end
+        end
+        local missing = {}
+        local info = (C_Item and C_Item.GetItemInfo) or GetItemInfo
+        for _, id in ipairs(ids) do
+            local ok, got = pcall(info or function() end, id)
+            if not (ok and got) then missing[#missing+1] = id end
+        end
+        if #missing == 0 or not (Item and Item.CreateFromItemID and C_Timer and C_Timer.After) then return say() end
+        local left, done = #missing, false
+        local function once()
+            if done then return end
+            done = true
+            pcall(say)
+        end
+        for _, id in ipairs(missing) do
+            local ok = pcall(function()
+                Item:CreateFromItemID(id):ContinueOnItemLoad(function()
+                    left = left - 1
+                    if left <= 0 then once() end
+                end)
+            end)
+            if not ok then left = left - 1 end
+        end
+        if left <= 0 then once() else C_Timer.After(3, once) end
+        return true
+    end
+    function P.TellNextWaiting()
+        if waiting then return P.TellNext(waiting) end
+    end
+    function P.TellBis(unit)
+        if not db or db.noBis or not unit or (issecretvalue and issecretvalue(unit)) then return end
+        local kind = channel()
+        if not kind or not (IsInInstance and IsInInstance()) then return end
+        if InCombatLockdown and InCombatLockdown() then return end
+        local d = atlas.CurrentDungeon and atlas.CurrentDungeon()
+        if not (d and UnitGUID) then return end
+        local bosses = P.RunBosses and P.RunBosses(d) or {ids={}, names={}}
+        local ok, guid = pcall(UnitGUID, unit)
+        if not ok or type(guid) ~= "string" or (issecretvalue and issecretvalue(guid)) then return end
+        local npc = atlas.NpcIDFromGUID(guid)
+        local main = npc and bosses.ids[npc]
+        -- A dungeon without a run (Krol'dok): its bosses by their numbers or names.
+        if not main and P.PlannedBoss and UnitName then
+            local okName, name = pcall(UnitName, unit)
+            name = okName and type(name) == "string" and not (issecretvalue and issecretvalue(name)) and name or nil
+            main = P.PlannedBoss(d, npc, name)
+        end
+        if not main then return end
+        if UnitIsDead then
+            local okDead, dead = pcall(UnitIsDead, unit)
+            if okDead and dead == true then return end
+        end
+        -- The items asked of the game at the first boss seen, so that the lines carry real
+        -- links: what the client has not seen it does not name at once.
+        if not asked[d.key] and C_Item and C_Item.RequestLoadItemDataByID then
+            asked[d.key] = true
+            for _, list in pairs(P.LootChance or {}) do
+                for i = 1, #list, 2 do
+                    if P.LootNames and P.LootNames[list[i]] then pcall(C_Item.RequestLoadItemDataByID, list[i]) end
+                end
+            end
+        end
+        local now = GetServerTime and GetServerTime() or 0
+        local key = d.key .. ":" .. main
+        if told[key] and now - told[key] < 3600 then return end
+        told[key] = now
+        local npcs = {}
+        for id, of in pairs(bosses.ids) do if of == main then npcs[id] = true end end
+        npcs[main] = true
+        if npc then npcs[npc] = true end
+        local lines = P.BossLines(d, main, npcs)
+        local f = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
+        for _, line in ipairs(lines) do
+            if f then pcall(f, line, kind) end
+        end
+        if #lines > 0 and P.Track then P.Track("ToldBis") end
+        return lines
+    end
+end
+
+-- ------------------------------------------
+-- A quest done: said to the group, or yelled when alone
+-- ------------------------------------------
+-- The owner, 20.11.2026: "as the quest addon does: when you have done a quest, the group
+-- is told, with our addon named; out of a group, just a yell - quest done." The moment
+-- the goals of a quest in the log are met, one line in English (the groups are of every
+-- tongue), out of combat. A yell out of an instance the game lets an addon send only on
+-- a key press or a click: it waits for the next one. /dq done, or the menu, stops it.
+do
+    local DONE = "{rt2} DQF: Quest done"
+    local complete, ready, queue, catcher = {}, false, {}, nil
+    local function channel()
+        if IsInGroup and IsInGroup() then
+            if IsInGroup(LE_PARTY_CATEGORY_INSTANCE or 2) and not IsInGroup(LE_PARTY_CATEGORY_HOME or 1) then return "INSTANCE_CHAT" end
+            return (IsInRaid and IsInRaid()) and "RAID" or "PARTY"
+        end
+        return "YELL"
+    end
+    local function send(line, kind)
+        local f = (C_ChatInfo and C_ChatInfo.SendChatMessage) or SendChatMessage
+        if f then pcall(f, line, kind) end
+    end
+    local function flush(pressed)
+        if #queue == 0 or (InCombatLockdown and InCombatLockdown()) then return end
+        local kind = channel()
+        local inside = IsInInstance and (IsInInstance()) or false
+        if kind == "YELL" and not inside and not pressed then
+            if catcher then pcall(catcher.EnableKeyboard, catcher, true) end
+            return
+        end
+        for _, line in ipairs(queue) do send(line, kind) end
+        queue = {}
+        if catcher then pcall(catcher.EnableKeyboard, catcher, false) end
+    end
+    P.QuestDoneFlush = flush
+    local function name(id)
+        local en = P.QuestDB and P.QuestDB.GetEn and P.QuestDB.GetEn(id)
+        if type(en) == "string" and en ~= "" and not en:find("[\208\209]") then return en end
+        local title = C_QuestLog and C_QuestLog.GetTitleForQuestID and C_QuestLog.GetTitleForQuestID(id)
+        if type(title) == "string" and not (issecretvalue and issecretvalue(title)) and title ~= ""
+            and not title:find("[\208\209]") then return title end
+    end
+    -- The quests of the log and whether their goals are met; a quest met since the last
+    -- look, and not met when first seen, is told (one taken already done is not).
+    function P.QuestDoneScan(announce)
+        if not (C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo and C_QuestLog.IsComplete) then return end
+        local seen = {}
+        for i = 1, C_QuestLog.GetNumQuestLogEntries() or 0 do
+            local info = C_QuestLog.GetInfo(i)
+            local id = type(info) == "table" and not info.isHeader and not info.isHidden and info.questID
+            if type(id) == "number" and id > 0 then
+                local done = C_QuestLog.IsComplete(id) and true or false
+                seen[id] = done
+                if announce and done and complete[id] == false and not (db and db.noQuestDone) then
+                    local title = name(id)
+                    if #queue < 5 then queue[#queue+1] = DONE .. (title and (" \226\128\148 " .. title) or "") end
+                end
+            end
+        end
+        complete = seen
+        flush(false)
+        return queue
+    end
+    if CreateFrame and UIParent then
+        -- The key press a yell waits for: seen, and passed on to the game.
+        catcher = CreateFrame("Frame", nil, UIParent)
+        if catcher.SetPropagateKeyboardInput then pcall(catcher.SetPropagateKeyboardInput, catcher, true) end
+        pcall(catcher.EnableKeyboard, catcher, false)
+        catcher:SetScript("OnKeyDown", function() flush(true) end)
+        if WorldFrame and WorldFrame.HookScript then pcall(WorldFrame.HookScript, WorldFrame, "OnMouseDown", function() if #queue > 0 then flush(true) end end) end
+        local watch = CreateFrame("Frame", nil, UIParent)
+        for _, event in ipairs({"PLAYER_ENTERING_WORLD", "QUEST_LOG_UPDATE", "PLAYER_REGEN_ENABLED", "GROUP_ROSTER_UPDATE"}) do
+            pcall(watch.RegisterEvent, watch, event)
+        end
+        watch:SetScript("OnEvent", function(_, event)
+            if event == "PLAYER_ENTERING_WORLD" then
+                -- What is met already at the login or after a loading screen is not news.
+                ready = false
+                pcall(P.QuestDoneScan, false)
+                if C_Timer and C_Timer.After then C_Timer.After(3, function() pcall(P.QuestDoneScan, false); ready = true end) else ready = true end
+            elseif event == "QUEST_LOG_UPDATE" then
+                pcall(P.QuestDoneScan, ready)
+            else
+                pcall(flush, false)
             end
         end)
     end

@@ -540,6 +540,69 @@ function P.GearFromBoss(npc)
     end
     return found
 end
+-- The owner, 21.11.2026: "the addon sees the classes in the group, even of those without
+-- it, and when a boss drops a best thing for one of them, it is said in the chat." Every
+-- one in the group, by class and level: the player by the branch of the window (or the one
+-- with the most points), the others by every branch, their talents being unknown; what the
+-- player wears already is not named. npcs: the boss's numbers, {[id]=true}. Gives a list of
+-- {name, class, items={{id, specs={key...}}}} and the boss's English name.
+function P.GearBisForGroup(npcs)
+    local out, bossName = {}, nil
+    if not (npcs and P.GearPicks and P.GearItems) then return out end
+    local units = {"player"}
+    if IsInRaid and IsInRaid() then
+        units = {}
+        for i = 1, (GetNumGroupMembers and GetNumGroupMembers() or 0) do units[#units+1] = "raid" .. i end
+    else
+        for i = 1, 4 do units[#units+1] = "party" .. i end
+    end
+    local function clean(value) return not (issecretvalue and issecretvalue(value)) and value or nil end
+    for _, unit in ipairs(units) do
+        local exists = unit == "player" or (UnitExists and clean(UnitExists(unit)))
+        local name = exists and UnitName and clean((UnitName(unit)))
+        local class = exists and clean((UnitClassBase and UnitClassBase(unit)) or (UnitClass and select(2, UnitClass(unit))))
+        local lvl = exists and UnitLevel and clean(UnitLevel(unit))
+        local me = unit == "player" or (UnitIsUnit and clean(UnitIsUnit(unit, "player")))
+        local branches = class and P.GearPicks[class]
+        if type(name) == "string" and branches and type(lvl) == "number" and lvl > 0 then
+            local step = math.min(60, math.max(5, math.ceil(lvl / 5) * 5))
+            local which = {}
+            if me then
+                local list = specs(class)
+                local spec = (P.char and tonumber(P.char.gearSpec)) or mainSpec(list)
+                which[1] = list[spec] and spec or mainSpec(list)
+            else
+                for i = 1, #branches do which[#which+1] = i end
+            end
+            local items, byId = {}, {}
+            for _, spec in ipairs(which) do
+                for _, id in ipairs(P.GearPicksFor(class, spec, step)) do
+                    local item = id > 0 and P.GearItems[id]
+                    if item and not (me and wornNow(id)) then
+                        for i = 6, #item do
+                            local s = split(item[i])
+                            if s[1] == "d" and npcs[tonumber(s[3])] then
+                                bossName = bossName or s[5]
+                                if not byId[id] then
+                                    byId[id] = {id=id, specs={}}
+                                    items[#items+1] = byId[id]
+                                end
+                                local key = branches[spec] and branches[spec].key
+                                local listed = false
+                                for _, k in ipairs(byId[id].specs) do listed = listed or k == key end
+                                if key and not listed then table.insert(byId[id].specs, key) end
+                                break
+                            end
+                        end
+                    end
+                end
+            end
+            if #items > 0 then out[#out+1] = {name=name, class=class, items=items, me=me and true or nil} end
+        end
+    end
+    return out, bossName
+end
+
 -- A thing as the lines of the panel say it: its picture and its name in the colour of its quality.
 function P.GearItemText(id)
     local item = P.GearItems and P.GearItems[id]

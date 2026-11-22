@@ -135,6 +135,15 @@ function P.Doors(d)
             act=pad.act or (L"Иди ко входу"), near=pad.near}}, 1
     end
     if not real then return {}, nil end
+    -- A quest in the log whose goal lies in one wing: the way in is that wing's door. The
+    -- owner, 21.11.2026, at the Monastery with the Test of Lore: the arrow still said the
+    -- Monastery's entrance (the Cathedral he had last come in by), not the Library's.
+    local wing, wingLabel
+    if P.WingInLog then wing, wingLabel = P.WingInLog(d) end
+    if wing then
+        return {{id="deep", point=wing, label=wingLabel, short=L"Ко входу", title=wingLabel,
+            act=L"Иди ко входу", near=L"Войди в подземелье"}}, 1
+    end
     local deep = portalOf(d)
     local out = cameOut(d)
     local list, auto = {}, 1
@@ -175,6 +184,42 @@ function P.Doors(d)
         if toMouth and toMouth < 1500 and here and not outdoors then auto = 2 end
     end
     return list, auto
+end
+
+-- The doors of the wings, each its own way in (Dungeon Quest Atlas's points). The owner,
+-- 21.11.2026, with the Test of Lore, its book in the Library: the arrow took him to the
+-- Cathedral, the door he had last come in by.
+local WING_DOOR = {
+    SM_GY={mapID=1420, x=84.8, y=30.3, wing=L"Кладбище"}, SM_LIB={mapID=1420, x=85.4, y=32.5, wing=L"Библиотека"},
+    SM_ARM={mapID=1420, x=85.7, y=31.9, wing=L"Оружейная"}, SM_CATH={mapID=1420, x=85.3, y=30.3, wing=L"Собор"},
+    DM_E={mapID=1444, x=64.8, y=30.2, wing=L"Восток"}, DM_N={mapID=1444, x=62.9, y=24.9, wing=L"Север"},
+    DM_W={mapID=1444, x=60.3, y=30.2, wing=L"Запад"},
+    STRAT_LIVE={mapID=1423, x=27.8, y=11.6, wing=L"Живая сторона"}, STRAT_UD={mapID=1423, x=43.6, y=19.5, wing=L"Мёртвая сторона"},
+}
+-- The door of the wing a quest's goal lies in, and its label; nil when one door serves all.
+function P.WingDoor(d, id)
+    local goal = d and id and P.InsideGoals and P.InsideGoals(id)[1]
+    -- (A goal all over the place, the Hearts of Zeal off every crusader, is any wing's.)
+    local key = goal and not goal.spread and goal.p and goal.p[1] and goal.p[1][1]
+    local door = key and WING_DOOR[key]
+    if not (door and (alias[key] == d.key or alias[key] == alias[d.key] or key == d.key)) then return end
+    -- (Not marked as the dungeon's door: the watch that moves an arrow from the mouth to the
+    -- portal walked through would carry it back to the wing last come in by.)
+    return {mapID=door.mapID, x=door.x, y=door.y, label=L"Вход • " .. door.wing, real=true, wing=door.wing}, L"Вход • " .. door.wing
+end
+
+-- The wing door of the first quest in the log that is still done in one wing of d.
+function P.WingInLog(d)
+    if not (d and C_QuestLog and C_QuestLog.GetNumQuestLogEntries and C_QuestLog.GetInfo) then return end
+    local ok, count = pcall(C_QuestLog.GetNumQuestLogEntries)
+    for i = 1, ok and tonumber(count) or 0 do
+        local info = C_QuestLog.GetInfo(i)
+        local id = info and not info.isHeader and info.questID
+        if id and id > 0 and not (C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) then
+            local wing, label = P.WingDoor(d, id)
+            if wing then return wing, label end
+        end
+    end
 end
 
 local function chosen(d)
@@ -228,10 +273,78 @@ end
 -- at each. Written by hand from the classic dungeon; the names are read from the quest
 -- database by number, the ones here are the fallback. quests: {quest, what is there}.
 local runs = {
+    -- (20.11.2026, the lists checked against Method's and Warcraft Tavern's Forever guides:
+    -- the bosses who come only on a condition - Gelihast, Plaguemaw on the escort, Ironaya
+    -- by the staff, Phalanx, Solakar by the event, Jandice - are by choice.)
     -- The Drowned City (Forever, 15.11.2026): the bosses by Warcraft Tavern's guide, their
     -- numbers from QuestieDB 1.1.1; the Russian names the client gave in the owner's run
     -- (Зул'алай, Вар'така, Первородный элементаль, Мин'лот-Змей). The elemental stands in
     -- an underwater room off the Deep Archives.
+    -- The other new dungeons of Forever (20.11.2026, the owner: "check every dungeon's list
+    -- of bosses"). Order: Method's guide, else Warcraft Tavern's route; numbers from
+    -- forever.warcraftdb.com, Wowhead and the bundled data. The Russian names are the
+    -- community's (Aegis journal) where the client's are not known: the client's own name is
+    -- kept once a boss falls (P.Killed).
+    THANES = {
+        {npc=261306, name=L"Фальдрим Анвилмар"},
+        {npc=261316, name=L"Магматус"},
+        {npc=261311, name=L"Грабеж"},
+        {npc=261319, name=L"Дюрген Погребальный Молот"},
+    },
+    LORDAERON = {
+        {npc=250483, name=L"Сухоклык"},
+        {npc=250660, name=L"Барон"},
+        {npc=256035, name=L"Виктор Мерзкий", optional=true, note=L"событие: щёлкни камин, он выйдет на шестой волне"},
+        {npc=250631, name=L"Покинутый", note=L"событие: щёлкни статую, он выйдет после трёх волн"},
+        {npc=256097, name=L"Бьорк"},
+        {npc=250657, name=L"Рат'маэль"},
+    },
+    EXCAVATION = {
+        {npc=260322, name=L"Соленый Хребет"},
+        {npc=260325, name=L"Тенеклык"},
+        {npc=260808, name=L"Ужас высокогорья", optional=true, faction="Alliance"},
+        {npc=260326, name=L"Страж реликвий", note=L"выходит, когда щёлкнешь панель титанов рядом"},
+    },
+    DALARAN = {
+        -- (The street bosses go in any order (Warcraft Tavern); the order of the old atlas
+        -- data from Wowhead's guide, which its plans of the floors follow.)
+        {npc=247126, name=L"Атрексис Рыцарь Могил"},
+        {npc=245999, name=L"Магическая аномалия"},
+        {npc=246016, name=L"Маговая Загадка"},
+        {npc=246017, name=L"Нестабильный страж"},
+        {npc=246008, name=L"Пожиратель маны"},
+        {npc=246003, name=L"Сквернодревень", note=L"барьер снимается после разговора с магом рядом"},
+        {npc=247032, name=L"Лин Пренебрегаемый", optional=true, note=L"тайный босс: его вызывает Фолиант Даларана"},
+        {npc=246020, name=L"Тень верховного мага", note=L"к нему ведёт портал архимага Модеры"},
+    },
+    ALCAZ = {
+        {npc=255997, name="Tidemistress Ca'zass"},
+        {npc=255391, name="Overseer Wrex", note=L"с него падает связка ключей: открывает правое крыло"},
+        {npc=256236, name="The Questioner", note=L"за запертой дверью у входа; для заданий его бьют последним"},
+        {npc=257016, name="Katerina the Cleaner"},
+        {npc=255702, also={255707}, name="Zarla Ober"},
+    },
+    BLACKMAW = {
+        {npc=247195, name="Withermaw"},
+        {npc=247198, name="Bonesnout the Unbroken", note=L"пока живы четыре ритуалиста, получает меньше урона"},
+        {npc=247206, name="Impaan the Imprisoner"},
+        {npc=247231, name="Unbound Spirit", note=L"выходит после разговора со старейшиной Bramblesnap"},
+        {npc=247209, name="Elder Shaman Bloodmane"},
+        {npc=247207, name="Blackmaw Behemoth"},
+        {npc=247234, name="Varrox Bleakhoof"},
+    },
+    SHAPERS = {
+        {npc=261974, name="Cinder", note=L"вызов: 15 красных кристаллов силы у панели"},
+        {npc=253201, name="Titanosaur", optional=true},
+        {npc=262297, name="Snowtalon", note=L"вызов: 15 синих кристаллов силы у панели"},
+        {npc=253218, name="Izha'Rel", optional=true},
+        {npc=272561, name="Vitrix", optional=true, note=L"вызов: 15 зелёных кристаллов силы у панели"},
+        {npc=262127, name="Direhorn Matriarch", optional=true},
+        {npc=261812, name="Thunderhoof", optional=true},
+        {npc=261813, name="Venomridge", optional=true},
+        {npc=262081, name="Bolt", note=L"вызов: 15 жёлтых кристаллов силы у панели"},
+        {npc=261809, name="Nanaya", note=L"панель титанов на Столпе ассимиляции, когда горят все четыре панели"},
+    },
     DROWNED = {
         {npc=258905, also={270882}, name=L"Зул'алай"},
         {npc=258924, also={270883}, name=L"Вар'така", way={L"зал «Глубинные архивы»"}},
@@ -297,7 +410,7 @@ local runs = {
     BFD = {
         {npc=4887, name=L"Гхаму-ра", way={L"от входа к большому пруду", L"черепаха в зале «Пруд Аск'ара»"}},
         {npc=4831, name=L"Леди Саревесс", way={L"в боковой пещере у того же пруда"}},
-        {npc=6243, name=L"Гелихаст", way={L"дальше по тоннелю к святилищу мурлоков", L"он в зале с мурлоками"}},
+        {npc=6243, name=L"Гелихаст", optional=true, way={L"дальше по тоннелю к святилищу мурлоков", L"он в зале с мурлоками"}},
         {npc=12902, name=L"Лоргус Джетт", way={L"бродит в тоннелях дальше по пути"}, optional=true},
         {npc=12876, name=L"Барон Акванис", way={L"камень в зале «Руины святилища Луны»"}, optional=true, faction="Horde", note=L"вызывается по заданию «Среди руин»"},
         {npc=4832, name=L"Повелитель сумрака Келрис", way={L"через руины в зал «Алтарь святилища Луны»", L"он там, у алтаря с культистами"}},
@@ -340,14 +453,14 @@ local runs = {
         {npc=7355, name=L"Тутен'каш", way={L"гонг в зале «Зал Призыва»"}, note=L"выходит после удара в гонг"},
         {npc=7357, name=L"Мордреш Огненный Глаз", way={L"он на куче костей, зал «Груда костей»"}},
         {npc=8567, name=L"Обжора", way={L"ходит в начале «Тернистый серпантин»"}},
-        {npc=7356, name=L"Чумобрюх Гнилой", way={L"он в зале «Камеры обреченных»"}},
+        {npc=7356, name=L"Чумобрюх Гнилой", optional=true, way={L"он в зале «Камеры обреченных»"}},
         {npc=7354, name=L"Круглорыл", optional=true},
         {npc=7358, name=L"Амненнар Хладовей", way={L"по «Тернистый серпантин» до самого верха"}},
     },
     ULDA = {
         {npc=6910, name=L"Ревелош"},
         {npc=6906, name=L"Бейлог", faction="Horde"},
-        {npc=7228, name=L"Иронайа"},
+        {npc=7228, name=L"Иронайа", optional=true},
         {npc=7023, name=L"Обсидиановый часовой", optional=true},
         {npc=7206, name=L"Древний Хранитель Камня"},
         {npc=7291, name=L"Галганн Огнемолот"},
@@ -403,7 +516,7 @@ local runs = {
         {npc=9537, name=L"Харли Пьянодых", way={L"его вызывают: разбей три бочки в трактире"}, optional=true},
         {npc=9543, name=L"Риббли Крутипроб", way={L"гоблин в трактире; станет врагом в разговоре"}, optional=true},
         {npc=9499, name=L"Штоппор Наливалс", way={L"он стоит за стойкой трактира"}, optional=true},
-        {npc=9502, name=L"Фаланкс", way={L"из фабрики по мосту в трактир", L"он наверху, напротив стойки"}},
+        {npc=9502, name=L"Фаланкс", optional=true, way={L"из фабрики по мосту в трактир", L"он наверху, напротив стойки"}},
         {npc=9156, name=L"Посол Огнехлыст", way={L"за дверью трактира на балкон, налево", L"он в зале «Колдовской чертог»"}},
         {npc=9039, name=L"Рок'рел", way={L"через «Литейная» в «Гробница Заклинателей»", L"бой начнётся после разговора с ним"}, title=L"Семеро дворфов"},
         {npc=9938, name=L"Магмус", way={L"дальше в «Лекторий»: зажги две жаровни", L"он в конце зала «Железный зал»"}},
@@ -422,7 +535,7 @@ local runs = {
         {npc=9568, name=L"Властитель Змейталак", way={L"дальше в зал «Чертог Битвы»", L"он в конце нижней части"}},
         {wing=L"Верхняя часть"},
         {npc=9816, name=L"Пиростраж Созерцатель Углей", way={L"от входа наверх, в дверь слева", L"он в зале «Зал Оков»"}},
-        {npc=10264, name=L"Солакарский огнечервь", way={L"дальше в зал «Гнездовье» с яйцами драконов"}},
+        {npc=10264, name=L"Солакарский огнечервь", optional=true, way={L"дальше в зал «Гнездовье» с яйцами драконов"}},
         {npc=10509, name=L"Джед Руновед", way={L"редкий; ходит в зале «Зал Чернорука»"}, optional=true},
         {npc=10429, name=L"Вождь Ренд Чернорук", way={L"дальше на арену «Стадион Черной горы»", L"он выйдет после волн драконов"}, also={10339}},
         {npc=10430, name=L"Зверь", way={L"дальше в зал «Горн»"}},
@@ -452,7 +565,7 @@ local runs = {
     },
     SCHOLO = {
         {npc=10506, name=L"Киртонос Глашатай", optional=true, note=L"вызывается Кровью невинных"},
-        {npc=10503, name=L"Джандис Баров", way={L"вниз под комнату с чумными дракончиками", L"дверь откроет факел у стены"}},
+        {npc=10503, name=L"Джандис Баров", optional=true, way={L"вниз под комнату с чумными дракончиками", L"дверь откроет факел у стены"}},
         {npc=11622, name=L"Громоклин", way={L"дальше вниз в зал «Великий оссуарий»", L"он в самом низу"}},
         {npc=10433, name=L"Мардук Блэкпул", way={L"в углу зала «Демонстрационная комната»"}, optional=true},
         {npc=10432, name=L"Вектус", way={L"в зале «Демонстрационная комната»"}, optional=true},
@@ -642,8 +755,55 @@ local function copyOf(guid)
     end
 end
 local function placeKey() return tostring(mapHere() or 0) end
--- A creature seen inside: the copy is noted, and the marks of another copy of this place are
--- dropped. Returns true when marks were dropped.
+-- Why the marks went, the last few times: kept in the saved file to be read (21.11.2026).
+local function noteWipe(why, extra)
+    if not P.char then return end
+    -- A new run: what was said to the group in the last one may be said again.
+    P.runSerial = (P.runSerial or 0) + 1
+    P.char.wipes = type(P.char.wipes) == "table" and P.char.wipes or {}
+    table.insert(P.char.wipes, 1, ("%s %s %s"):format(tostring(math.floor(tonumber(GetServerTime and GetServerTime()) or 0)), why, tostring(extra or "")))
+    while #P.char.wipes > 8 do table.remove(P.char.wipes) end
+end
+P.NoteWipe = noteWipe
+-- Who was in the party: the names the game gives plainly.
+local function partyNames()
+    local names = {}
+    if not UnitName or (IsInRaid and IsInRaid()) then return names, 0 end
+    local n = 0
+    for i = 1, 4 do
+        local unit = "party" .. i
+        local ok, name = pcall(UnitName, unit)
+        if ok and type(name) == "string" and not (issecretvalue and issecretvalue(name)) and name ~= "" and name ~= UNKNOWNOBJECT
+            and (not UnitExists or UnitExists(unit)) and not names[name] then
+            names[name], n = true, n + 1
+        end
+    end
+    return names, n
+end
+-- A kill: when it was, and who was there.
+local function noteKill(key)
+    local kills = P.char and P.char.kills
+    if not kills then return end
+    kills.times = type(kills.times) == "table" and kills.times or {}
+    kills.times[key] = GetServerTime and GetServerTime() or 0
+    if type(kills.hand) == "table" then kills.hand[key] = nil end
+    kills.party = type(kills.party) == "table" and kills.party or {}
+    for name in pairs((partyNames())) do kills.party[name] = true end
+end
+-- The copies the marks have known: the ones written by place, and every one seen with them.
+local function knownCopies(kills)
+    local known = {}
+    for _, zone in pairs(type(kills.copies) == "table" and kills.copies or {}) do known[tostring(zone)] = true end
+    for zone in pairs(type(kills.zones) == "table" and kills.zones or {}) do known[zone] = true end
+    return known
+end
+-- A creature seen inside: the copy is noted with the marks. The owner in Krol'dok
+-- (21.11.2026): "after a /reload the bosses killed are gone again", and Ashka dead with
+-- "0 of 6" on the page: one creature of another number (a summoned one, a totem, a
+-- guardian of a player from another server, or a part of the place counted apart) took
+-- every mark away in the middle of the run. A copy is not left without a loading screen:
+-- while playing the numbers are only noted; the marks are judged on walking in alone
+-- (P.LookForCopy).
 function P.SeenCopy(d, guid)
     local zone = copyOf(guid)
     if not (d and zone and P.char) then return false end
@@ -651,56 +811,80 @@ function P.SeenCopy(d, guid)
     copySeen = {key=d.key, map=map, zone=zone}
     local kills = P.char.kills
     if not (kills and kills.key == d.key) then return false end
-    kills.copies = type(kills.copies) == "table" and kills.copies or {}
-    local known = kills.copies[map]
-    if known == nil then
-        -- A place of the dungeon not yet stood in with these marks: it is theirs now.
-        if next(kills.copies) ~= nil then kills.copies[map] = zone end
-        return false
-    end
-    if known ~= zone then
-        P.char.kills = nil
-        return true
-    end
+    -- Marks that do not know their copy yet learn it from a kill (noteCopy), not from here.
+    if not (type(kills.copies) == "table" and next(kills.copies)) then return false end
+    kills.zones = type(kills.zones) == "table" and kills.zones or {}
+    local count = 0
+    for _ in pairs(kills.zones) do count = count + 1 end
+    if not kills.zones[zone] and count < 12 then kills.zones[zone] = true end
+    if kills.copies[map] == nil then kills.copies[map] = zone end
     return false
 end
--- Walking in: the creatures already in sight tell the copy at once, not the first one the
--- mouse passes over. Returns true when the marks of another copy were dropped.
+-- Walking in (and after a /reload): the creatures in sight say the copy. The marks go when
+-- three or more are seen and not one of them is of a copy the marks have known. Returns
+-- true when the marks of another copy were dropped.
 function P.LookForCopy(d)
     if not (d and UnitGUID) then return false end
     copySeen = nil
-    local dropped = false
+    local kills = P.char and P.char.kills
+    local mine = kills and kills.key == d.key
+    local known = mine and knownCopies(kills) or {}
+    local judged = mine and next(known) ~= nil
+    local same, other, seen = 0, 0, {}
     for i = 0, 40 do
         local unit = i == 0 and "target" or ("nameplate" .. i)
         local ok, guid = pcall(UnitGUID, unit)
-        if ok and guid and not (issecretvalue and issecretvalue(guid)) and not (UnitIsPlayer and UnitIsPlayer(unit)) and P.SeenCopy(d, guid) then dropped = true end
+        if ok and type(guid) == "string" and not (issecretvalue and issecretvalue(guid)) and not seen[guid]
+            and not (UnitIsPlayer and UnitIsPlayer(unit)) then
+            seen[guid] = true
+            local zone = copyOf(guid)
+            if zone then
+                copySeen = {key=d.key, map=placeKey(), zone=zone}
+                if known[zone] then same = same + 1 else other = other + 1 end
+            end
+        end
     end
-    return dropped
-end
--- Do the marks belong to the copy the player stands in now: true, false, or nil (not known).
-local function sameCopy(d)
-    local kills = P.char and P.char.kills
-    if not (kills and kills.key == d.key and type(kills.copies) == "table" and copySeen and copySeen.key == d.key) then return nil end
-    local known = kills.copies[copySeen.map]
-    if known == nil then return nil end
-    return known == copySeen.zone
+    if judged and same == 0 and other >= 3 then
+        noteWipe("copy", (copySeen and copySeen.zone or "?") .. " not of the marks")
+        P.char.kills = nil
+        return true
+    end
+    -- What was seen is the marks' copy now.
+    for guid in pairs(seen) do P.SeenCopy(d, guid) end
+    return false
 end
 local function noteCopy(d)
     local kills = P.char and P.char.kills
     if kills and copySeen and copySeen.key == d.key and copySeen.map == placeKey() then
         kills.copies = type(kills.copies) == "table" and kills.copies or {}
         kills.copies[copySeen.map] = copySeen.zone
+        kills.zones = type(kills.zones) == "table" and kills.zones or {}
+        kills.zones[copySeen.zone] = true
     end
 end
 
 local function fallen(d)
     local db = P.char
     if not db then return {} end
+    -- The marks of another dungeon are not this one's, and are left alone: asked about
+    -- another dungeon (the list, the book, the page put on another one), they were wiped.
+    -- The owner in Krol'dok (21.11.2026): "after a /reload the bosses killed are gone" -
+    -- the panel came up on another dungeon first. A kill in another dungeon starts anew.
+    if not (db.kills and d and db.kills.key == d.key) then return {} end
     local now = GetServerTime and GetServerTime() or 0
     -- Marks tied to a copy are kept a day; the others, as before, four hours.
-    local keep = (db.kills and type(db.kills.copies) == "table" and next(db.kills.copies)) and 86400 or 14400
-    if db.kills and (db.kills.key ~= d.key or now - (db.kills.at or 0) > keep) then db.kills = nil end
+    local keep = (type(db.kills.copies) == "table" and next(db.kills.copies)) and 86400 or 14400
+    if now - (db.kills.at or 0) > keep then
+        noteWipe("old", now - (db.kills.at or 0))
+        db.kills = nil
+    end
     return db.kills or {}
+end
+-- A mark made in a dungeon: the marks of another one go first.
+local function ownKills(d)
+    if P.char.kills and P.char.kills.key ~= d.key then P.char.kills = nil end
+    P.char.kills = P.char.kills or {}
+    return P.char.kills
 end
 
 local function bossName(stop)
@@ -745,16 +929,66 @@ end
 -- a window: how many are dead, the next few, the later ones a quest asks for, and how
 -- many are left. A dungeon of several wings shows the wing the group is in, known by its
 -- first dead boss; before that, each wing with the boss it starts with.
+-- Krol'dok (Forever): the owner, 20.11.2026, "why is our list of bosses not full?" - only
+-- the ones killed were shown. Six bosses in the order of Method's and Warcraft Tavern's
+-- guides; of some the number is known (Grox from the game's cache), the others are found
+-- by their names, in either language, as the game gives them.
+local planned = {
+    KROLDOK = {
+        {npc=258966, name=L"Рабомучитель Грокс", find={"Grox", "Грокс"}},
+        {npc=258972, name=L"Сумеречный командир Зармок", find={"Zarmok", "Зармок"}},
+        {npc=259281, name=L"Укротительница Ашка", find={"Ashka", "Ашка"}},
+        {npc=258964, name=L"Нар'гурк", find={"Nar.gurk", "Нар.гурк"}},
+        {npc=264773, name=L"Босс Туф", find={"Toof", "Туф"}},
+        {npc=258968, name=L"Владыка Магг", find={"Mugg", "Магг"}},
+    },
+}
+local function plannedMatch(stop, name)
+    if type(name) ~= "string" then return false end
+    for _, pattern in ipairs(stop.find or {}) do
+        if name:find(pattern) then return true end
+    end
+    return false
+end
+
+-- A boss of a dungeon without a run, by his number or by his name, while not marked dead:
+-- his number (or the one seen). For the line said before him (21.11.2026, Krol'dok).
+function P.PlannedBoss(d, npc, name)
+    local plan = d and planned[d.key]
+    if not plan then return nil end
+    local dead = fallen(d)
+    for _, stop in ipairs(plan) do
+        if (npc and stop.npc == npc) or plannedMatch(stop, name) then
+            for who, on in pairs(dead) do
+                if on == true and (who == stop.npc or plannedMatch(stop, who)) then return nil end
+            end
+            return stop.npc or npc
+        end
+    end
+end
+
 function P.Run(d, rows, whole)
     local run = d and runs[d.key]
     if d and not run then
         -- A dungeon nobody has written a run for, the new ones of Forever among them:
         -- the bosses the player has killed there before, in the order they fell.
-        local learnt = P.char and P.char.learnt and P.char.learnt[d.key]
-        if not learnt or #learnt == 0 then return end
+        local learnt = P.char and P.char.learnt and P.char.learnt[d.key] or {}
+        local plan = planned[d.key]
+        if #learnt == 0 and not plan then return end
         local dead, list = fallen(d), {}
-        for _, name in ipairs(learnt) do
-            list[#list+1] = {stop=true, name=name, dead=dead[name] and true or false, lines={}, told={}}
+        local used = {}
+        for _, stop in ipairs(plan or {}) do
+            local shown, gone = stop.name, stop.npc and dead[stop.npc]
+            for i, name in ipairs(learnt) do
+                if not used[i] and plannedMatch(stop, name) then used[i], shown = true, name end
+            end
+            for who, on in pairs(dead) do
+                if on == true and plannedMatch(stop, who) then gone = true end
+            end
+            list[#list+1] = {stop=true, npc=stop.npc, name=shown, written=stop.name, dead=gone and true or false, lines={}, told={}}
+        end
+        for i, name in ipairs(learnt) do
+            if not used[i] then list[#list+1] = {stop=true, name=name, dead=dead[name] and true or false, lines={}, told={}} end
         end
         for i, entry in ipairs(list) do
             if not entry.dead then
@@ -791,7 +1025,7 @@ function P.Run(d, rows, whole)
             wing = {name=stop.wing, stops={}}
             wings[#wings+1] = wing
         elseif not stop.faction or stop.faction == faction then
-            local entry = {stop=true, npc=stop.npc, name=bossName(stop), optional=stop.optional, lines={}, told={}, asks={}, todo={}, way=stop.way}
+            local entry = {stop=true, npc=stop.npc, name=bossName(stop), written=stop.name, optional=stop.optional, lines={}, told={}, asks={}, todo={}, way=stop.way}
             entry.dead = dead[stop.npc] and true or false
             if stop.note and not entry.dead then entry.lines[#entry.lines+1] = stop.note end
             local written = {}
@@ -944,7 +1178,19 @@ end
 -- alive is a new run; and /dq run says so by hand.
 function P.HasRun(d) return d and runs[d.key] ~= nil end
 
+-- The game's own word that the dungeon was reset.
+function P.HeardReset(text)
+    if type(text) ~= "string" or (issecretvalue and issecretvalue(text)) then return false end
+    if not (P.char and P.char.kills and type(INSTANCE_RESET_SUCCESS) == "string") then return false end
+    local pattern = "^" .. INSTANCE_RESET_SUCCESS:gsub("([%^%$%(%)%.%[%]%*%+%-%?])", "%%%1"):gsub("%%%d?%$?s", ".+") .. "$"
+    if not text:match(pattern) then return false end
+    noteWipe("reset")
+    P.char.kills = nil
+    return true
+end
+
 function P.NewRun()
+    noteWipe("by hand")
     if P.char then P.char.kills = nil end
 end
 
@@ -952,9 +1198,31 @@ function P.EnterRun(d)
     local kills = P.char and P.char.kills
     if not (d and kills) then return false end
     local now = GetServerTime and GetServerTime() or 0
-    -- Marks that know their copy are judged by it (P.SeenCopy), not by the clock.
-    if kills.key == d.key and type(kills.copies) == "table" and next(kills.copies) then return false end
+    if kills.key == d.key then
+        -- 22.11.2026, Zul'Farrak: Theka stood alive and struck off, ten hours and another
+        -- party after his death. The numbers of the copies change in one run and every one
+        -- seen is learnt, so they alone never said "another copy". Walking in is a new run
+        -- four hours after the last kill, or with a party none of whom was at the kills.
+        if now - (kills.at or 0) > 14400 then
+            noteWipe("enter", d.key .. " " .. (now - (kills.at or 0)))
+            P.char.kills = nil
+            return true
+        end
+        if type(kills.party) == "table" then
+            local here, n = partyNames()
+            local was, common = 0, false
+            for name in pairs(kills.party) do was, common = was + 1, common or here[name] == true end
+            if n >= 2 and was >= 2 and not common then
+                noteWipe("party", d.key)
+                P.char.kills = nil
+                return true
+            end
+        end
+        -- A long pull or a wipe is no new run: marks that know their copy outlive 45 minutes.
+        if type(kills.copies) == "table" and next(kills.copies) then return false end
+    end
     if kills.key ~= d.key or now - (kills.at or 0) > 2700 then
+        noteWipe("enter", tostring(kills.key) .. " " .. (now - (kills.at or 0)))
         P.char.kills = nil
         return true
     end
@@ -964,18 +1232,26 @@ end
 function P.Revived(d, npc, name)
     local kills = d and P.char and P.char.kills
     if not kills or kills.key ~= d.key then return false end
-    -- In the very copy the marks were made in a boss does not rise: one alive there is
-    -- another of the same name (or the marks are wrong, and the right button puts them back).
-    if sameCopy(d) == true then return false end
+    -- A boss alive and to be fought, struck off a while ago: a new run, whatever the number
+    -- of the copy. One raised or feigning does it at once; one struck off by hand is his word.
+    local now = GetServerTime and GetServerTime() or 0
+    local function stays(key)
+        if type(kills.hand) == "table" and kills.hand[key] then return true end
+        return now - (type(kills.times) == "table" and kills.times[key] or kills.at or 0) < 120
+    end
     local run = runs[d.key]
     if run then
         for _, stop in ipairs(run) do
             if stop.npc and kills[stop.npc] and ((npc and stop.npc == npc) or (not npc and name and (name == stop.name or name == bossName(stop)))) then
+                if stays(stop.npc) then return false end
+                noteWipe("alive", stop.npc)
                 P.char.kills = nil
                 return true
             end
         end
-    elseif name and kills[name] then
+    elseif name and kills[name] == true then
+        if stays(name) then return false end
+        noteWipe("alive", name)
         P.char.kills = nil
         return true
     end
@@ -989,13 +1265,15 @@ function P.ToggleKilled(d, npc, name)
     local key = npc or name
     if not key then return end
     local dead = fallen(d)
-    P.char.kills = P.char.kills or {}
+    ownKills(d)
     P.char.kills.key = d.key
     if dead[key] then
         P.char.kills[key] = nil
     else
         P.char.kills[key] = true
         P.char.kills.at = GetServerTime and GetServerTime() or 0
+        P.char.kills.hand = type(P.char.kills.hand) == "table" and P.char.kills.hand or {}
+        P.char.kills.hand[key] = true
         noteCopy(d)
     end
     return true
@@ -1003,6 +1281,12 @@ end
 
 -- A boss is dead when the thing only he drops is in the bags: no event is needed for
 -- that. Looked at for the quests of the page.
+-- (An item of his held on walking in is of an earlier run and kills nobody: only one that
+-- comes into the bags inside does.)
+local held, heldFrom = {}, nil
+function P.ForgetHeld()
+    held, heldFrom = {}, GetTime and GetTime() or nil
+end
 function P.InferKills(d, rows)
     local run = d and runs[d.key]
     if not (run and P.char and ItemDB and ItemDB.Get) then return false end
@@ -1014,7 +1298,11 @@ function P.InferKills(d, rows)
             if row.state == "active" then
                 local objectives = QuestDB.Get(row.step or row.id, "objectives") or {}
                 for _, item in ipairs(objectives[3] or {}) do
-                    if (count(item[1]) or 0) > 0 then
+                    local n = count(item[1]) or 0
+                    local was = held[item[1]]
+                    held[item[1]] = n
+                    -- (The bags are not all known in the first seconds inside.)
+                    if was == 0 and n > 0 and not (heldFrom and GetTime() - heldFrom < 5) then
                         local his
                         for _, npc in ipairs(ItemDB.Get(item[1], "npcDrops") or {}) do
                             for _, stop in ipairs(run) do
@@ -1064,6 +1352,15 @@ function P.RunBosses(d)
     end
     if next(list.ids) == nil and next(list.names) == nil then return end
     return list
+end
+
+-- How many bosses are dead in this run (the group was told of the addon after the first).
+function P.DeadCount(d)
+    local n = 0
+    for _, mark in pairs(d and fallen(d) or {}) do
+        if mark == true then n = n + 1 end
+    end
+    return n
 end
 
 -- Whether the run is over: the last boss that has to be killed is dead. In a dungeon
@@ -1118,6 +1415,23 @@ function P.SeedEver()
     end
 end
 
+-- The game tells of the death of one struck off a while ago (seen 22.11.2026: the party was
+-- sent past four living bosses to Ruuzlu): he fell in a new run, and the old marks go.
+function P.KilledAgain(d, name)
+    local kills = d and P.char and P.char.kills
+    if not kills or kills.key ~= d.key or type(name) ~= "string" then return false end
+    local key = kills[name] == true and name or nil
+    for _, stop in ipairs(runs[d.key] or {}) do
+        if stop.npc and kills[stop.npc] and (name == stop.name or name == bossName(stop)) then key = stop.npc end
+    end
+    if not key then return false end
+    local now = GetServerTime and GetServerTime() or 0
+    if now - (type(kills.times) == "table" and kills.times[key] or kills.at or 0) < 120 then return false end
+    noteWipe("again", key)
+    P.char.kills = nil
+    return true
+end
+
 function P.Killed(d, npc, name)
     local run = d and runs[d.key]
     if d and not run and P.char and name then
@@ -1136,10 +1450,11 @@ function P.Killed(d, npc, name)
             learnt[#learnt+1] = name
         end
         P.char.learntAt = now
-        P.char.kills = P.char.kills or {}
+        ownKills(d)
         P.char.kills.key, P.char.kills.at = d.key, now
         P.char.kills[name] = true
         noteCopy(d)
+        noteKill(name)
         everMark(d, name)
         remember(d, name, true)
         return true
@@ -1149,16 +1464,19 @@ function P.Killed(d, npc, name)
         if stop.npc and ((npc and isBoss(stop, npc)) or (name and (name == stop.name or name == bossName(stop)))) then
             -- (The name the client gives him, kept: the new bosses are written with the
             -- English names where the Russian ones were not known.)
-            if npc and name and name ~= stop.name and GetLocale and GetLocale() == "ruRU" and not tostring(stop.name):find("[\208\209]") then
+            -- (Since 20.11.2026 also over a Russian name written here: those of the new
+            -- dungeons are the community's, and the client's own one is the truth.)
+            if npc and name and name ~= stop.name and GetLocale and GetLocale() == "ruRU" and name:find("[\208\209]") then
                 P.char.bossNames = P.char.bossNames or {}
                 P.char.bossNames[stop.npc] = name
             end
             local dead = fallen(d)
             if dead[stop.npc] then return false end
-            P.char.kills = P.char.kills or {}
+            ownKills(d)
             P.char.kills.key, P.char.kills.at = d.key, GetServerTime and GetServerTime() or 0
             P.char.kills[stop.npc] = true
             noteCopy(d)
+            noteKill(stop.npc)
             everMark(d, stop.npc)
             remember(d, stop.npc, true)
             return true
@@ -1779,8 +2097,14 @@ local function route(place, here)
                 pending, total = pending + yards, total + yards
             elseif kind == "pass" then
                 local yards = span(a, b)
-                -- Standing at the mouth of the pass, the way is its far side.
-                local near = #legs == 0 and pending <= 60
+                -- Standing at the mouth of the pass, the way is its far side. And so on in
+                -- it, the zone not left yet: the owner, 21.11.2026, on the mountain path from
+                -- Hillsbrad into the Hinterlands, "first the arrow to the pass, then on to the
+                -- quest, and now it turned back to the pass" - sixty yards past the mouth it
+                -- pointed back at it. Between the two ends (the way through them hardly
+                -- longer than the pass itself) is in it.
+                local toFar = #legs == 0 and span(nodes[1], b)
+                local near = #legs == 0 and (pending <= 60 or (toFar and pending + toFar <= yards * 1.25 + 60))
                 legs[#legs+1] = {kind="pass", pass=true, point=near and b.point or a.point, title=a.title, text=L"проход: " .. atlas.ZoneName(b.zone),
                     start=near and pending + yards or pending, learnt=a.learnt}
                 pending, total = near and 0 or yards, total + yards

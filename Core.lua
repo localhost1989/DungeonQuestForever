@@ -1334,11 +1334,11 @@ local EN = {
     ["Панель в колонке заданий"] = "Panel in the quest tracker",
     ["Вид как у заданий игры"] = "Look like the game's quests",
     ["Тёмный фон панели"] = "Dark panel background",
-    ["Сигнал при входе в зал"] = "Sound on entering a hall",
+    ["Звук при входе в новый зал подземелья"] = "Sound on entering a new hall of the dungeon",
     ["Подсвечивать предметы для заданий"] = "Highlight quest objects",
     ["Рассказывать группе и рейду об аддоне"] = "Tell the group and the raid about the addon",
     ["Вести стрелку по дорогам, в обход гор"] = "Lead the arrow along paths, around mountains",
-    ["Метка над нужным персонажем"] = "Marker over the NPC you need",
+    ["Метка над нужным персонажем (включает полоски имён)"] = "Marker over the NPC you need (turns on name plates)",
     ["Кнопка у миникарты"] = "Minimap button",
     ["Убрать мусорные задания"] = "Clear junk quests",
     ["Страница приветствия"] = "Welcome page",
@@ -1441,6 +1441,59 @@ local EN = {
     [", делается внутри|r"] = ", done inside|r",
     ["доделать|r"] = "finish|r",
     ["начнётся внутри с найденного предмета|r"] = "starts inside from an item you find|r",
+    ["предмет падает внутри|r"] = "the item drops inside|r",
+    ["Рабомучитель Грокс"] = "Slavecrusher Grox",
+    ["Сумеречный командир Зармок"] = "Twilight Commander Zarmok",
+    ["Укротительница Ашка"] = "War Handler Ashka",
+    ["Нар'гурк"] = "Nar'gurk",
+    ["Босс Туф"] = "Bossman Toof",
+    ["Владыка Магг"] = "Overlord Mugg",
+    ["Фальдрим Анвилмар"] = "Faldrim Anvilmar",
+    ["Магматус"] = "Magmatus",
+    ["Грабеж"] = "Plunder",
+    ["Дюрген Погребальный Молот"] = "Durgen Dirgehammer",
+    ["Сухоклык"] = "Witherfang",
+    ["Барон"] = "The Baron",
+    ["Виктор Мерзкий"] = "Viktor the Vile",
+    ["Покинутый"] = "The Abandoned",
+    ["Бьорк"] = "Bjork",
+    ["Рат'маэль"] = "Rath'mael",
+    ["событие: щёлкни камин, он выйдет на шестой волне"] = "event: click the fireplace, he comes on the sixth wave",
+    ["событие: щёлкни статую, он выйдет после трёх волн"] = "event: click the statue, he comes after three waves",
+    ["Соленый Хребет"] = "Saltspine",
+    ["Тенеклык"] = "Shadetooth",
+    ["Ужас высокогорья"] = "Highland Horror",
+    ["Страж реликвий"] = "Relic Guardian",
+    ["выходит, когда щёлкнешь панель титанов рядом"] = "comes when you click the titan panel next to him",
+    ["Атрексис Рыцарь Могил"] = "Atrexis the Grave Knight",
+    ["Лин Пренебрегаемый"] = "Lyn the Ignored",
+    ["Магическая аномалия"] = "Arcane Anomaly",
+    ["Маговая Загадка"] = "Arcanic Enigma",
+    ["Нестабильный страж"] = "Unstable Sentinel",
+    ["Сквернодревень"] = "Fel Ancient",
+    ["Пожиратель маны"] = "Mana Devourer",
+    ["Тень верховного мага"] = "Shade of the Archmage",
+    ["тайный босс: его вызывает Фолиант Даларана"] = "secret boss: summoned with the Tome of Dalaran",
+    ["барьер снимается после разговора с магом рядом"] = "the barrier opens after you talk to the mage nearby",
+    ["к нему ведёт портал архимага Модеры"] = "Archmage Modera's portal leads to him",
+    ["с него падает связка ключей: открывает правое крыло"] = "drops the keyring that opens the right wing",
+    ["за запертой дверью у входа; для заданий его бьют последним"] = "behind a locked door by the entrance; for the quests, kill him last",
+    ["пока живы четыре ритуалиста, получает меньше урона"] = "takes less damage while the four ritualists live",
+    ["выходит после разговора со старейшиной Bramblesnap"] = "comes after you talk to Elder Bramblesnap",
+    ["вызов: 15 красных кристаллов силы у панели"] = "summon: 15 red power crystals at the panel",
+    ["вызов: 15 синих кристаллов силы у панели"] = "summon: 15 blue power crystals at the panel",
+    ["вызов: 15 зелёных кристаллов силы у панели"] = "summon: 15 green power crystals at the panel",
+    ["вызов: 15 жёлтых кристаллов силы у панели"] = "summon: 15 yellow power crystals at the panel",
+    ["панель титанов на Столпе ассимиляции, когда горят все четыре панели"] = "the titan panel on the Pillar of Assimilation, once all four panels are lit",
+    ["кузница за загоном с волками Ашки, где дорога сворачивает налево"] = "a forge behind Ashka's wolf pen, where the road bends left",
+    ["Писать о выполненном задании в группу или криком"] = "Tell the group when a quest is done, or yell when alone",
+    ["О выполненных заданиях больше не пишу."] = "No more lines about quests done.",
+    ["Когда задание выполнено, напишу об этом в группу, а без группы — криком."] = "When a quest is done, I will say so to the group, or yell it when you are alone.",
+    ["Писать в группу после босса, кто следующий и что с него падает"] = "After a boss, tell the group the next one and what it drops",
+    ["Что падает с боссов, больше не пишу."] = "No more lines about what bosses drop.",
+    ["Не нашёл следующего босса для проверки."] = "No next boss found to test with.",
+    ["где: в другом крыле — «%s». Выйди и зайди в его вход"] = "where: in another wing, %s. Go out and in through its door",
+    ["После каждого босса напишу в группу, кто следующий, что с него падает и кому из вас это лучшая вещь."] = "After each boss I will tell the group the next one, what it drops and whose best item that is.",
     ["взять внутри|r"] = "pick up inside|r",
     ["^выдаёт "] = "^given by ",
     ["взять|r"] = "pick up|r",
@@ -1569,6 +1622,8 @@ local EN = {
     ["по дороге: "] = "on the way: ",
     ["попроси группу: "] = "ask the group: ",
     ["Ты уже был внутри"] = "You have been inside already",
+    ["Поговори: "] = "Talk to: ",
+    ["Это делается снаружи, разговором: %s. Сделай на выходе."] = "This is done outside, by talking: %s. Do it on the way out.",
     ["там осталось: "] = "left there: ",
     ["Сделать до входа"] = "Do before going in",
     ["Взятые задания, которые делаются снаружи: доделать или сдать до входа в подземелье. Щелчок по заданию раскрывает его и ставит стрелку. Щелчок по заголовку сворачивает список."] = "Taken quests done out here: finish or hand them in before you go in. Click a quest to unfold it and set the arrow. Click the heading to fold the list.",
@@ -1867,6 +1922,8 @@ local function L(s)
     return said
 end
 P.L = L
+-- A Russian line in English, whatever the client (for the lines said to a group).
+function P.InEnglish(s) return EN[s] or s end
 function P.Language(code)
     -- For the tests: say the words as another client would.
     russianClient = code == "ruRU"
@@ -1882,6 +1939,12 @@ local C = {}
 P.Core = C
 
 local D = P.Data or {}
+-- The Horde's "Krol'dok Moulding" (94973) has no start in the database; the Alliance's
+-- (94980) starts from the mould Tunk drops inside Krol'dok, and so does the Horde's.
+do
+    local q = D.quests and D.quests[94973]
+    if q and not (q.startedBy and q.startedBy[3]) then q.startedBy = {[3]={267138}} end
+end
 local englishData = (GetLocale and GetLocale() or "enUS") ~= "ruRU"
 -- A field that reads differently in the two languages is kept as {__ru=..., __en=...}.
 local function pick(value)

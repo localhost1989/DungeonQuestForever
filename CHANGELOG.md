@@ -1,5 +1,20 @@
 # Changelog
 
+## 3.54.0
+- After a boss the group is told who is next: his name, then an item a line as a real link, with its drop chance where one is known and the classes in the group it is best in slot for. A switch in the settings menu, or /dq bis, turns it off. /dq test shows the lines to you alone.
+- A quest done is told to the group, or yelled when you are alone (outside a dungeon the yell waits for your next key press or click). A switch in the settings menu, or /dq done, turns it off.
+- Share now writes two short lines: the dungeon, and the quests you need.
+- A new run clears the killed bosses: when the game says the dungeon was reset, when you come in four hours after the last kill or with a wholly new party, when a boss marked dead is met alive, or when he is killed again. A quest item brought from an earlier run no longer marks its boss dead, and looking at another dungeon no longer wipes the marks.
+- The bosses of the seven new dungeons of Forever are listed in order, with notes on how the hidden ones are summoned.
+- Inside a dungeon the panel turns to that dungeon by itself, also when all its quests are done.
+- Dungeons with wings: the arrow leads to the door of the wing your quest is in, and inside you are told when a goal is in another wing.
+- A quest done just by talking to someone outside says so and is no longer shown as done inside. The Spider God keeps its goal inside Zul'Farrak.
+- "How to find it" also shows on the status card for the quest to finish first.
+- Krol'dok Moulding says that it starts from an item dropped inside, by whom and where he stands.
+- The arrow no longer jumps back to the start of a mountain pass when you are halfway through it.
+- The minimap button steps aside from other buttons, and the settings menu is grouped.
+- Everything the addon writes to other players is in English, and more of the English interface is translated.
+
 ## 3.53.0
 - Caves with no dungeon behind them: the arrow leads to the mouth first and then on inside. This covers the mine under Sunnyglade (the stairs down in the ruined house), Roguefeather Den, the Dor'Danil Barrow Den, Emberstrife's Den, the egg cave of Jintha'Alor, Mazthoril and Skull Rock. In the mine under Sunnyglade the game does not say you are underground, so once you have passed the mouth, the arrow leads straight to the goal and no longer sends you back out.
 - Dead in such a cave: the ghost is led to the mouth first, then to the body.

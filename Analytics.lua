@@ -39,17 +39,18 @@ local actionIDs = {
     MetAddonUser = 31,
     RewardClicked = 32,
     BookModeSwitched = 33,
+    ToldBis = 34,
 }
 -- The words of /dq (and of the settings menu, which goes through them) that are counted.
 local commands = {
     run=true, book=true, gear=true, size=true, place=true, welcome=true, auto=true, junk=true,
     dock=true, cards=true, back=true, ping=true, glow=true, share=true, paths=true, sign=true,
-    minimap=true, bug=true, full=true, where=true, list=true,
+    minimap=true, bug=true, full=true, where=true, list=true, done=true, bis=true, test=true,
 }
 -- Settings read once a session: a switch is on when the player turned that part off.
 local settings = {
     noAuto="Off_AutoQuests", boardFree="Off_Docked", boardCards="Off_GameLook", noPing="Off_RoomPing",
-    noGlow="Off_Glow", noShare="Off_TellGroup", noPaths="Off_Paths", noSign="Off_Sign",
+    noGlow="Off_Glow", noShare="Off_TellGroup", noQuestDone="Off_QuestDone", noBis="Off_Bis", noPaths="Off_Paths", noSign="Off_Sign",
     minimapHidden="Off_Minimap", arrowOff="Off_Arrow", planOff="Off_FloorPlan", boardBack="On_DarkBack",
 }
 local steps = {"BookOpened", "QuestRead", "RouteRequested"}
