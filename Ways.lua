@@ -103,6 +103,12 @@ local inner = {
     GNOMER = {mapID=1426, x=17.8, y=39.2, hint=L"портал в глубине тоннелей"},
 }
 local function portalOf(d)
+    -- A cave with two portals (Maraudon): the one chosen on the page (P.PickPortal).
+    local pick = P.PortalPick and P.PortalPick(d)
+    if pick and pick.cave then
+        local spot = atlas.Localize and atlas.Localize(pick.point) or pick.point
+        return {mapID=spot.mapID, x=spot.x, y=spot.y, label=pick.point.label, real=true, door=d.key}
+    end
     local seen = P.char and P.char.portals and P.char.portals[d.key]
     local spot = seen or inner[d.key]
     if not spot then return end
@@ -139,7 +145,9 @@ function P.Doors(d)
     -- owner, 21.11.2026, at the Monastery with the Test of Lore: the arrow still said the
     -- Monastery's entrance (the Cathedral he had last come in by), not the Library's.
     local wing, wingLabel
-    if P.WingInLog then wing, wingLabel = P.WingInLog(d) end
+    local pick = P.PortalPick and P.PortalPick(d)
+    if pick and not pick.cave then wing, wingLabel = pick.point, pick.point.label
+    elseif P.WingInLog then wing, wingLabel = P.WingInLog(d) end
     if wing then
         return {{id="deep", point=wing, label=wingLabel, short=L"Ко входу", title=wingLabel,
             act=L"Иди ко входу", near=L"Войди в подземелье"}}, 1
@@ -173,7 +181,7 @@ function P.Doors(d)
     list[1] = {id="mouth", point=real, label=out and (L"Выход из локации") or (L"Вход в локацию"), short=out and (L"К выходу") or (L"Ко входу"),
         title=(out and (L"Выход из локации") or (L"Вход в локацию")) .. " • " .. name,
         act=out and (L"Иди к выходу из локации") or (L"Иди ко входу в локацию")}
-    list[2] = {id="deep", point=deep, label=L"Портал подземелья", short=L"К порталу", title=L"Вход • " .. name, act=L"Иди к порталу", near=L"Войди в портал"}
+    list[2] = {id="deep", point=deep, label=deep.label or (L"Портал подземелья"), short=L"К порталу", title=L"Вход • " .. name, act=L"Иди к порталу", near=L"Войди в портал"}
     if out then return list, 1 end
     -- On foot the mouth of the cave comes first; at it, or past it, the portal.
     if atlas.NavigationVector then
@@ -196,6 +204,68 @@ local WING_DOOR = {
     DM_W={mapID=1444, x=60.3, y=30.2, wing=L"Запад"},
     STRAT_LIVE={mapID=1423, x=27.8, y=11.6, wing=L"Живая сторона"}, STRAT_UD={mapID=1423, x=43.6, y=19.5, wing=L"Мёртвая сторона"},
 }
+-- Dungeons with more than one way in, to be chosen on the page (the owner, 23.11.2026:
+-- "Maraudon has two entrances: one should be able to choose this one or that one"; layout A
+-- of ChatGPT: the ways in listed in the green card, the chosen one ticked, each with how
+-- far). Maraudon's two portals stand deep in its caves (AzerothCore's area triggers 3134
+-- and 3133, on the map of Kalimdor; the purple one is where the owner walked in, to a few
+-- yards); the wings of the others are their doors above.
+local PORTALS = {
+    MARA = {cave=true,
+        {id="purple", name=L"Оскверненный грот", mapID=1414, x=38.60, y=56.99, icon="Interface\\Icons\\Spell_Arcane_PortalUndercity"},
+        {id="orange", name=L"Зловонная пещера", mapID=1414, x=39.26, y=58.22, icon="Interface\\Icons\\Spell_Arcane_PortalOrgrimmar"}},
+    SM = {"SM_GY", "SM_LIB", "SM_ARM", "SM_CATH"},
+    DMAUL = {"DM_E", "DM_N", "DM_W"},
+    STRAT = {"STRAT_LIVE", "STRAT_UD"},
+}
+function P.Portals(d)
+    local spec = d and PORTALS[d.key]
+    if not spec then return {} end
+    local list = {}
+    for _, item in ipairs(spec) do
+        if type(item) == "table" then
+            list[#list+1] = {id=item.id, name=item.name, icon=item.icon, cave=true,
+                point={mapID=item.mapID, x=item.x, y=item.y, real=true, door=d.key, label=L"Портал: " .. item.name}}
+        elseif WING_DOOR[item] then
+            local door = WING_DOOR[item]
+            list[#list+1] = {id=item, name=door.wing,
+                point={mapID=door.mapID, x=door.x, y=door.y, real=true, wing=door.wing, label=L"Вход • " .. door.wing}}
+        end
+    end
+    return list
+end
+-- The way in chosen: by hand, else the wing of a quest in the log, else the portal last
+-- walked through (the nearest to it), else the first.
+function P.PortalPick(d)
+    local list = P.Portals(d)
+    if #list < 2 then return end
+    local want = P.char and P.char.portalPick and P.char.portalPick[d.key]
+    for _, item in ipairs(list) do if item.id == want then return item, list end end
+    if not list[1].cave and P.WingInLog then
+        local wing = P.WingInLog(d)
+        for _, item in ipairs(list) do
+            if wing and item.point.mapID == wing.mapID and item.point.x == wing.x and item.point.y == wing.y then return item, list end
+        end
+    end
+    local seen = P.char and P.char.portals and P.char.portals[d.key]
+    if seen and atlas.Span then
+        local best, bestFar
+        for _, item in ipairs(list) do
+            local ok, far = pcall(atlas.Span, seen, item.point)
+            if ok and far and (not bestFar or far < bestFar) then best, bestFar = item, far end
+        end
+        if best then return best, list end
+    end
+    return list[1], list
+end
+function P.PickPortal(d, id)
+    if not (P.char and d) then return end
+    P.char.portalPick = P.char.portalPick or {}
+    P.char.portalPick[d.key] = id
+    -- (A door clicked on before is no longer the way: the chosen portal is.)
+    if P.char.doorPick then P.char.doorPick[d.key] = nil end
+end
+
 -- The door of the wing a quest's goal lies in, and its label; nil when one door serves all.
 function P.WingDoor(d, id)
     local goal = d and id and P.InsideGoals and P.InsideGoals(id)[1]
@@ -319,7 +389,10 @@ local runs = {
     },
     ALCAZ = {
         {npc=255997, name="Tidemistress Ca'zass"},
-        {npc=255391, name="Overseer Wrex", note=L"с него падает связка ключей: открывает правое крыло"},
+        -- (gate: the ones behind his keys. One of them dead, he was killed: the owner at the
+        -- end of the prison, 24.11.2026, "Overseer Wrex - did we kill him or not?" - he died
+        -- out of sight of the addon.)
+        {npc=255391, name="Overseer Wrex", note=L"на верхнем этаже, в боковой караульной; с него падает связка ключей: открывает правое крыло", gate={257016, 255702, 255707}},
         {npc=256236, name="The Questioner", note=L"за запертой дверью у входа; для заданий его бьют последним"},
         {npc=257016, name="Katerina the Cleaner"},
         {npc=255702, also={255707}, name="Zarla Ober"},
@@ -1293,6 +1366,20 @@ function P.InferKills(d, rows)
     local count = C_Item and C_Item.GetItemCount or GetItemCount
     if not count then return false end
     local news = false
+    -- A boss whose keys open the way to others: one of those dead, he was killed too.
+    pcall(function()
+        local dead = fallen(d)
+        for _, stop in ipairs(run) do
+            if stop.gate and stop.npc and not dead[stop.npc] then
+                for _, npc in ipairs(stop.gate) do
+                    if dead[npc] then
+                        if P.Killed(d, stop.npc) then news = true end
+                        break
+                    end
+                end
+            end
+        end
+    end)
     pcall(function()
         for _, row in ipairs(rows or {}) do
             if row.state == "active" then
@@ -2583,28 +2670,119 @@ end
 -- ghost has been at it, the body. (A table in P.QuestCave or P.NpcCave: its mouth is a
 -- point on the map of the goal.) Gone through is kept for the living too (P.char.inCave),
 -- so that after rising there the arrow does not send the player out again.
+-- The caves before a dungeon too (the owner, 23.11.2026, dead in the caves before
+-- Maraudon: "it leads me who knows where to my body" - straight through the rock): their
+-- mouth is the way in of the dungeon's page, and a ghost in there, indoors, goes straight.
+-- Whatever the arrow led to (the owner: "check the other dungeons too, all of them"): a
+-- death in the caves before any dungeon is noted as it happens - out of an instance,
+-- underground (indoors, or on a map of the tunnels, not the zone's), within 600 yards of
+-- a dungeon's way in - and that cave is the ghost's way back.
+local DEATH_REACH = 600
+-- A map of the tunnels under a zone: one whose parents lead up to the zone's map.
+local function under(map, zone)
+    if not (map and zone and C_Map and C_Map.GetMapInfo) or map == zone then return false end
+    for _ = 1, 4 do
+        local ok, info = pcall(C_Map.GetMapInfo, map)
+        map = ok and type(info) == "table" and info.parentMapID or nil
+        if not map or map == 0 then return false end
+        if map == zone then return true end
+    end
+    return false
+end
+-- Why the ghost's arrow went where it went, the last few times (read from the saved file).
+local function ghostNote(text)
+    if not P.char then return end
+    P.char.ghostLog = type(P.char.ghostLog) == "table" and P.char.ghostLog or {}
+    local log = P.char.ghostLog
+    if log[#log] and log[#log]:sub(10) == text then return end
+    log[#log+1] = (date and date("%H:%M:%S") or "") .. " " .. text
+    while #log > 20 do table.remove(log, 1) end
+end
+P.GhostNote = ghostNote
+-- Where the player stands on a zone's map, in yards: read on that very map, which the game
+-- gives in the tunnels under it too (a map of a cave knows no continent of its own).
+local function yardsOn(mapID)
+    if not (C_Map and C_Map.GetPlayerMapPosition and atlas.Yards) then return end
+    local ok, pos = pcall(C_Map.GetPlayerMapPosition, mapID, "player")
+    if not (ok and pos and pos.GetXY) then return end
+    local x, y = pos:GetXY()
+    x, y = atlas.PlainText(x), atlas.PlainText(y)
+    if not (x and y) or (x == 0 and y == 0) or x < 0 or x > 1 or y < 0 or y > 1 then return end
+    local okY, c, yx, yy = pcall(atlas.Yards, {mapID=mapID, x=x * 100, y=y * 100})
+    if okY then return c, yx, yy end
+end
+function P.NoteDeath()
+    if not P.char then return end
+    P.char.deathCave = nil
+    if IsInInstance and IsInInstance() then return end
+    local here = C_Map and C_Map.GetBestMapForUnit and atlas.PlainText(C_Map.GetBestMapForUnit("player"))
+    if not atlas.Yards then return end
+    local best, bestFar
+    for _, d in ipairs(atlas.Dungeons or {}) do
+        local mouth = atlas.Entrance(d)
+        if mouth and mouth.mapID then
+            local ok, cm, mx, my = pcall(atlas.Yards, mouth)
+            local c, px, py = yardsOn(mouth.mapID)
+            if ok and cm and cm == c and mx and my and px and py then
+                local far = math.sqrt((px - mx)^2 + (py - my)^2)
+                local below = (IsIndoors and IsIndoors()) or under(here, mouth.mapID)
+                if below and far <= DEATH_REACH and (not bestFar or far < bestFar) then best, bestFar = d, far end
+            end
+        end
+    end
+    if best then P.char.deathCave = {key=best.key, at=GetServerTime and GetServerTime() or 0} end
+    ghostNote("dead " .. tostring(here) .. (IsIndoors and IsIndoors() and " indoors" or " outdoors") .. " -> " .. (best and (best.key .. " " .. math.floor(bestFar)) or "no cave"))
+    return best and best.key
+end
 local ghostThrough
 function P.CorpseCave(body)
-    if not (UnitIsGhost and UnitIsGhost("player")) then ghostThrough = nil return end
+    if not (UnitIsGhost and UnitIsGhost("player")) then
+        ghostThrough = nil
+        -- (Alive again only: lying dead before the spirit is released is not alive. The
+        -- note of the death was wiped in those seconds, seen in the game on 23.11.2026:
+        -- "dead ... -> MARA", then "no cave known".)
+        local dead = UnitIsDeadOrGhost and UnitIsDeadOrGhost("player")
+        if P.char and not dead then P.char.deathCave = nil end
+        return
+    end
     local goal = P.char and P.char.goal
     local cave = goal and (goal.cave or (P.NpcCave and P.NpcCave[goal.npcID or 0]))
-    if type(cave) ~= "table" or not goal.mapID or not body then return end
-    local spot = {mapID=goal.mapID, x=cave.x, y=cave.y}
+    local died = P.char and P.char.deathCave
+    if died and died.key and (GetServerTime and GetServerTime() or 0) - (died.at or 0) < 7200 then cave = died.key end
+    if not body then return end
+    local spot, name, reach
+    if type(cave) == "table" and goal.mapID then
+        spot, name, reach = {mapID=goal.mapID, x=cave.x, y=cave.y}, cave.name, 250
+    elseif type(cave) == "string" then
+        local d = atlas.DungeonByKey and atlas.DungeonByKey[cave]
+        local mouth = d and atlas.Entrance and atlas.Entrance(d)
+        if not (mouth and mouth.mapID) then return end
+        spot, name, reach = {mapID=mouth.mapID, x=mouth.x, y=mouth.y}, atlas.DungeonName(d), DEATH_REACH
+    else
+        ghostNote("no cave known")
+        return
+    end
     local key = spot.mapID .. ":" .. spot.x .. ":" .. spot.y
     if ghostThrough == key then return end
-    -- Only a body near this cave: within 250 yards of its mouth.
+    -- Only a body near this cave: within 250 yards of its mouth (600 for the long
+    -- caves before a dungeon).
     if not atlas.Yards then return end
     local okB, cB, bx, by = pcall(atlas.Yards, body)
     local okM, cM, mx, my = pcall(atlas.Yards, spot)
-    if not (okB and okM and cB and cB == cM and bx and by and mx and my) then return end
-    if (bx - mx)^2 + (by - my)^2 > 250 * 250 then return end
+    if not (okB and okM and cB and cB == cM and bx and by and mx and my) then ghostNote(key .. " unmeasured") return end
+    if (bx - mx)^2 + (by - my)^2 > reach * reach then ghostNote(key .. " body far from the mouth") return end
     local _, _, toMouth = atlas.NavigationVector(spot)
-    if toMouth and toMouth <= 25 then
+    -- In the tunnels already (indoors, or on a map of their own): straight to the body.
+    local here = C_Map and C_Map.GetBestMapForUnit and atlas.PlainText(C_Map.GetBestMapForUnit("player"))
+    local inside = type(cave) == "string" and ((IsIndoors and IsIndoors()) or under(here, spot.mapID))
+    if inside or (toMouth and toMouth <= 25) then
+        ghostNote(key .. (inside and " in the tunnels: straight" or " at the mouth: straight"))
         ghostThrough = key
-        P.char.inCave = key
+        if type(cave) == "table" then P.char.inCave = key end
         return
     end
-    spot.title = L"Вход в пещеру: " .. (cave.name or "")
+    ghostNote(key .. " to the mouth " .. tostring(toMouth and math.floor(toMouth)))
+    spot.title = L"Вход в пещеру: " .. (name or "")
     spot.corpse = true
     return spot
 end
@@ -2660,6 +2838,7 @@ function P.Replan()
     for key in pairs(inner) do known[key] = true end
     for key in pairs(P.char and P.char.portals or {}) do known[key] = true end
     for key in pairs(P.char and P.char.doorPick or {}) do known[key] = true end
+    for key in pairs(P.char and P.char.portalPick or {}) do known[key] = true end
     if P.char and P.char.cameOut then known[P.char.cameOut.key] = true end
     local inside = IsInInstance and IsInInstance()
     for key in pairs(known) do

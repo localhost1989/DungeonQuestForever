@@ -458,11 +458,14 @@
     {
      "type": "object",
      "object_id": 653847,
-     "name": "Loose Floorboard (Find Mason Connery's Treasure)",
+     "name": "Loose Floorboard",
      "count": 1,
      "zone": "Westfall",
      "x": 43.4,
-     "y": 67.9
+     "y": 67.9,
+     "zoneId": 40,
+     "name_ru": "Расшатанная половица",
+     "text": "Find Mason Connery's Treasure"
     }
    ],
    "prerequisites": [

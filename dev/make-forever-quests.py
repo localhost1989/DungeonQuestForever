@@ -61,7 +61,7 @@ for key in ("ALCAZ", "SHAPERS"):
             else:
                 finished = [[t["id"]]]; addNpc(t["id"], t.get("name"), t, key, side)
         rec["startedBy"] = started; rec["finishedBy"] = finished
-        kills, things, texts = [], [], []
+        kills, places, things, texts = [], [], [], []
         for o in q.get("objectives") or []:
             if o.get("type") == "kill" and o.get("npc_id"):
                 kills.append({1: o["npc_id"], 3: 0}); addNpc(o["npc_id"], o.get("npc_name"), None, key)
@@ -73,10 +73,17 @@ for key in ("ALCAZ", "SHAPERS"):
                     drops.append(who["npc_id"]); addNpc(who["npc_id"], who.get("name"), None, key)
                 items.setdefault(o["item_id"], {"name": o.get("item_name") or o.get("name") or "?", "npcDrops": drops})
                 texts.append("%s: %d" % (o.get("item_name") or o.get("name") or "?", o.get("count") or 1))
+            elif o.get("type") == "object" and o.get("object_id"):
+                # (A thing in the world to use: "More Valuable Than Gold", the loose floorboard in
+                # Westfall. Left out, the quest read as done inside - the owner, 24.11.2026.)
+                places.append({1: o["object_id"], 3: 0})
+                objects.setdefault(o["object_id"], {"name": ({"__en": o["name"], "__ru": o["name_ru"]} if o.get("name_ru") else (o.get("name") or "?")), "spawns": place(o, key)[1], "zoneID": place(o, key)[0]})
+                texts.append(o.get("text") or o.get("name") or q["name"])
             elif o.get("text"):
                 texts.append(o["text"])
         obj = {}
         if kills: obj[1] = kills
+        if places: obj[2] = places
         if things: obj[3] = things
         rec["objectives"] = obj
         rec["objectivesText"] = texts or [q["name"]]

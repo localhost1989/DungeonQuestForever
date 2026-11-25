@@ -2013,7 +2013,7 @@ local HINTS = {
     [96332] = {"Наги и их колдунья Tidemistress Ca'zass (первый босс, с неё падает голова) — внутри тюрьмы Альказа. Вход — в подвале большого здания на острове Алькац (75, 15).", "The naga and their sorceress Tidemistress Ca'zass (first boss, drops the head) are inside Alcaz Prison. The portal is in the basement of the large building on Alcaz Island (75, 15)."},
     [96334] = {"Банданы падают с людей Братства Справедливости внутри тюрьмы — тюремщиков и наёмников в коридоре слева от зала наги-босса (Ca'zass).", "The bandanas drop from the Defias people inside the prison: the jailers and mercenaries in the corridor to the left of the naga boss Ca'zass's room."},
     [96335] = {"Ключ от кандалов падает с тюремного допросчика (The Questioner) за запертой дверью справа от входа в тюрьму. Отнеси ключ узнику (Mason Connery): он сидит в камере в зале последнего босса (Zarla), ближе к концу.", "The Ornate Shackle Key drops from The Questioner, behind the locked door to the right of the prison entrance. Take it to the prisoner Mason Connery, who sits in a cell in Zarla's room near the end."},
-    [96337] = {"Тайник (Connery's Trunk) — это расшатанная половица, а не NPC. Она в трактире Луноречья в Западном Крае: поднимись на второй этаж, зайди в среднюю комнату и щёлкни по половице в углу (43.4, 67.8).", "Connery's Trunk is a loose floorboard, not an NPC. It is in the Moonbrook inn in Westfall: go up to the second floor, into the middle room, and click the floorboard in the corner (43.4, 67.8)."},
+    [96337] = {"Сокровище Коннери не в тюрьме, а в Западном крае, в Луноручье (43, 68): найди там расшатанную половицу и щёлкни её. В сундуке будет шкатулка с документами: её сдают Назгрелу в Оргриммаре или Риксу Ксиззиксу в Пиратской Бухте («Государственные тайны»).", "Connery's treasure is not in the prison but in Westfall, in Moonbrook (43, 68): find the loose floorboard there and click it. The trunk holds a Document Box: hand it to Nazgrel in Orgrimmar or Rix Xizzix in Booty Bay (\"State Secrets\")."},
     [96369] = {"Командир Folkar — закованный в цепи орк в камерах этой же тюрьмы; вернись к нему, не выходя наружу.", "Commander Folkar is the chained orc held in the cells inside this same prison: go back to him without leaving."},
     [96376] = {"Ящик с документами ты получаешь из тайника под половицей на втором этаже трактира Луноречья, когда сдаёшь там прошлое задание. Не продавай ящик торговцу (следи за аддонами автопродажи) — он нужен для этого задания.", "You get the Document Box from Connery's Trunk under the floorboard on the second floor of the Moonbrook inn, when you turn in his quest there. Do not sell the box to a vendor (watch out for auto-sell addons): this quest needs it."},
     [96377] = {"Ящик с документами ты получаешь из тайника под половицей на втором этаже трактира Луноречья, когда сдаёшь там прошлое задание. Не продавай ящик торговцу (следи за аддонами автопродажи) — он нужен для этого задания.", "You get the Document Box from Connery's Trunk under the floorboard on the second floor of the Moonbrook inn, when you turn in his quest there. Do not sell the box to a vendor (watch out for auto-sell addons): this quest needs it."},
@@ -2082,6 +2082,25 @@ P.NpcCave[3204] = skullRock      -- Gazz'uz
 -- From the run over the quests without a hint (20.11.2026).
 P.QuestCave[2283] = "ULDA"          -- the necklace drops in the tunnels before the portal too
 P.NpcCave[2909] = "ULDA"            -- Hammertoe Grez sits in the tunnels before the portal
+-- The owner, 23.11.2026, at "The Pariah's Instructions": "who cares about your description?
+-- We need arrows to show where to go, and the mobs killed struck out." The quest log counts
+-- the Amulet of Union alone; the way to it is six creatures, each with a thing of his own in
+-- the bags: the Nameless Prophet (the Amulet of Spirits, used by each Khan to make him
+-- manifest), then the five Khans and their gems (a gem, used, joins them in the amulet).
+-- Middle area the 1st, the purple and orange areas before the portals the 2nd and 3rd,
+-- inside the purple and orange parts the 4th and 5th (wowhead, quest=7067).
+P.QuestCave[7067] = "MARA"
+P.QuestSteps = {
+    [7067] = {made=17758, first=true,
+        {npc=13718, item=17757, text=russian and "Безымянный пророк: амулет (у каждого хана нажми его)" or "The Nameless Prophet: the amulet (use it by each Khan)"},
+        {npc=12240, item=17761, text=russian and "1-й хан — дух Колка" or "1st Khan — Spirit of Kolk"},
+        {npc=12239, item=17762, text=russian and "2-й хан — дух Гелка, фиолетовая сторона" or "2nd Khan — Spirit of Gelk, purple side"},
+        {npc=12241, item=17763, text=russian and "3-й хан — дух Магры, оранжевая сторона" or "3rd Khan — Spirit of Magra, orange side"},
+        {npc=12242, item=17764, inside=true, text=russian and "4-й хан — дух Мародоса, внутри, фиолетовая часть" or "4th Khan — Spirit of Maraudos, inside, purple part"},
+        {npc=12243, item=17765, inside=true, text=russian and "5-й хан — дух Венга, внутри, оранжевая часть" or "5th Khan — Spirit of Veng, inside, orange part"},
+        {join=true, text=russian and "нажми самоцвет в сумке: соберётся Амулет единения" or "use a gem in your bags: it makes the Amulet of Union"},
+    },
+}
 -- Hints about the one who takes the quest in: shown while handing in, too.
 P.HandInHints = {[65]=true, [1052]=true, [4004]=true, [4242]=true, [4361]=true, [4363]=true, [5464]=true, [95795]=true, [95809]=true, [97288]=true, [98823]=true}
 P.QuestHints = {}

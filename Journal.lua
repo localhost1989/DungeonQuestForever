@@ -1290,17 +1290,7 @@ function P.MinimapButton()
         b.border:SetPoint("TOPLEFT", b, "TOPLEFT", 0, 0)
         b:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight", "ADD")
         b.openMenu = settingsMenu
-        b:SetScript("OnClick", function(self, mouse)
-            GameTooltip:Hide()
-            if mouse == "RightButton" then
-                if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end
-            elseif MenuUtil and MenuUtil.CreateContextMenu then
-                if P.Track then P.Track("SettingsMenuOpened") end
-                MenuUtil.CreateContextMenu(self, settingsMenu)
-            else
-                SlashCmdList.FOREVERDUNGEONPREP("")
-            end
-        end)
+        b:SetScript("OnClick", function(self, mouse) P.MinimapClick(self, mouse) end)
         b:SetScript("OnEnter", function(self)
             tip(self, title, L"Щелчок — настройки.\nПравая кнопка — журнал.\nТащи, чтобы переставить вокруг миникарты.")
         end)
@@ -1322,8 +1312,89 @@ function P.MinimapButton()
         end
     end
     placeMinimapButton()
-    minimapButton:SetShown(not (db and db.minimapHidden))
+    local lib = P.MinimapLib()
+    minimapButton:SetShown(not lib and not (db and db.minimapHidden))
+    P.MinimapSettings()
     return minimapButton
+end
+
+function P.MinimapClick(owner, mouse)
+    GameTooltip:Hide()
+    if mouse == "RightButton" then
+        if P.ToggleBook then P.ToggleBook(not browsing and selected or nil) end
+    elseif MenuUtil and MenuUtil.CreateContextMenu then
+        if P.Track then P.Track("SettingsMenuOpened") end
+        MenuUtil.CreateContextMenu(owner, settingsMenu)
+    else
+        SlashCmdList.FOREVERDUNGEONPREP("")
+    end
+end
+
+-- A player on GitHub, 24.11.2026 (rav-yoli, issue #1): "a Show minimap button checkbox in the
+-- addon settings, and SexyMap managing the button's visibility - through LibDBIcon-1.0". The
+-- addon is a LibDataBroker launcher (Titan Panel, ChocolateBar and the like can show it), and
+-- where a manager of the minimap's buttons is loaded the button is LibDBIcon's: SexyMap and
+-- the button bags handle those. Without one it stays our own (it keeps clear of the buttons
+-- of the rim: the owner, 20.11.2026, "our round button is gone").
+local MANAGERS = {"SexyMap", "MinimapButtonButton", "MBB", "MinimapButtonBag", "HidingBar", "Minimap Button Bag"}
+local broker
+local function loaded(name)
+    local is = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
+    if not is then return false end
+    local ok, yes = pcall(is, name)
+    return ok and yes and true or false
+end
+
+function P.MinimapLib()
+    local stub = LibStub
+    if not (stub and db) then return nil end
+    local ldb = stub("LibDataBroker-1.1", true)
+    local icon = stub("LibDBIcon-1.0", true)
+    if not ldb then return nil end
+    if not broker then
+        local faction = UnitFactionGroup and UnitFactionGroup("player")
+        broker = ldb:NewDataObject(title, {
+            type = "launcher",
+            label = title,
+            icon = (minimapButton and minimapButton.iconFile) or ("Interface\\AddOns\\ForeverDungeonPrep\\" .. (faction == "Horde" and "hand_horde" or "hand_alliance")),
+            OnClick = function(frame, mouse) P.MinimapClick(frame, mouse) end,
+            OnTooltipShow = function(tt)
+                if not tt then return end
+                tt:AddLine(title, 1, .83, .35)
+                tt:AddLine(L"Щелчок — настройки.\nПравая кнопка — журнал.", 1, 1, 1, true)
+            end,
+        })
+    end
+    local managed = false
+    for _, name in ipairs(MANAGERS) do managed = managed or loaded(name) end
+    if not (icon and broker and managed) then
+        if icon and icon.IsRegistered and icon:IsRegistered(title) then icon:Hide(title) end
+        return nil
+    end
+    db.minimapIcon = type(db.minimapIcon) == "table" and db.minimapIcon or {minimapPos=tonumber(db.minimapAngle) or 200}
+    db.minimapIcon.hide = db.minimapHidden and true or false
+    if not icon:IsRegistered(title) then icon:Register(title, broker, db.minimapIcon) end
+    if db.minimapHidden then icon:Hide(title) else icon:Show(title) end
+    return icon
+end
+
+-- The same switch in the game's own settings: Options, AddOns, Dungeon Quest Forever.
+local settingsMade = false
+function P.MinimapSettings()
+    if settingsMade or not (Settings and Settings.RegisterVerticalLayoutCategory and Settings.RegisterAddOnCategory) then return end
+    settingsMade = true
+    pcall(function()
+        local category = Settings.RegisterVerticalLayoutCategory(title)
+        local setting = Settings.RegisterProxySetting(category, "DQF_SHOW_MINIMAP_BUTTON", Settings.VarType.Boolean, L"Кнопка у миникарты", true,
+            function() return not (db and db.minimapHidden) end,
+            function(value)
+                if not db then return end
+                db.minimapHidden = (not value) or nil
+                P.MinimapButton()
+            end)
+        Settings.CreateCheckbox(category, setting, L"Показывать круглую кнопку аддона у миникарты. Спрятанная, она возвращается здесь, в меню панели или командой /dq minimap.")
+        Settings.RegisterAddOnCategory(category)
+    end)
 end
 
 -- And when what the game lights is a thing a quest in the log asks for, it is said: a
@@ -1844,6 +1915,7 @@ local function addLine(block, key, text, single)
         end)
     end
     local font = ownFonts().sub
+    if type(line) == "table" and line.isCard then return line end
     if type(line) == "table" and type(line.Text) == "table" and line.Text.SetFontObject and (font or single or line.Text.cut) then
         pcall(function()
             local old = line:GetHeight()
@@ -2096,6 +2168,13 @@ end
 -- arrow leads to bright; the rest grey. Only for two goals or more: one goal is said in
 -- the line above. Returns whether the lines were written.
 local function goalsOf(id)
+    -- A quest with steps of its own: its steps, the ones done struck out (P.QuestSteps).
+    local state = id and P.QuestStepState and P.QuestStepState(id)
+    if state then
+        local goals = {}
+        for i, item in ipairs(state) do goals[i] = {text=item.step.text, done=item.done} end
+        return goals
+    end
     local list = id and C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(id)
     if type(list) ~= "table" then return end
     local goals = {}
@@ -2141,6 +2220,8 @@ local function nothingToCount(id)
 end
 function P.QuestHint(id)
     if not id then return nil end
+    -- (Its steps say it, one by one, with the arrow: no paragraph over them.)
+    if P.QuestSteps and P.QuestSteps[id] then return nil end
     local bare = nothingToCount(id)
     -- A hint about who takes the quest in (P.HandInHints) stays when the goals are met.
     if C_QuestLog.IsComplete and C_QuestLog.IsComplete(id) and not bare and not (P.HandInHints and P.HandInHints[id]) then return nil end
@@ -2150,6 +2231,16 @@ function P.QuestHint(id)
     local ok, text = pcall(P.QuestDB.Get, id, "objectivesText")
     if type(text) == "table" then text = text[1] end
     return ok and type(text) == "string" and text ~= "" and text or nil
+end
+-- Folded: the card "Goals:" under the name of a quest taken, so that how to find its goal is
+-- read without a click (the owner, 23.11.2026, at "Shadowshard Fragments": "what quest is
+-- this again, nothing is clear"; ChatGPT's layout B).
+local function hintCard(block, entry)
+    local id = entry.step or entry.id
+    if not (entry.working or entry.stepActive or entry.state == "active") then return end
+    local hint = P.QuestHint(id)
+    if not hint then return end
+    return addLine(block, "hintcard", "|cffffd34d" .. L"Цели:" .. "|r " .. hint)
 end
 local function hintLine(block, entry)
     local id = entry.step or entry.id
@@ -2431,6 +2522,8 @@ local function layout(self)
             elseif entry.status and (entry.plate or entry.ready or entry.muted) then
                 local kind = entry.plate or (entry.ready and "green") or "grey"
                 sign = kind == "gold" and SIGN.take or kind == "blue" and SIGN.ready or kind == "red" and SIGN.boss or SIGN.done
+            elseif entry.turnPlace then
+                sign = SIGN.ready
             elseif entry.status or entry.via or entry.entrance or entry.secret or entry.boss then
                 sign = true
             elseif entry.prep then
@@ -2557,8 +2650,48 @@ local function layout(self)
                 local line = lines[i]
                 if line and n < 3 then n = n + 1; addLine(block, "line" .. n, "|cffbcb7ab" .. line .. "|r") end
             end
+            -- The ways in to choose from, under the lines: the chosen one ticked and in a gold
+            -- rim, each with how far; a click chooses it, and the arrow goes there.
+            for i, way in ipairs(entry.portals or {}) do
+                local on = way.id == entry.portal
+                local far = P.Reach(way.point)
+                local text = (on and "|TInterface\\RaidFrame\\ReadyCheck-Ready:13:13|t " or "     ")
+                    .. (way.icon and ("|T" .. way.icon .. ":15:15|t ") or "")
+                    .. (on and "|cffffd34d" or "|cffe6e0d2") .. way.name .. "|r" .. (far and (DIM .. " • " .. far .. "|r") or "")
+                local line = addLine(block, (on and "doorpickon" or "doorpickoff") .. i, text)
+                if type(line) == "table" and line.SetScript then
+                    local id = way.id
+                    pcall(function()
+                        line.stepOf = "portal"
+                        if line.EnableMouse then line:EnableMouse(true) end
+                        line:SetScript("OnMouseUp", function()
+                            if P.PickPortal then P.PickPortal(selected, id) end
+                            if P.Track then P.Track("DoorPicked") end
+                            P.Refresh()
+                        end)
+                    end)
+                end
+            end
             local go = entry.go or (entry.door and function() openRoute({entrance=true}) end)
             if kind then block:Ready(kind, go, entry.goText, entry.goNote) end
+        elseif entry.turnPlace then
+            -- A place to hand in at (layout A of 23.11.2026): the place in gold and how far,
+            -- under it who takes which.
+            -- (One line, as on the layout: "перелётом быстрее" after it wrapped the name.)
+            local place = entry.near and entry.near.place
+            local far = place and (P.DistanceText(place) or P.Reach(place))
+            block:SetHeader("  |cffffd34d" .. entry.zone .. "|r" .. (far and (DIM .. " • " .. far .. "|r") or ""))
+            local byWho, whoOrder = {}, {}
+            for _, row in ipairs(entry.rows) do
+                local name = (row.place and atlas.PlaceName(row.place)) or "?"
+                if not byWho[name] then byWho[name] = {}; whoOrder[#whoOrder+1] = name end
+                -- A quest done by a talk says so: the line to pick is in the talk with him.
+                table.insert(byWho[name], "«" .. P.Title(row.step or row.id) .. "»" .. (row.talk and (L" — поговори, выбери строку в разговоре") or ""))
+            end
+            for i, name in ipairs(whoOrder) do
+                addLine(block, "give" .. i, (#whoOrder > 1 and "• " or "") .. "|cffe6e0d2" .. name .. ": " .. table.concat(byWho[name], ", ") .. "|r")
+            end
+            -- (No rim: the owner, 23.11.2026, "why the hell did you put these frames on?")
         elseif entry.section then
             block:SetHeader(labelTone .. entry.section .. "|r")
             if entry.under then addLine(block, "under", DIM .. entry.under .. "|r") end
@@ -2568,9 +2701,11 @@ local function layout(self)
             block:SetHeader("  " .. entry.title .. (far and (DIM .. " • " .. far .. "|r") or ""))
             if entry.cast then
                 -- (Asked of the icon itself: the page is drawn before the arrow is tidied.)
+                -- How to use the icon is said on the icon itself: here only when it waits for
+                -- the fight to end (the owner, 23.11.2026: "the way to the goal takes half the screen").
                 local waits = InCombatLockdown() and not (teleport and teleport:IsShown() and not teleport.unseen)
-                addLine(block, "cast", waits and (L"иконка телепорта появится после боя: в бою игра не даёт её показать")
-                    or (L"нажми иконку телепорта на месте стрелки; крестик на ней — идти без телепорта"))
+                if waits then addLine(block, "cast", L"иконка телепорта появится после боя: в бою игра не даёт её показать") end
+                addLine(block, "status", (entry.ride and (L"затем " .. entry.ride .. "; ") or "") .. L"цель: " .. (entry.onward or (L"цель")))
             end
             if entry.pass then
                 local lift = entry.place and entry.place.hint
@@ -2581,8 +2716,10 @@ local function layout(self)
             elseif entry.keeper then
                 addLine(block, "keeper", L"платформа" .. (entry.up and (L" наверху вышки") or "") .. L", где " .. entry.keeper)
             end
-            if entry.ride then addLine(block, "ride", L"затем " .. entry.ride) end
-            addLine(block, "status", L"потом к цели: " .. (entry.onward or (L"цель")))
+            if not entry.cast then
+                if entry.ride then addLine(block, "ride", L"затем " .. entry.ride) end
+                addLine(block, "status", L"потом к цели: " .. (entry.onward or (L"цель")))
+            end
         elseif entry.entrance then
             local point = entry.option and entry.option.point or P.Door(selected)
             local label = entry.option and entry.option.label or point.label
@@ -2882,6 +3019,9 @@ local function layout(self)
                     -- (the layout of 15.11.2026); the part's name says the rest.
                     local steps = links and #links > 1 and not locked and linkNow
                     if steps then chainSteps(block, entry, links, linkNow, 1, linkNow) end
+                    -- (Not for one done inside, while out here: its goals are read in there. The
+                    -- owner, 23.11.2026, the list "taken, done inside" a screen of goals long.)
+                    if taken and not entry.waitsInside then hintCard(block, entry) end
                     if entry.askGroup and not taken and toSomeone then
                         addLine(block, "act", "|cffe6e0d2" .. L"если не поделятся" .. plain(tail) .. "|r")
                     else
@@ -3623,6 +3763,9 @@ local function newBoard()
                 self.gild = g
             end
             local g, look = self.gild, GILD[mode] or GILD.open
+            g:ClearAllPoints()
+            g:SetPoint("TOPLEFT", self, "TOPLEFT", -(look.left or 4), 4)
+            g:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 4, -4)
             if g.fill.SetColorTexture then g.fill:SetColorTexture(look.fill[1], look.fill[2], look.fill[3], look.fill[4]) end
             for i, edge in ipairs(g.edges) do
                 if edge.SetColorTexture then edge:SetColorTexture(look.edge[1], look.edge[2], look.edge[3], look.edge[4]) end
@@ -3718,6 +3861,55 @@ local function newBoard()
                 self.objectives[key] = text
             end
             local native = self.native
+            -- The card "Goals:" (ChatGPT's layout B, approved 23.11.2026): how to find the
+            -- goal of a quest taken, shown at once under its name, on a dark ground in a thin
+            -- gold rim. Any other line lent this one hides it.
+            local pickOn = native and type(key) == "string" and key:match("^doorpickon") ~= nil
+            local pickOff = native and type(key) == "string" and key:match("^doorpickoff") ~= nil
+            -- (No card any more: the owner, 24.11.2026, at the gold rim round "Цели:" - "why the
+            -- hell did you put these frames on again? I was after the native look." Plain lines,
+            -- as the game's own under a quest.)
+            local card = false
+            line.isCard = card or nil
+            -- (On the line itself, under its words: a frame of its own was drawn over them
+            -- and dimmed the text, seen in the game the same day.)
+            if card and not line.card then
+                local c = {}
+                c.fill = line:CreateTexture(nil, "BACKGROUND")
+                c.fill:SetPoint("TOPLEFT", line, "TOPLEFT", -2, 0)
+                c.fill:SetPoint("BOTTOMRIGHT", line, "BOTTOMRIGHT", 0, 0)
+                if c.fill.SetColorTexture then c.fill:SetColorTexture(.16, .11, .06, .85) end
+                c.edges = {}
+                for k = 1, 4 do
+                    local t = line:CreateTexture(nil, "BORDER")
+                    if t.SetColorTexture then t:SetColorTexture(.66, .53, .32, .9) end
+                    c.edges[k] = t
+                end
+                c.edges[1]:SetPoint("TOPLEFT", c.fill, "TOPLEFT"); c.edges[1]:SetPoint("TOPRIGHT", c.fill, "TOPRIGHT"); c.edges[1]:SetHeight(1)
+                c.edges[2]:SetPoint("BOTTOMLEFT", c.fill, "BOTTOMLEFT"); c.edges[2]:SetPoint("BOTTOMRIGHT", c.fill, "BOTTOMRIGHT"); c.edges[2]:SetHeight(1)
+                c.edges[3]:SetPoint("TOPLEFT", c.fill, "TOPLEFT"); c.edges[3]:SetPoint("BOTTOMLEFT", c.fill, "BOTTOMLEFT"); c.edges[3]:SetWidth(1)
+                c.edges[4]:SetPoint("TOPRIGHT", c.fill, "TOPRIGHT"); c.edges[4]:SetPoint("BOTTOMRIGHT", c.fill, "BOTTOMRIGHT"); c.edges[4]:SetWidth(1)
+                -- (No picture: the spyglass of the first try told the owner nothing - "what is
+                -- this, a drawing of the fragment? what is it doing here?")
+                function c:SetShown(on)
+                    for _, t in ipairs({self.fill, self.edges[1], self.edges[2], self.edges[3], self.edges[4]}) do
+                        if on then t:Show() else t:Hide() end
+                    end
+                end
+                line.card = c
+            end
+            if line.card then
+                line.card:SetShown(card)
+                -- (The chosen way in: a gold rim; the others a dim one, on a lighter ground.)
+                if card then
+                    local fill = pickOn and {.10, .08, .04, .6} or pickOff and {.06, .05, .03, .35} or {.16, .11, .06, .85}
+                    local rim = pickOn and {.85, .68, .25, 1} or pickOff and {.35, .30, .22, .8} or {.66, .53, .32, .9}
+                    if line.card.fill.SetColorTexture then line.card.fill:SetColorTexture(fill[1], fill[2], fill[3], fill[4]) end
+                    for _, edge in ipairs(line.card.edges) do
+                        if edge.SetColorTexture then edge:SetColorTexture(rim[1], rim[2], rim[3], rim[4]) end
+                    end
+                end
+            end
             -- As under a quest of the game: a dash, then the line, in light grey, right
             -- under the name.
             if native and not line.dash then
@@ -3731,17 +3923,21 @@ local function newBoard()
                 if native and font then line.dash:SetFontObject(font) end
                 if native and line.dash.SetTextColor then line.dash:SetTextColor(.8, .8, .8) end
             end
-            if native and line.Text.SetTextColor then line.Text:SetTextColor(.8, .8, .8) end
-            local lead = native and (deep and 8 or 0) or 0
+            if native and line.Text.SetTextColor then
+                if card then line.Text:SetTextColor(.93, .86, .66) else line.Text:SetTextColor(.8, .8, .8) end
+            end
+            local lead = card and 6 or native and (deep and 8 or 0) or 0
+            local pad = (pickOn or pickOff) and 3 or card and 4 or 0
             line.Text:ClearAllPoints()
-            line.Text:SetPoint("TOPLEFT", line, "TOPLEFT", lead, 0)
+            line.Text:SetPoint("TOPLEFT", line, "TOPLEFT", lead, -pad)
             local indent = native and ((self.inset or 0) > 0 and (self.inset + 6) or INDENT)
                 or ((self.inset or 0) > 0 and (self.inset + 6) or INDENT)
             local width = blockWidth - indent + (self.rightEdgeOffset or 0)
             local spare = (self.count == 1 and self.reserve and self.reserve.line) or 0
-            line.Text:SetWidth(width - lead - spare)
+            line.Text:SetWidth(width - lead - spare - (card and 6 or 0))
             line.Text:SetText(text)
             local height = line.Text:GetStringHeight() or 13
+            if card then height = height + pad * 2 end
             line:SetSize(width, height)
             line:ClearAllPoints()
             line:SetPoint("TOPLEFT", self, "TOPLEFT", indent, -((self.height or 0) + 3))
@@ -3830,6 +4026,10 @@ local function attach()
                 if P.Mark then P.Mark(spot, L"Распорядитель полётов: " .. point.name, "start") end
                 return
             end
+            if entry.turnPlace then
+                if entry.near then openRoute(entry.near, true) end
+                return
+            end
             if entry.status or entry.plain then return end
             if entry.now then openRoute(entry.row) return end
             if entry.laterToggle then
@@ -3907,10 +4107,9 @@ local function attach()
                     unfolded = nil
                     openRoute(entry, true)
                     local now = P.NowText and P.NowText(entry)
-                    if now then
-                        say(now)
-                        if RaidNotice_AddMessage and RaidWarningFrame then pcall(RaidNotice_AddMessage, RaidWarningFrame, now, {r=1, g=.86, b=.4}) end
-                    end
+                    -- In the chat only: in the middle of the screen it lay over the arrow and
+                    -- its name (the owner's screenshot, 24.11.2026); the click was his own.
+                    if now then say(now) end
                 elseif unfolded == key then
                     unfolded = nil
                     P.Refresh()
@@ -3931,6 +4130,7 @@ local function attach()
             if e.flight then tip(block.HeaderButton, e.status, L"Точка полёта, которой у тебя ещё нет: открой её у распорядителя, потом сюда можно будет прилететь. Щелчок ставит стрелку к нему.") return end
             if e.status then tip(block.HeaderButton, e.status, e.door and (L"Брать больше нечего. Щелчок ставит стрелку ко входу.") or (L"Зелёная строка: брать больше нечего. Золотая: ниже написано, что и где осталось.")) return end
             if e.section then tip(block.HeaderButton, e.section, e.about) return end
+            if e.turnPlace then tip(block.HeaderButton, e.zone, L"Здесь сдаются эти задания. Щелчок ставит стрелку к тому, кому сдавать.") return end
             if e.via then tip(block.HeaderButton, e.title, L"Сначала сюда, затем: " .. (e.onward or (L"цель")) .. L". Щелчок открывает карту.") return end
             if browsing then
                 local c = progress[e.key]
@@ -4045,6 +4245,7 @@ local function attach()
                 local now = {}
                 for _, entry in ipairs(detailRows) do
                     if entry.brief and entry.place then now[#now+1] = P.DistanceText(entry.place) or "-" end
+                    if entry.turnPlace and entry.near and entry.near.place then now[#now+1] = P.DistanceText(entry.near.place) or "-" end
                     if entry.entrance then now[#now+1] = P.DistanceText(entry.option and entry.option.point or P.Door(selected)) or "-" end
                 end
                 for _, option in ipairs(P.Doors and P.Doors(selected) or {}) do now[#now+1] = P.DistanceText(option.point) or "-" end
@@ -4085,7 +4286,7 @@ local function initialize()
     -- What is new, once after an update (the owner, 15.11.2026: "let those who have the
     -- addon know there is an update and what is new"): a few lines in the chat, seconds
     -- after coming in. Not to a character new to the addon: the welcome page is for him.
-    local NEWS = "3.51.0"
+    local NEWS = "3.55.0"
     if not db.welcomed then
         db.newsSeen = NEWS
     elseif db.newsSeen ~= NEWS and C_Timer and C_Timer.After then
@@ -4094,9 +4295,9 @@ local function initialize()
             db.newsSeen = NEWS
             say(L"обновление " .. NEWS .. L", что нового:")
             for _, line in ipairs({
-                L"• внутри подземелья: как дойти до каждого босса",
-                L"• в журнале: награда за каждое задание",
-                L"• в новом заходе убитые боссы сбрасываются сами",
+                L"• окно розыгрыша добычи: кто что выбрал и кто ещё думает (/dq loot)",
+                L"• готовые к сдаче задания — в одном разделе «Сдать», по местам",
+                L"• кнопку у миникарты можно спрятать в настройках игры; SexyMap управляет ею",
             }) do
                 if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffe8dcc0" .. line .. "|r") end
             end
@@ -4795,7 +4996,7 @@ function P.Refresh()
                 local prep = {}
                 for _, list in ipairs({errands, doing, shelves.inside, shelves.taken, shelves.later}) do
                     for _, row in ipairs(list) do
-                        row.prep, row.brief = true, true
+                        row.prep, row.brief, row.waitsInside = true, true, nil
                         prep[#prep+1] = row
                     end
                 end
@@ -4866,8 +5067,13 @@ function P.Refresh()
                         local reach = P.Reach(option.point)
                         -- At the door the order is what to do with it; on the way, to walk to it.
                         local order = (metres and metres < 20 and option.near) or ((option.act or (L"Иди ко входу")) .. (reach and (" • " .. reach) or ""))
+                        -- (Two values: "P.X and P.X()" would keep the first alone.)
+                        local chosenPortal, portals
+                        if P.PortalPick then chosenPortal, portals = P.PortalPick(selected) end
                         table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, door=true, order=order, note=taken, hint=option.point.hint,
-                            lines=(ask and not beenInside) and {order, taken, ask} or nil})
+                            lines=(ask and not beenInside) and {order, taken, ask} or nil,
+                            portals=(not beenInside) and portals or nil, portal=chosenPortal and chosenPortal.id,
+                            goText=(portals and not beenInside) and (L"К выбранному порталу") or nil})
                     else
                         table.insert(detailRows, 1, {status=head, ready=not beenInside or nil, muted=beenInside or nil, good=true, note=taken,
                             lines=(ask and not beenInside) and {taken, ask} or nil})
@@ -4917,12 +5123,33 @@ function P.Refresh()
                         if row.work and type(row.work.cave) == "string" then return true end
                         return row.fromDungeon and row.fromDungeon >= 0 and row.fromDungeon <= 600
                     end
+                    -- The owner, 23.11.2026, back from Maraudon with four to hand in strewn over
+                    -- "before the door" and "at the door": "the quests ready to hand in, all in
+                    -- one part, by distance, and by towns: local is local, Orgrimmar is handed in
+                    -- in Orgrimmar." ChatGPT's layout A: one part "Сдать", a card for each place,
+                    -- the nearest on top, under it who takes what.
+                    local handIns, spotOrder = {}, {}
+                    -- How long the way is, not the straight line: the owner in Orgrimmar, 23.11.2026,
+                    -- was shown Moonglade (6.5 km over the sea of mountains, a flight) above
+                    -- Desolace (8.2 km, a teleport and a flight), while the arrow led to Desolace.
+                    -- The plan of the way weighs teleports and flights; the straight line is
+                    -- the last resort.
+                    local function wayOf(place)
+                        if not place then return math.huge end
+                        local ok, plan = pcall(P.Plan, place)
+                        if ok and type(plan) == "table" and plan.cost then return plan.cost end
+                        return (P.Distance and P.Distance(place)) or math.huge
+                    end
                     for _, row in ipairs(have) do
                         -- (As the card says it: "сдать", "сделать снаружи", "доделать" are out here;
                         -- "в журнале" and "сдать внутри" are inside.)
-                        if row.handin or row.working or (row.stepActive and row.state ~= "active") then
+                        if row.handin then handIns[#handIns+1] = row
+                        elseif row.working or (row.stepActive and row.state ~= "active") then
                             table.insert(byTheDoor(row) and atEntrance or outside, row)
-                        else inside[#inside+1] = row end
+                        else
+                            row.waitsInside = true
+                            inside[#inside+1] = row
+                        end
                     end
                     -- The nearest first (the owner, 15.11.2026: "sort the hand-ins by who is
                     -- nearer, not at the top; the nearest is the goal to take first").
@@ -4937,6 +5164,36 @@ function P.Refresh()
                             if ya ~= yb then return ya < yb end
                             return a.nearOrder < b.nearOrder
                         end)
+                    end
+                    if #handIns > 0 then
+                        local spots = {}
+                        for i, row in ipairs(handIns) do
+                            local place = row.place
+                            local zone = place and place.mapID and atlas.ZoneName(place.mapID) or (L"место неизвестно")
+                            local spot = spots[zone]
+                            if not spot then
+                                spot = {turnPlace=true, zone=zone, rows={}, index=i}
+                                spots[zone] = spot
+                                spotOrder[#spotOrder+1] = spot
+                            end
+                            local y = wayOf(place)
+                            spot.rows[#spot.rows+1] = row
+                            row.nearYards = y
+                            if not spot.yards or y < spot.yards then spot.yards, spot.near = y, row end
+                        end
+                        table.sort(spotOrder, function(a, b)
+                            if a.yards ~= b.yards then return a.yards < b.yards end
+                            return a.index < b.index
+                        end)
+                        for _, spot in ipairs(spotOrder) do
+                            table.sort(spot.rows, function(a, b) return a.nearYards < b.nearYards end)
+                        end
+                        if spotOrder[1] then spotOrder[1].nearest = true end
+                        table.insert(detailRows, {prepSection=true, fold="prep_turnin", section=L"Сдать",
+                            about=L"Задания, готовые к сдаче, по местам сдачи: ближайшее место сверху. Щелчок по месту ставит стрелку к тому, кому сдавать. Щелчок по заголовку сворачивает список."})
+                        if not (db.folds and db.folds.prep_turnin) then
+                            for _, spot in ipairs(spotOrder) do table.insert(detailRows, spot) end
+                        end
                     end
                     part("outside", L"Сделать до входа", L"Взятые задания, которые делаются снаружи: доделать или сдать до входа в подземелье. Щелчок по заданию раскрывает его и ставит стрелку. Щелчок по заголовку сворачивает список.", outside)
                     part("chains", L"Цепочки", L"Задания цепочек: какой шаг взять сейчас, у кого и где. Щелчок ставит стрелку. Щелчок по заголовку сворачивает список.", parts.chains)
@@ -4972,6 +5229,8 @@ function P.Refresh()
                             if row.stage ~= 2 then lead = row break end
                         end
                     end
+                    -- To hand in: the plate, the list and the arrow say the same place, the first.
+                    if lead and lead.handin and spotOrder[1] and spotOrder[1].near then lead = spotOrder[1].near end
                     if lead and (lead.stage ~= 3 or (lead.handin and farLeft)) then
                         local who = lead.place and atlas.PlaceName(lead.place)
                         local zone = lead.place and lead.place.mapID and atlas.ZoneName(lead.place.mapID)
@@ -4984,6 +5243,15 @@ function P.Refresh()
                         if lead.handin then
                             local hands = 0
                             for _, row in ipairs(errands) do if row.handin then hands = hands + 1 end end
+                            -- (Layout A: all who take quests at that place, "Селендра и Варк".)
+                            local whom, seen = {}, {}
+                            -- (In the order of the card of that place below.)
+                            for _, row in ipairs(spotOrder[1] and spotOrder[1].rows or handIns) do
+                                local name = row.place and atlas.PlaceName(row.place)
+                                local there = row.place and row.place.mapID and atlas.ZoneName(row.place.mapID)
+                                if name and there == zone and not seen[name] and #whom < 3 then seen[name] = true; whom[#whom+1] = name end
+                            end
+                            if #whom > 1 then who = table.concat(whom, ", ", 1, #whom - 1) .. L" и " .. whom[#whom] end
                             status = {status=L"Сдай " .. hands .. " " .. plural(hands, L"задание", L"задания", L"заданий"), plate="blue",
                                 lines={who and (L"Кому: " .. who) or nil, (zone or far) and (L"Где: " .. (zone or "") .. (far and ((zone and " • " or "") .. far) or "")) or nil},
                                 goText=L"Путь к сдаче", goNote=L"Стрелка поведёт к тому, кому сдавать, самым быстрым путём."}
@@ -5227,6 +5495,48 @@ local function seenDead(unit)
     return P.Revived ~= nil and P.Revived(d, npc, name)
 end
 
+-- The creatures of a quest's steps (P.QuestSteps) seen dead: by the target, the mouse or
+-- the loot window on a corpse. Kept while the quest is in the log. (Not by the combat log:
+-- this client forbids an addon to listen to it, and asking blocked the whole addon - the
+-- owner, 24.11.2026: "why was our addon blocked at all?")
+if CreateFrame and UIParent then
+    local steps = CreateFrame("Frame", nil, UIParent)
+    if steps and steps.RegisterEvent then
+        local function wanted(npc)
+            for id, list in pairs(P.QuestSteps or {}) do
+                if P.IsActive and P.IsActive(id) then
+                    for _, step in ipairs(list) do if step.npc == npc then return true end end
+                end
+            end
+        end
+        local function dead(npc)
+            if not (npc and wanted(npc) and P.char) then return end
+            P.char.stepKills = type(P.char.stepKills) == "table" and P.char.stepKills or {}
+            if P.char.stepKills[npc] then return end
+            P.char.stepKills[npc] = GetServerTime and GetServerTime() or true
+            if P.Refresh then P.Refresh() end
+        end
+        local function npcOf(guid)
+            if type(guid) ~= "string" or (issecretvalue and issecretvalue(guid)) then return end
+            return atlas.NpcIDFromGUID and atlas.NpcIDFromGUID(guid)
+        end
+        local function look(unit)
+            local ok, gone = pcall(UnitIsDead, unit)
+            if not ok or (issecretvalue and issecretvalue(gone)) or not gone then return end
+            local okGuid, guid = pcall(UnitGUID, unit)
+            if okGuid then dead(npcOf(guid)) end
+        end
+        for _, event in ipairs({"PLAYER_TARGET_CHANGED", "UPDATE_MOUSEOVER_UNIT", "LOOT_OPENED", "UNIT_HEALTH"}) do
+            pcall(steps.RegisterEvent, steps, event)
+        end
+        steps:SetScript("OnEvent", function(_, event, unit)
+            if event == "UNIT_HEALTH" then
+                if unit == "target" then look("target") end
+            elseif event == "UPDATE_MOUSEOVER_UNIT" then look("mouseover")
+            else look("target") end
+        end)
+    end
+end
 -- A boss came into sight, or went out of it: his room is noted and the page says so.
 if CreateFrame and UIParent then
     local resets = CreateFrame("Frame", nil, UIParent)
@@ -5246,6 +5556,7 @@ end
 events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
     -- Whatever happened may have changed what in the quest log is junk.
     if P.JunkChanged then P.JunkChanged() end
+    if event == "PLAYER_DEAD" and P.NoteDeath then pcall(P.NoteDeath) end
     if event == "START_LOOT_ROLL" then
         local ok, link = pcall(GetLootRollItemLink, id)   -- (rollID, rollTime)
         if ok and link then P.LootAlert(link, true) end
@@ -5339,7 +5650,14 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
             -- is asked for already: the next step of the same quest gets the arrow, by the
             -- whole way (a flight, a teleport, a zeppelin), wherever it is.
             local onward
+            -- (A quest to hand in stands on the card of its place: its rows are looked at too.)
+            local seen = {}
             for _, entry in ipairs(detailRows) do
+                if entry.turnPlace then
+                    for _, row in ipairs(entry.rows) do seen[#seen+1] = row end
+                else seen[#seen+1] = entry end
+            end
+            for _, entry in ipairs(seen) do
                 local row = entry.now and entry.row or entry
                 local same = row.id and (row.id == advance.goal or row.id == advance.leads or row.id == advance.took or row.step == advance.took
                     or (row.leads and (row.leads == advance.goal or row.leads == advance.leads)))
@@ -5359,7 +5677,7 @@ events:SetScript("OnEvent", function(_, event, id, name, _, _, success)
                 -- A quest was just taken or handed in: lead on to the nearest errand left,
                 -- and only to one within reach. Nothing across the sea is offered unasked.
                 local nearest, range
-                for _, entry in ipairs(detailRows) do
+                for _, entry in ipairs(seen) do
                     -- The errand said in "Now" counts with the ones in the lists.
                     local row = entry.now and entry.row or entry
                     if row.id and entry.brief and row.place and row.step ~= advance.id and row.id ~= advance.id then
@@ -5397,6 +5715,14 @@ SlashCmdList.FOREVERDUNGEONPREP = function(msg)
     end
     if msg and msg:match("^%s*gear%s*$") then
         if P.ToggleGear then P.ToggleGear() end
+        return
+    end
+    -- /dq loot: the window of the rolls (LootRoll.lua) on or off; off, the game's own frames.
+    if msg and msg:match("^%s*loot%s*$") then
+        if P.ToggleLootWindow then
+            local on = P.ToggleLootWindow()
+            say(on and (L"Окно розыгрыша добычи включено.") or (L"Окно розыгрыша добычи выключено: броски в окнах игры."))
+        end
         return
     end
     local size = msg and msg:match("^%s*size%s*([%d%.,]*)%s*$")

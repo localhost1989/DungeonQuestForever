@@ -58,6 +58,7 @@ local function wears(class, kind, sub)
     end
     return false
 end
+P.Wears = wears
 
 -- What a boss drops: the things of use to this character first.
 local lootCache = {}

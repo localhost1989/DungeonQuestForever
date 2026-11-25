@@ -23,6 +23,9 @@ dungeon right in the quest tracker.
   the group, or yelled when you are alone. Both can be turned off in the settings menu.
 - **Less clicking.** Quests are picked up and turned in automatically (grey and repeatable
   ones are left to you), and junk quests can be cleared from the log with one button.
+- **Loot rolls.** One window in place of the game's roll frames: each item with its time left,
+  whether it is an upgrade for you, Need / Greed / Pass, and the whole group: whether their
+  class wears it, what each chose or that they are still thinking, the numbers and the winner.
 
 All the classic dungeons and the new ones of Forever (Hall of Thanes, Ruins of Lordaeron, Excavation Site, City of Dalaran, The Drowned City, Krol'dok Stronghold, Alcaz Prison, Blackmaw Hold, Shaper's Terrace).
 
@@ -41,9 +44,12 @@ Nothing else is needed. Put the `ForeverDungeonPrep` folder into
 - `Share` shares your quests of the dungeon with the group and asks in the group chat for the ones you lack.
 - Inside, with *Dungeon Quest Atlas* installed, a small floor plan shows the way to the next boss;
   hover a boss on it to see what he is and what he drops.
-- The round button on the minimap opens the settings; right-click opens the journal.
+- The round button on the minimap opens the settings; right-click opens the journal. It can be
+  hidden in Options → AddOns → Dungeon Quest Forever. With SexyMap or a minimap button bag
+  loaded, it is a LibDBIcon button they manage; the addon is also a LibDataBroker launcher.
 - `/dq` opens the list of dungeons. Other commands: `/dq welcome`, `/dq auto`, `/dq junk`,
-  `/dq dock`, `/dq cards`, `/dq bug`, `/dq bis`, `/dq done`, `/dq run` (a new run).
+  `/dq dock`, `/dq cards`, `/dq bug`, `/dq bis`, `/dq done`, `/dq run` (a new run),
+  `/dq loot` (the loot roll window on or off), `/dq minimap`.
 
 ## Bugs and ideas
 
@@ -83,6 +89,8 @@ GPL-3.0-or-later, see `LICENSE`.
   database and the Krol'dok guide of [Conquest Capped](https://conquestcapped.com/) (checked
   21 November 2026).
 - The walking directions to the bosses were written for this addon from public dungeon guides.
+- `Libs/` holds LibStub, CallbackHandler-1.0, LibDataBroker-1.1 and LibDBIcon-1.0, embedded
+  unchanged under their own licences.
 - The pointer hand artwork was generated for this addon.
 - If *Dungeon Quest Atlas* is installed, its dungeon maps are used for the small floor
   plan; nothing of that addon is included here.
@@ -115,6 +123,9 @@ GPL-3.0-or-later, see `LICENSE`.
   подземелья падает или за какое задание даётся, и насколько она лучше надетой.
 - **Меньше кликов.** Задания берутся и сдаются сами (серые и повторяемые — на твоё усмотрение),
   мусорные задания убираются из журнала одной кнопкой.
+- **Розыгрыш добычи.** Одно окно вместо рамок игры: у каждой вещи — сколько осталось, нужна ли
+  она тебе, кнопки «Нужно / Не откажусь / Отказаться» и вся группа: носит ли класс такую вещь,
+  кто что выбрал или ещё думает, выпавшие числа и победитель.
 
 Аддон говорит по-русски в русском клиенте, в любом другом — по-английски.
 
@@ -128,8 +139,10 @@ GPL-3.0-or-later, see `LICENSE`.
 - Панель стоит в колонке заданий. `•••` в её заголовке — выбор подземелья.
 - Щелчок по заданию раскрывает его и ставит стрелку. Правая кнопка — это задание в журнале.
 - `Журнал` открывает книгу: все задания, боссы и добыча подземелья.
-- Круглая кнопка у миникарты — настройки; правая кнопка по ней — журнал.
-- `/dq` — список подземелий. Ещё: `/dq welcome`, `/dq auto`, `/dq junk`, `/dq bug`.
+- Круглая кнопка у миникарты — настройки; правая кнопка по ней — журнал. Спрятать её можно в
+  «Настройки → Модификации → Dungeon Quest Forever»; с SexyMap ею управляет он.
+- `/dq` — список подземелий. Ещё: `/dq welcome`, `/dq auto`, `/dq junk`, `/dq bug`,
+  `/dq loot` (окно розыгрыша), `/dq minimap`.
 
 ## Ошибки и идеи
 

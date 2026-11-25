@@ -45,10 +45,17 @@ local function talkOnly(id)
             end
         end
     end
-    -- (And the game's own word: a quest with a goal in the log is no mere word.)
+    -- (And the game's own word: a quest with a goal in the log is no mere word - unless the
+    -- goal is the talk itself, "Speak with Sergeant Ulka": the owner, 24.11.2026, stood by
+    -- him at Alcaz with the panel saying "in the log, done inside", and found by himself
+    -- that one has to talk to him and pick a line.)
     if C_QuestLog and C_QuestLog.GetQuestObjectives then
         local okG, list = pcall(C_QuestLog.GetQuestObjectives, id)
-        if okG and type(list) == "table" and #list > 0 then return false end
+        if okG and type(list) == "table" then
+            for _, goal in ipairs(list) do
+                if type(goal) ~= "table" or goal.type ~= "event" then return false end
+            end
+        end
     end
     return ender ~= nil and ender == starter
 end

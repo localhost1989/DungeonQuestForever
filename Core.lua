@@ -1573,6 +1573,50 @@ local EN = {
     ["Секреты, ключи и редкие боссы этого подземелья. Нажми, чтобы раскрыть или свернуть."] = "Secrets, keys and rare bosses of this dungeon. Click to expand or collapse.",
     ["Нажми на строку, чтобы увидеть следующий шаг."] = "Click the line to see the next step.",
     ["Как найти:"] = "How to find:",
+    ["Цели:"] = "Goals:",
+    ["Оскверненный грот"] = "The Wicked Grotto",
+    ["Зловонная пещера"] = "Foulspore Cavern",
+    ["Портал: "] = "Portal: ",
+    ["К выбранному порталу"] = "To the chosen portal",
+    [" и "] = " and ",
+    ["• окно розыгрыша добычи: кто что выбрал и кто ещё думает (/dq loot)"] = "• a loot roll window: who chose what and who is still thinking (/dq loot)",
+    ["• готовые к сдаче задания — в одном разделе «Сдать», по местам"] = "• quests ready to turn in: one \"Turn in\" part, by place",
+    ["• кнопку у миникарты можно спрятать в настройках игры; SexyMap управляет ею"] = "• the minimap button can be hidden in the game's settings; SexyMap manages it",
+    ["Показывать круглую кнопку аддона у миникарты. Спрятанная, она возвращается здесь, в меню панели или командой /dq minimap."] = "Show the addon's round button by the minimap. When hidden, bring it back here, in the panel menu or with /dq minimap.",
+    ["Щелчок — настройки.\nПравая кнопка — журнал."] = "Click: settings.\nRight-click: journal.",
+    ["на верхнем этаже, в боковой караульной; с него падает связка ключей: открывает правое крыло"] = "on the upper floor, in the side guard room; drops the keyring that opens the right wing",
+    ["маг"] = "mage",
+    ["воин"] = "warrior",
+    ["жрец"] = "priest",
+    ["разбойник"] = "rogue",
+    ["друид"] = "druid",
+    ["охотник"] = "hunter",
+    ["шаман"] = "shaman",
+    ["чернокнижник"] = "warlock",
+    ["паладин"] = "paladin",
+    ["Не для тебя"] = "Not for you",
+    ["Уже надето"] = "Already worn",
+    ["Лучшее в слот"] = "Best for the slot",
+    ["Лучше надетого"] = "Better than worn",
+    [", но позже по уровню"] = ", but at a later level",
+    ["Не лучше надетого"] = "Not better than worn",
+    ["Нужно"] = "Need",
+    ["Не откажусь"] = "Greed",
+    ["Отказался"] = "Passed",
+    ["не выбрал"] = "did not choose",
+    ["ещё думает…"] = "still thinking…",
+    ["Отказаться"] = "Pass",
+    ["Завершено"] = "Finished",
+    ["Все отказались"] = "Everyone passed",
+    ["Победитель: "] = "Winner: ",
+    [" с"] = " s",
+    ["Розыгрыш добычи"] = "Loot roll",
+    ["Окно розыгрыша добычи включено."] = "The loot roll window is on.",
+    ["Окно розыгрыша добычи выключено: броски в окнах игры."] = "The loot roll window is off: rolls are in the game's own frames.",
+    [" — поговори, выбери строку в разговоре"] = " — talk to them, pick the line in the dialogue",
+    ["цель: "] = "goal: ",
+    ["Здесь сдаются эти задания. Щелчок ставит стрелку к тому, кому сдавать."] = "These quests are turned in here. Click to set the arrow to whoever takes them.",
+    ["Задания, готовые к сдаче, по местам сдачи: ближайшее место сверху. Щелчок по месту ставит стрелку к тому, кому сдавать. Щелчок по заголовку сворачивает список."] = "Quests ready to turn in, by the place they are turned in: the nearest place on top. Click a place to set the arrow to whoever takes them. Click the heading to collapse the list.",
     ["\nЗаданием может поделиться участник группы."] = "\nA party member can share this quest.",
     ["\n\nЦепочка заданий (шаг "] = "\n\nQuest chain (step ",
     ["\nЩелчок — раскрыть или свернуть. Правая кнопка — журнал этого задания."] = "\nClick — expand or collapse. Right-click — this quest in the journal.",
@@ -2425,11 +2469,47 @@ end
 
 function C.StartsInside(id)
     local list = C.QuestPlaces(id, "starts")
-    if #list == 0 then return false end
+    -- No giver known, and the quest written down under a dungeon's own ground: it is given
+    -- in there (the owner, 24.11.2026, at Alcaz: "Начни с: The Man in the Iron Chains" sent
+    -- him to take outside a quest the prisoner gives at the end of the prison).
+    if #list == 0 then
+        local okZone, zone = pcall(QuestDB.Get, id, "zoneOrSort")
+        return (okZone and zone and areaOwner[zone]) and true or false
+    end
     for _, place in ipairs(list) do
         if not place.inside then return false end
     end
     return true
+end
+
+-- A quest with steps of its own (P.QuestSteps, BossRoute.lua): each step, done or not. A
+-- step is done when its thing is in the bags, or its creature was seen dead while the quest
+-- was in the log; all of them when the thing they make is there, or the quest is complete.
+function P.QuestStepState(id)
+    local steps = P.QuestSteps and P.QuestSteps[id]
+    if not steps then return end
+    local char = P.char
+    local kills = char and type(char.stepKills) == "table" and char.stepKills or {}
+    -- Out of the log: what was seen dead for it is forgotten.
+    if P.IsActive and not P.IsActive(id) then
+        for _, step in ipairs(steps) do if step.npc then kills[step.npc] = nil end end
+    end
+    local count = (C_Item and C_Item.GetItemCount) or GetItemCount
+    local function has(item)
+        if not (item and count) then return false end
+        local ok, n = pcall(count, item)
+        return ok and type(n) == "number" and n > 0
+    end
+    local made = has(steps.made) or (C_QuestLog and C_QuestLog.IsComplete and C_QuestLog.IsComplete(id)) or false
+    local list, later = {}, false
+    for i = #steps, 1, -1 do
+        local step = steps[i]
+        local done = made or (not step.join and (has(step.item) or (step.npc and kills[step.npc]) or (steps.first and i == 1 and later))) or false
+        list[i] = {step=step, done=done and true or false}
+        -- (A Khan beaten means the amulet was had: the first step is done too.)
+        if done and i > 1 then later = true end
+    end
+    return list
 end
 
 -- What a quest in the log still asks for outside this dungeon: each goal not yet met
@@ -2438,6 +2518,28 @@ end
 -- means the quest is done inside, or the database cannot tell otherwise.
 function C.QuestWork(id, d)
     local spots = {}
+    local state = P.QuestStepState and P.QuestStepState(id)
+    if state then
+        -- The steps left out here, the arrow to the nearest; while the first is not done
+        -- (the amulet that makes the Khans fight), to it alone.
+        local firstLeft = P.QuestSteps[id].first and not state[1].done
+        for i, item in ipairs(state) do
+            local step = item.step
+            if not item.done and step.npc and not step.inside and (not firstLeft or i == 1) and NpcDB then
+                local spawns = NpcDB.Get(step.npc, "spawns") or {}
+                local who = NpcDB.Get(step.npc, "name")
+                for area, list in pairs(spawns) do
+                    local map = areaToMap[area]
+                    local spot = type(list) == "table" and list[1]
+                    if map and map > 0 and spot and type(spot[1]) == "number" and spot[1] >= 0 then
+                        spots[#spots+1] = {mapID=map, x=spot[1], y=spot[2], name=who, text=step.text, target=who}
+                        break
+                    end
+                end
+            end
+        end
+        return C.FinishWork(id, spots)
+    end
     local objectives = QuestDB and QuestDB.Get(id, "objectives")
     if type(objectives) ~= "table" then return spots end
     local live = C_QuestLog and C_QuestLog.GetQuestObjectives and C_QuestLog.GetQuestObjectives(id) or {}
@@ -2529,6 +2631,12 @@ function C.QuestWork(id, d)
         for _, object in ipairs(ItemDB and ItemDB.Get(item[1], "objectDrops") or {}) do sources[#sources+1] = {db=ObjectDB, id=object} end
         weigh(ItemDB and ItemDB.Get(item[1], "name"), sources)
     end
+    return C.FinishWork(id, spots)
+end
+
+function C.FinishWork(id, spots)
+    local okMe, myC, myX, myY = pcall(C.PlayerYards)
+    if not okMe then myC = nil end
     -- Goals in a cave (P.QuestCave, BossRoute.lua): the way leads to its mouth first, and
     -- inside the arrow points straight: the walkable paths lie over the mountain above.
     local cave = P.QuestCave and P.QuestCave[id]

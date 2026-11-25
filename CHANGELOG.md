@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.55.0
+- A loot roll window in place of the game's roll frames: every item rolled for, the seconds left, whether it is better than what you wear (or not for you), Need / Greed / Pass, and the five of the group: whether their class wears it, what each chose or that they are still thinking, the numbers and a crown for the winner. Drag it where you like; /dq loot turns it off and brings the game's frames back.
+- Quests ready to turn in are in one part, "Turn in", one line per place (a town or a zone) with who takes what; the nearest by the real way (teleports and flights counted) comes first, and the blue card on top leads there. A quest done by talking to someone says so: pick the line in the dialogue.
+- Dungeons with several ways in (Maraudon, Scarlet Monastery, Dire Maul, Stratholme): the ready card lists them with how far each is, and a click chooses the one the arrow leads to.
+- Dead before a dungeon, in the caves in front of its portal: the ghost is led to the cave mouth first, then to the body. Checked for every dungeon.
+- The Pariah's Instructions (Maraudon): its steps are goals under the quest: the Nameless Prophet and his amulet, then the five Khans, the ones done struck out and the arrow on to the next by itself.
+- How to find a quest's goal stands right under the quest taken, as a plain line; not for quests done inside while you are outside.
+- Alcaz Prison: the talk with Sergeant Ulka is a talk; The Man in the Iron Chains is taken inside, from the prisoner; More Valuable Than Gold leads to the loose floorboard in Moonbrook, Westfall; Overseer Wrex is counted killed once a boss behind his keys is, and says where he stands.
+- The way to the goal is two lines instead of six; a click on a chain no longer puts a line in the middle of the screen over the arrow.
+- The minimap button can be hidden in Options → AddOns → Dungeon Quest Forever. The addon is a LibDataBroker launcher, and with SexyMap or a minimap button bag loaded the button is LibDBIcon's, managed by them (thanks to rav-yoli for the idea).
+
 ## 3.54.0
 - After a boss the group is told who is next: his name, then an item a line as a real link, with its drop chance where one is known and the classes in the group it is best in slot for. A switch in the settings menu, or /dq bis, turns it off. /dq test shows the lines to you alone.
 - A quest done is told to the group, or yelled when you are alone (outside a dungeon the yell waits for your next key press or click). A switch in the settings menu, or /dq done, turns it off.
